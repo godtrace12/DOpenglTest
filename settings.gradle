@@ -1,0 +1,2 @@
+include ':app', ':appgl'
+rootProject.name='DOpenGL'
