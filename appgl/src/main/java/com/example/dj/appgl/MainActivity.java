@@ -10,12 +10,14 @@ import android.widget.Button;
 import com.example.dj.appgl.basicdraw.CubicSampleActivity;
 import com.example.dj.appgl.basicdraw.TriangleSampleActivity;
 import com.example.dj.appgl.camera.CameraActivity;
+import com.example.dj.appgl.camera.CameraRecordActivity;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button btnBall;
     private Button btnBasic;
     private Button btnCamera;
+    private Button btnRecordCamera;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +33,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnBasic.setOnClickListener(this);
         btnCamera = findViewById(R.id.btnCamera);
         btnCamera.setOnClickListener(this);
+        btnRecordCamera = findViewById(R.id.btnRecordCamera);
+        btnRecordCamera.setOnClickListener(this);
     }
 
     @Override
@@ -44,6 +48,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivity(intent);
         }else if (viewId == R.id.btnCamera){
             Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+            startActivity(intent);
+        }else if(viewId == R.id.btnRecordCamera){
+            Intent intent = new Intent(MainActivity.this, CameraRecordActivity.class);
             startActivity(intent);
         }
     }

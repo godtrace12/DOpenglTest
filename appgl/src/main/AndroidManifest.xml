@@ -17,6 +17,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".camera.CameraActivity"></activity>
+        <activity android:name=".camera.CameraRecordActivity"></activity>
         <activity android:name=".basicdraw.TriangleSampleActivity" />
         <activity android:name=".basicdraw.CubicSampleActivity" />
         <activity android:name=".MainActivity">
