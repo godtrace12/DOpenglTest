@@ -11,6 +11,7 @@ import com.example.dj.appgl.basicdraw.CubicSampleActivity;
 import com.example.dj.appgl.basicdraw.TriangleSampleActivity;
 import com.example.dj.appgl.camera.CameraActivity;
 import com.example.dj.appgl.camera.CameraRecordActivity;
+import com.example.dj.appgl.fbo.TriangleFboActivity;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -18,6 +19,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnBasic;
     private Button btnCamera;
     private Button btnRecordCamera;
+    private Button btnFBO;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +37,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnCamera.setOnClickListener(this);
         btnRecordCamera = findViewById(R.id.btnRecordCamera);
         btnRecordCamera.setOnClickListener(this);
+        btnFBO = findViewById(R.id.btnFBO);
+        btnFBO.setOnClickListener(this);
     }
 
     @Override
@@ -51,6 +55,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivity(intent);
         }else if(viewId == R.id.btnRecordCamera){
             Intent intent = new Intent(MainActivity.this, CameraRecordActivity.class);
+            startActivity(intent);
+        }else if(viewId == R.id.btnFBO){
+            Intent intent = new Intent(MainActivity.this, TriangleFboActivity.class);
             startActivity(intent);
         }
     }
