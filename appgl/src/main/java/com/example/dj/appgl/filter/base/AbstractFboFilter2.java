@@ -49,6 +49,7 @@ public class AbstractFboFilter2 extends AbstractRect2DFilter {
 
     @Override
     public int onDraw(int textureId,FilterChain filterChain) {
+        createFrame(mWidth,mHeight);
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBuffer[0]);
         super.onDraw(textureId,filterChain);
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
