@@ -114,4 +114,44 @@ public class TextureUtils {
 
     }
 
+
+
+    public static void glGenTextures(int[] textures) {
+        GLES30.glGenTextures(textures.length, textures, 0);
+        for (int i = 0; i < textures.length; i++) {
+            //绑定纹理，后续配置纹理
+            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textures[i]);
+
+
+            /**
+             *  必须：设置纹理过滤参数设置
+             */
+            /*设置纹理缩放过滤*/
+            // GL_NEAREST: 使用纹理中坐标最接近的一个像素的颜色作为需要绘制的像素颜色
+            // GL_LINEAR:  使用纹理中坐标最接近的若干个颜色，通过加权平均算法得到需要绘制的像素颜色
+            // 后者速度较慢，但视觉效果好
+            GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER,
+                    GLES30.GL_LINEAR);//放大过滤
+            GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER,
+                    GLES30.GL_LINEAR);//缩小过滤
+
+            /**
+             * 可选：设置纹理环绕方向
+             */
+            //纹理坐标的范围是0-1。超出这一范围的坐标将被OpenGL根据GL_TEXTURE_WRAP参数的值进行处理
+            //GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T 分别为x，y方向。
+            //GL_REPEAT:平铺
+            //GL_MIRRORED_REPEAT: 纹理坐标是奇数时使用镜像平铺
+            //GL_CLAMP_TO_EDGE: 坐标超出部分被截取成0、1，边缘拉伸
+//            GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S,
+//                    GLES30.GL_CLAMP_TO_EDGE);
+//            GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_T,
+//                    GLES30.GL_CLAMP_TO_EDGE);
+            GLES30.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GL10.GL_TEXTURE_WRAP_S, GL10.GL_CLAMP_TO_EDGE);
+            GLES30.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GL10.GL_TEXTURE_WRAP_T, GL10.GL_CLAMP_TO_EDGE);
+            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,0);
+        }
+    }
+
+
 }
