@@ -9,6 +9,7 @@ import com.example.dj.appgl.filter.TriangleEdgeFilter;
 import com.example.dj.appgl.filter.TriangleFilter;
 import com.example.dj.appgl.filter.base.AbstractRect2DFilter;
 import com.example.dj.appgl.filter.base.FilterChain;
+import com.example.dj.appgl.filter.base.FilterContext;
 import com.example.dj.appgl.util.TextureUtils;
 
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class BaseRectTextureRender implements GLSurfaceView.Renderer{
         filters.add(triangleFilter);
         filters.add(triangleEdgeFilter);
         filters.add(screenFilter2);
-        filterChain = new FilterChain(filters,0);
+        filterChain = new FilterChain(filters,0,new FilterContext());
     }
 
     @Override

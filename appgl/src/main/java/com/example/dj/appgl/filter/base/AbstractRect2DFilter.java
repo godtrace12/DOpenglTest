@@ -20,7 +20,7 @@ public class AbstractRect2DFilter {
     //纹理索引
     protected int vTextureLoc;
     //渲染程序
-    private int mProgram;
+    protected int mProgram;
 
     public final float[] vertexCoords = {
             -1.0f, -1.0f,
@@ -36,8 +36,8 @@ public class AbstractRect2DFilter {
             1.0f, 1.0f,
     };
 
-    int mWidth;
-    int mHeight;
+    protected int mWidth;
+    protected int mHeight;
 
     public AbstractRect2DFilter(int vertexResId, int fragmentResId) {
         initCoords();
@@ -72,7 +72,7 @@ public class AbstractRect2DFilter {
         mHeight = height;
     }
 
-    public int onDraw(int textureId) {
+    public int onDraw(int textureId,FilterChain filterChain) {
         GLES30.glUseProgram(mProgram);
         // 1- 设置MVP矩阵
         GLES30.glViewport(0, 0, mWidth, mHeight);
@@ -95,7 +95,7 @@ public class AbstractRect2DFilter {
         // GL_TEXTURE1 ， 1
         GLES30.glUniform1i(vTextureLoc,0);
 
-        beforeDraw();
+        beforeDraw(filterChain.filterContext);
 
         // 进行绘图
         GLES30.glDrawArrays(GLES30.GL_TRIANGLE_STRIP,0,vertexCoords.length/2);
@@ -114,7 +114,7 @@ public class AbstractRect2DFilter {
         }
     }
 
-    public void beforeDraw(){
+    public void beforeDraw(FilterContext filterContext){
 
     }
 

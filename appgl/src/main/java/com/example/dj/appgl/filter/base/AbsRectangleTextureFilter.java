@@ -103,7 +103,7 @@ public class AbsRectangleTextureFilter {
         //设置相机位置
         Matrix.setLookAtM(mViewMatrix,0,0,0,3.0f,//摄像机坐标
                 0f,0f,0f,//目标物的中心坐标
-                0f,1.0f,0.0f);//相机方向
+                1f,0.0f,0.0f);//相机方向
         //接着是摄像机顶部的方向了，如下图，很显然相机旋转，up的方向就会改变，这样就会会影响到绘制图像的角度。
         //例如设置up方向为y轴正方向，upx = 0,upy = 1,upz = 0。这是相机正对着目标图像
         //计算变换矩阵

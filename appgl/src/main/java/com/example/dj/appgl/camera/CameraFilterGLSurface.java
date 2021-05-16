@@ -15,7 +15,7 @@ import com.example.dj.appgl.camera.object.TrianCamColorRender;
 
 public class CameraFilterGLSurface extends GLSurfaceView implements SurfaceTexture.OnFrameAvailableListener {
 
-    private BaseCameraRenderer render;
+    private CameraRender render;
 
     public CameraFilterGLSurface(Context context) {
         super(context);
@@ -27,14 +27,8 @@ public class CameraFilterGLSurface extends GLSurfaceView implements SurfaceTextu
         render = new CameraRender(context,this);
         setRenderer(render);
         setRenderMode(RENDERMODE_WHEN_DIRTY);
-        render.setObjectRender(new TrianCamColorRender());
     }
 
-    public void setObjectRender(AbsObjectRender absObjectRender){
-        if (render != null){
-            render.setObjectRender(absObjectRender);
-        }
-    }
 
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {

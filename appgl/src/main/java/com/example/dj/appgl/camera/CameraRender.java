@@ -4,22 +4,36 @@ import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES30;
+import android.opengl.GLSurfaceView;
+import android.util.Log;
 
 import com.example.dj.appgl.camera.base.BaseCameraRenderer;
 import com.example.dj.appgl.camera.base.CameraManeger;
 import com.example.dj.appgl.filter.CameraFilter;
+import com.example.dj.appgl.filter.ScreenFilter;
+import com.example.dj.appgl.filter.ScreenFilter2;
+import com.example.dj.appgl.filter.base.AbstractRect2DFilter;
+import com.example.dj.appgl.filter.base.FilterChain;
+import com.example.dj.appgl.filter.base.FilterContext;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class CameraRender extends BaseCameraRenderer {
+public class CameraRender implements GLSurfaceView.Renderer {
     private static final String TAG = "CameraRender";
     private CameraManeger mCameraManeger;
     private SurfaceTexture mCameraTexture;
     private SurfaceTexture.OnFrameAvailableListener listener;
 
     private CameraFilter cameraFilter;
+    private ScreenFilter2 screenFilter;
     int[] texture;
+    List<AbstractRect2DFilter> filters = new ArrayList<>();
+    FilterChain filterChain;
+    float[] mtx = new float[16];
 
     public CameraRender(Context mContext, SurfaceTexture.OnFrameAvailableListener listener) {
         this.listener = listener;
@@ -29,25 +43,28 @@ public class CameraRender extends BaseCameraRenderer {
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         cameraFilter = new CameraFilter();
+        screenFilter = new ScreenFilter2();
         createAndBindVideoTexture();
         mCameraManeger.OpenCamera(mCameraTexture);
-        // 调用父类，完成另外添加进来的图形的初始化
-        super.onSurfaceCreated(gl,config);
+        filters.add(cameraFilter);
+        filters.add(screenFilter);
+        filterChain = new FilterChain(filters,0,new FilterContext());
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
+        Log.e(TAG, "onSurfaceChanged: dj------ width="+width+"  ----height="+height);
         cameraFilter.setSize(width,height);
-        // 调用父类，完成另外添加进来的图形的透视、相机矩阵初始化
-        super.onSurfaceChanged(gl,width,height);
+        screenFilter.setSize(width,height);
+
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
         mCameraTexture.updateTexImage();//通过此方法更新接收到的预览数据
-        cameraFilter.onDraw(texture[0]);
-        // 调用父类，完成另外添加进来的图形的绘制
-        super.onDrawFrame(gl);
+        mCameraTexture.getTransformMatrix(mtx);
+        filterChain.setTransformMatrix(mtx);
+        filterChain.proceed(texture[0]);
     }
 
 

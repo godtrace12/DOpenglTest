@@ -40,14 +40,6 @@ public class CameraRecordActivity extends AppCompatActivity implements View.OnCl
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         Log.e(TAG, "onOptionsItemSelected: itemId="+item.getItemId());
-        switch (item.getItemId()){
-            case 1:
-                glSurface.setObjectRender(new TrianCamColorRender());
-                break;
-            case 2:
-                glSurface.setObjectRender(new TrianCamTextureRender());
-                break;
-        }
         return super.onOptionsItemSelected(item);
     }
 
