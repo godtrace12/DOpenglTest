@@ -19,7 +19,9 @@
         <activity android:name=".camera.CameraActivity"></activity>
         <activity android:name=".camera.CameraRecordActivity"></activity>
         <activity android:name=".basicdraw.TriangleSampleActivity" />
+        <activity android:name=".fbo.TriangleFboActivity" />
         <activity android:name=".basicdraw.CubicSampleActivity" />
+        <activity android:name=".fbo.RectFboTestActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

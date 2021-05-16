@@ -1,5 +1,6 @@
 package com.example.dj.appgl.basicdraw;
 
+import android.opengl.GLES10Ext;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
@@ -60,7 +61,11 @@ public class RectTextureFboRenderer implements GLSurfaceView.Renderer{
     protected int[] frameBuffer;
     protected int[] frameTextures;
     // 控制是否使用fbo
-    boolean isUseFbo = true;
+    boolean isUseFbo = false;
+    // 使用fbo的前提下，是否绘制到屏幕上
+    boolean isDrawToScreen = true;
+    //fbo是否已创建
+    boolean isFboCreated = false;
 
 
     // ---------------------- filter -------------------
@@ -131,14 +136,18 @@ public class RectTextureFboRenderer implements GLSurfaceView.Renderer{
         mWidth = width;
         mHeight = height;
         float ratio = (float) width/height;
-
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
         if(isUseFbo){
             //创建FBO
-            createFBO(mWidth,mHeight);
+            if(!isFboCreated){
+                isFboCreated = true;
+                createFBO(mWidth,mHeight);
+            }
+            GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER,frameBuffer[0]);
+            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, frameTextures[0]);
         }
         // 1----------------------- 绘制原始纹理
         GLES30.glUseProgram(mProgram);
@@ -174,7 +183,7 @@ public class RectTextureFboRenderer implements GLSurfaceView.Renderer{
 
         //
         // 2------------------------ 绘制filter滤镜
-        if(isUseFbo){
+        if(isUseFbo && isDrawToScreen){
             GLES30.glUseProgram(mProgramFilter);
             int vPositionCoordLoc = GLES30.glGetAttribLocation(mProgramFilter,"vPosition");
             int vTextureCoordLoc = GLES20.glGetAttribLocation(mProgramFilter,"vTextureCoord");
@@ -235,6 +244,10 @@ public class RectTextureFboRenderer implements GLSurfaceView.Renderer{
         if(GLES30.glCheckFramebufferStatus(GLES30.GL_FRAMEBUFFER) != GLES30.GL_FRAMEBUFFER_COMPLETE){
             throw new RuntimeException("FBO附着异常");
         }
+
+        //7. 解绑纹理和FBO
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0);
+        GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, 0);
 
     }
 
