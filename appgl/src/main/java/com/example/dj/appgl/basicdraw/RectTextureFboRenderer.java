@@ -59,6 +59,7 @@ public class RectTextureFboRenderer implements GLSurfaceView.Renderer{
     // ------------------------ FBO --------------------
     protected int[] frameBuffer;
     protected int[] frameTextures;
+    // 控制是否使用fbo
     boolean isUseFbo = true;
 
 
@@ -137,9 +138,7 @@ public class RectTextureFboRenderer implements GLSurfaceView.Renderer{
     public void onDrawFrame(GL10 gl) {
         if(isUseFbo){
             //创建FBO
-        createFrame(mWidth,mHeight);
-//        // 启用FBO
-        GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, frameBuffer[0]);
+            createFBO(mWidth,mHeight);
         }
         // 1----------------------- 绘制原始纹理
         GLES30.glUseProgram(mProgram);
@@ -164,9 +163,13 @@ public class RectTextureFboRenderer implements GLSurfaceView.Renderer{
         //禁止顶点数组的句柄
         GLES30.glDisableVertexAttribArray(aPositionLocation);
         GLES30.glDisableVertexAttribArray(aTextureLocation);
+        //解绑纹理
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
         // 关闭FBO
         if(isUseFbo){
+            //解绑FBO
             GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, 0);
+            GLES30.glDeleteFramebuffers(1,frameBuffer,0);
         }
 
         //
@@ -192,6 +195,8 @@ public class RectTextureFboRenderer implements GLSurfaceView.Renderer{
 
             GLES30.glDrawArrays(GLES30.GL_TRIANGLE_STRIP,0, rectCoords.length/2);
 
+            //解绑纹理
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
             //禁止顶点数组的句柄
             GLES30.glDisableVertexAttribArray(vPositionCoordLoc);
             GLES30.glDisableVertexAttribArray(vTextureFilterLoc);
@@ -201,34 +206,39 @@ public class RectTextureFboRenderer implements GLSurfaceView.Renderer{
 
 
 
-    public void createFrame(int width, int height) {
+    public void createFBO(int width, int height) {
         if (frameTextures != null) {
             return;
         }
-        //創建FBO
-        /**
-         * 1、创建FBO + FBO中的纹理
-         */
+        // 創建FBO
         frameBuffer = new int[1];
         frameTextures = new int[1];
         GLES30.glGenFramebuffers(1, frameBuffer, 0);
+        // 创建FBO纹理
         TextureUtils.glGenTextures(frameTextures);
 
         /**
          * 2、fbo与纹理关联
          */
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, frameTextures[0]);
+        // 设置FBO分配内存大小
         GLES30.glTexImage2D(GLES30.GL_TEXTURE_2D, 0, GLES30.GL_RGBA, width, height, 0, GLES30.GL_RGBA, GLES30.GL_UNSIGNED_BYTE,
                 null);
         //纹理关联 fbo
         GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, frameBuffer[0]);  //綁定FBO
+        //将纹理附着到帧缓冲中
+        // GL_COLOR_ATTACHMENT0、GL_DEPTH_ATTACHMENT、GL_STENCIL_ATTACHMENT分别对应颜色缓冲、深度缓冲和模板缓冲。
         GLES30.glFramebufferTexture2D(GLES30.GL_FRAMEBUFFER, GLES30.GL_COLOR_ATTACHMENT0, GLES30.GL_TEXTURE_2D,
                 frameTextures[0],
                 0);
+        // 检测fbo绑定是否成功
+        if(GLES30.glCheckFramebufferStatus(GLES30.GL_FRAMEBUFFER) != GLES30.GL_FRAMEBUFFER_COMPLETE){
+            throw new RuntimeException("FBO附着异常");
+        }
 
     }
 
-    private void releaseFrame() {
+    private void releaseFbo() {
         if (frameTextures != null) {
             GLES30.glDeleteTextures(1, frameTextures, 0);
             frameTextures = null;
