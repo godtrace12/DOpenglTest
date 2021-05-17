@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
+import android.view.SurfaceHolder;
 
 import com.example.dj.appgl.camera.base.AbsObjectRender;
 import com.example.dj.appgl.camera.base.BaseCameraRenderer;
@@ -29,8 +30,21 @@ public class CameraFilterGLSurface extends GLSurfaceView implements SurfaceTextu
         setRenderMode(RENDERMODE_WHEN_DIRTY);
     }
 
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        super.surfaceDestroyed(holder);
+        render.onSurfaceDestroyed();
+    }
 
-    @Override
+    public void startRecord(){
+        render.startRecord();
+    }
+
+    public void stopRecord(){
+        render.stopRecord();
+    }
+
+
+        @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
         requestRender();
     }

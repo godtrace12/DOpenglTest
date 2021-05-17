@@ -5,15 +5,24 @@ import android.opengl.EGL14;
 import android.opengl.EGLConfig;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
+import android.opengl.EGLExt;
 import android.opengl.EGLSurface;
 import android.view.Surface;
+
+import com.example.dj.appgl.filter.RecordFilter;
+import com.example.dj.appgl.filter.base.AbstractRect2DFilter;
+import com.example.dj.appgl.filter.base.FilterChain;
+import com.example.dj.appgl.filter.base.FilterContext;
+
+import java.util.ArrayList;
 
 public class EGLEnv {
     private final EGLConfig mEglConfig;
     private final EGLContext mEglContext;
     private final EGLSurface mEglSurface;
-//    private final RecordFilter recordFilter;
+    private final RecordFilter recordFilter;
     private EGLDisplay mEglDisplay;
+    private final FilterChain filterChain;
 
 
     public EGLEnv(Context context, EGLContext eglContext, Surface surface,int width,int height){
@@ -78,6 +87,20 @@ public class EGLEnv {
         if(!curResult){
             throw new RuntimeException("eglMakeCurrent error: " + EGL14.eglGetError());
         }
+
+        // ？？？ 为何此处又是一个责任链？？？
+        recordFilter = new RecordFilter();
+        FilterContext filterContext = new FilterContext();
+        filterContext.setSize(width, height);
+        filterChain = new FilterChain(new ArrayList<AbstractRect2DFilter>(), 0, filterContext);
+    }
+
+    public void draw(int textureId, long timestamp) {
+        recordFilter.onDraw(textureId, filterChain);
+        EGLExt.eglPresentationTimeANDROID(mEglDisplay, mEglSurface, timestamp);
+        //EGLSurface是双缓冲模式
+        EGL14.eglSwapBuffers(mEglDisplay, mEglSurface);
+
     }
 
 
@@ -88,7 +111,7 @@ public class EGLEnv {
         EGL14.eglDestroyContext(mEglDisplay, mEglContext);
         EGL14.eglReleaseThread();
         EGL14.eglTerminate(mEglDisplay);
-//        recordFilter.release();
+        recordFilter.release();
     }
 
 

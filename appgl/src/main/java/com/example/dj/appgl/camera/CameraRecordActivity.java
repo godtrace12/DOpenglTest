@@ -27,7 +27,7 @@ public class CameraRecordActivity extends AppCompatActivity implements View.OnCl
         btnStart = findViewById(R.id.btnStart);
         btnStop = findViewById(R.id.btnStop);
         btnStart.setOnClickListener(this);
-        btnStart.setOnClickListener(this);
+        btnStop.setOnClickListener(this);
     }
 
     @Override
@@ -47,9 +47,9 @@ public class CameraRecordActivity extends AppCompatActivity implements View.OnCl
     public void onClick(View v) {
         int viewId = v.getId();
         if(viewId == R.id.btnStart){
-
+            glSurface.startRecord();
         }else if(viewId == R.id.btnStop){
-
+            glSurface.stopRecord();
         }
     }
 }

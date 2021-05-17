@@ -22,14 +22,14 @@ public class AbstractRect2DFilter {
     //渲染程序
     protected int mProgram;
 
-    public final float[] vertexCoords = {
+    public float[] vertexCoords = {
             -1.0f, -1.0f,
             1.0f, -1.0f,
             -1.0f, 1.0f,
             1.0f, 1.0f
     };
 
-    public final float[] textureCoords = {
+    public float[] textureCoords = {
             0.0f, 0.0f,
             1.0f, 0.0f,
             0.0f, 1.0f,
