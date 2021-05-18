@@ -11,7 +11,7 @@ import com.example.dj.appgl.filter.base.AbstractRect2DFilter;
 import com.example.dj.appgl.filter.base.FilterChain;
 import com.example.dj.appgl.filter.base.FilterContext;
 
-public class CameraFilter extends AbstractRect2DFilter {
+public class CameraFilter extends AbstractFboFilter2 {
     private int vMatrix;
     //投影矩阵
     private final float[] mProjectMatrix = new float[16];

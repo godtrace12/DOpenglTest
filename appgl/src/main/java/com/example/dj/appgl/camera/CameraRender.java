@@ -9,10 +9,12 @@ import android.opengl.GLSurfaceView;
 import android.os.Environment;
 import android.util.Log;
 
-import com.example.dj.appgl.camera.base.BaseCameraRenderer;
+import androidx.camera.core.Preview;
+import androidx.lifecycle.LifecycleOwner;
+
 import com.example.dj.appgl.camera.base.CameraManeger;
+import com.example.dj.appgl.camera.base.CameraManegerXx;
 import com.example.dj.appgl.filter.CameraFilter;
-import com.example.dj.appgl.filter.ScreenFilter;
 import com.example.dj.appgl.filter.ScreenFilter2;
 import com.example.dj.appgl.filter.SoulFilter;
 import com.example.dj.appgl.filter.base.AbstractRect2DFilter;
@@ -28,9 +30,9 @@ import java.util.List;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class CameraRender implements GLSurfaceView.Renderer {
+public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOutputUpdateListener,SurfaceTexture.OnFrameAvailableListener {
     private static final String TAG = "CameraRender";
-    private CameraManeger mCameraManeger;
+    private CameraManegerXx mCameraManeger;
     private SurfaceTexture mCameraTexture;
     private SurfaceTexture.OnFrameAvailableListener listener;
 
@@ -43,46 +45,32 @@ public class CameraRender implements GLSurfaceView.Renderer {
     private MediaRecorder mRecorder;
     float[] mtx = new float[16];
     private Context mContext;
+    CameraFilterGLSurface glSurfaceView;
 
-    public CameraRender(Context context, SurfaceTexture.OnFrameAvailableListener listener) {
-        this.listener = listener;
-        mCameraManeger = new CameraManeger();
+    public CameraRender(CameraFilterGLSurface cameraView, Context context) {
+        this.glSurfaceView = cameraView;
+        LifecycleOwner lifecycleOwner = (LifecycleOwner) glSurfaceView.getContext();
+        mCameraManeger = new CameraManegerXx(lifecycleOwner,this);
         this.mContext = context;
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        texture = new int[1];  //当做能在opengl用的一个图片的ID
+        mCameraTexture.attachToGLContext(texture[0]);
+        // 当摄像头数据有更新回调 onFrameAvailable
+        mCameraTexture.setOnFrameAvailableListener(this);
         cameraFilter = new CameraFilter();
         screenFilter = new ScreenFilter2();
         soulFilter = new SoulFilter();
-        createAndBindVideoTexture();
-        mCameraManeger.OpenCamera(mCameraTexture);
+//        createAndBindVideoTexture();
+//        mCameraManeger.OpenCamera(mCameraTexture);
         filters.add(cameraFilter);
-        filters.add(screenFilter);
         filters.add(soulFilter);
+        filters.add(screenFilter);
         filterChain = new FilterChain(filters,0,new FilterContext());
         //录制视频的宽、高
-        String recordFilePath = "dj/a.mp4";
-        if (Environment.getExternalStorageState().equals(
-                Environment.MEDIA_MOUNTED)){
-            String videoPath = mContext.getExternalFilesDir(null)
-                    .getAbsolutePath()
-                    + File.separator
-                    + "Record";
-            Log.e(TAG, "File Dir: "+videoPath);
-            File file = new File(videoPath);
-            if (!file.exists()) {
-                file.mkdirs();
-            }
-            recordFilePath = videoPath + File.separator
-                    + "vrecord.mp4";
-            Log.e(TAG, "File Path: "+recordFilePath);
-//            File videoFile = new File(recordFilePath);
-//            if(!videoFile.exists()){
-//                videoFile.mkdir();
-//            }
-
-        }
+        String recordFilePath = "dj/record.mp4";
 
         String filePath = Environment.getExternalStorageDirectory().getAbsolutePath();
         String filePath2 = mContext.getExternalFilesDir(null)
@@ -100,10 +88,11 @@ public class CameraRender implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         Log.e(TAG, "onSurfaceChanged: dj------ width="+width+"  ----height="+height);
-        mCameraTexture.setDefaultBufferSize(width, height);
+//        mCameraTexture.setDefaultBufferSize(width, height);
         cameraFilter.setSize(width,height);
         screenFilter.setSize(width,height);
         soulFilter.setSize(width,height);
+        filterChain.setSize(width,height);
     }
 
     @Override
@@ -147,6 +136,18 @@ public class CameraRender implements GLSurfaceView.Renderer {
     public void stopRecord(){
         Log.e(TAG, "stopRecord: 结束录制");
         mRecorder.stop();
+    }
+
+
+    @Override
+    public void onUpdated(Preview.PreviewOutput output) {
+        mCameraTexture = output.getSurfaceTexture();
+    }
+
+    @Override
+    public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+        //  请求执行一次 onDrawFrame
+        glSurfaceView.requestRender();
     }
 
 

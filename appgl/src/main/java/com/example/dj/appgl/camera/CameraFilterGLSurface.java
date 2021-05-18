@@ -1,14 +1,9 @@
 package com.example.dj.appgl.camera;
 
 import android.content.Context;
-import android.graphics.SurfaceTexture;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
-
-import com.example.dj.appgl.camera.base.AbsObjectRender;
-import com.example.dj.appgl.camera.base.BaseCameraRenderer;
-import com.example.dj.appgl.camera.object.TrianCamColorRender;
 
 /**
  *  可以添加各种滤镜
@@ -16,7 +11,7 @@ import com.example.dj.appgl.camera.object.TrianCamColorRender;
 
 public class CameraFilterGLSurface extends GLSurfaceView /*implements SurfaceTexture.OnFrameAvailableListener*/ {
 
-    private CameraRenderXx render;
+    private CameraRender render;
 
     public CameraFilterGLSurface(Context context) {
         super(context);
@@ -25,7 +20,7 @@ public class CameraFilterGLSurface extends GLSurfaceView /*implements SurfaceTex
     public CameraFilterGLSurface(Context context, AttributeSet attrs) {
         super(context, attrs);
         setEGLContextClientVersion(3);
-        render = new CameraRenderXx(this,context);
+        render = new CameraRender(this,context);
         setRenderer(render);
         setRenderMode(RENDERMODE_WHEN_DIRTY);
     }

@@ -76,14 +76,14 @@ public class AbstractRect2DFilter {
 
     public int onDraw(int textureId,FilterChain filterChain) {
         FilterContext filterContext = filterChain.filterContext;
-        Log.e(TAG, "onDraw: mWidth="+mWidth+" mHeight="+mHeight);
+//        Log.e(TAG, "onDraw: mWidth="+mWidth+" mHeight="+mHeight);
         // 1- 设置MVP矩阵
         GLES30.glUseProgram(mProgram);
         GLES30.glViewport(0, 0, filterContext.width, filterContext.height);
 //        GLES30.glViewport(0, 0, mWidth, mHeight);
 
 
-        Log.e(TAG, "onDraw: width="+filterContext.width+" height="+filterContext.height);
+//        Log.e(TAG, "onDraw: width="+filterContext.width+" height="+filterContext.height);
         float ratio = (float) mWidth/mHeight;
 
         //2- 执行绘图操作
