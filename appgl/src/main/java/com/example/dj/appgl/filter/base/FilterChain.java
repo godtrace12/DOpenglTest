@@ -27,6 +27,9 @@ public class FilterChain {
     }
 
 
+    public void setSize(int width, int height) {
+        filterContext.setSize(width, height);
+    }
 
     public void release(){
         for (AbstractRect2DFilter filter : filters) {

@@ -3,6 +3,7 @@ package com.example.dj.appgl.filter.base;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.opengl.Matrix;
+import android.util.Log;
 
 import com.example.dj.appgl.util.GLDataUtil;
 import com.example.dj.appgl.util.ResReadUtils;
@@ -11,6 +12,7 @@ import com.example.dj.appgl.util.ShaderUtils;
 import java.nio.FloatBuffer;
 
 public class AbstractRect2DFilter {
+    private static final String TAG = "AbstractRect2DFilter";
     protected FloatBuffer vertexBuffer;
     protected FloatBuffer textureBuffer;
     //顶点坐标索引
@@ -73,18 +75,26 @@ public class AbstractRect2DFilter {
     }
 
     public int onDraw(int textureId,FilterChain filterChain) {
-        GLES30.glUseProgram(mProgram);
+        FilterContext filterContext = filterChain.filterContext;
+        Log.e(TAG, "onDraw: mWidth="+mWidth+" mHeight="+mHeight);
         // 1- 设置MVP矩阵
-        GLES30.glViewport(0, 0, mWidth, mHeight);
+        GLES30.glUseProgram(mProgram);
+        GLES30.glViewport(0, 0, filterContext.width, filterContext.height);
+//        GLES30.glViewport(0, 0, mWidth, mHeight);
+
+
+        Log.e(TAG, "onDraw: width="+filterContext.width+" height="+filterContext.height);
         float ratio = (float) mWidth/mHeight;
 
         //2- 执行绘图操作
         //左乘矩阵
         //x y 所以数据size 是2
+        vertexBuffer.position(0);
         GLES30.glVertexAttribPointer(vPositionCoordLoc,2,GLES30.GL_FLOAT,false,0,vertexBuffer);
         GLES30.glEnableVertexAttribArray(vPositionCoordLoc);
 
         //纹理坐标是xy 所以数据size是 2
+        textureBuffer.position(0);
         GLES30.glVertexAttribPointer(vTextureCoordLoc, 2, GLES30.GL_FLOAT, false, 0, textureBuffer);
         //启用顶点颜色句柄
         GLES30.glEnableVertexAttribArray(vTextureCoordLoc);

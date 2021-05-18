@@ -14,9 +14,9 @@ import com.example.dj.appgl.camera.object.TrianCamColorRender;
  *  可以添加各种滤镜
  * **/
 
-public class CameraFilterGLSurface extends GLSurfaceView implements SurfaceTexture.OnFrameAvailableListener {
+public class CameraFilterGLSurface extends GLSurfaceView /*implements SurfaceTexture.OnFrameAvailableListener*/ {
 
-    private CameraRender render;
+    private CameraRenderXx render;
 
     public CameraFilterGLSurface(Context context) {
         super(context);
@@ -25,7 +25,7 @@ public class CameraFilterGLSurface extends GLSurfaceView implements SurfaceTextu
     public CameraFilterGLSurface(Context context, AttributeSet attrs) {
         super(context, attrs);
         setEGLContextClientVersion(3);
-        render = new CameraRender(context,this);
+        render = new CameraRenderXx(this,context);
         setRenderer(render);
         setRenderMode(RENDERMODE_WHEN_DIRTY);
     }
@@ -44,8 +44,8 @@ public class CameraFilterGLSurface extends GLSurfaceView implements SurfaceTextu
     }
 
 
-        @Override
-    public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-        requestRender();
-    }
+//        @Override
+//    public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+//        requestRender();
+//    }
 }

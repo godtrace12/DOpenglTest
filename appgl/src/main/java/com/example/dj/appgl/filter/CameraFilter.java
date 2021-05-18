@@ -2,14 +2,16 @@ package com.example.dj.appgl.filter;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.opengl.GLES30;
 import android.opengl.Matrix;
 
 import com.example.dj.appgl.R;
 import com.example.dj.appgl.filter.base.AbstractFboFilter2;
+import com.example.dj.appgl.filter.base.AbstractRect2DFilter;
 import com.example.dj.appgl.filter.base.FilterChain;
 import com.example.dj.appgl.filter.base.FilterContext;
 
-public class CameraFilter extends AbstractFboFilter2 {
+public class CameraFilter extends AbstractRect2DFilter {
     private int vMatrix;
     //投影矩阵
     private final float[] mProjectMatrix = new float[16];
@@ -21,19 +23,19 @@ public class CameraFilter extends AbstractFboFilter2 {
     @Override
     public void initGL(int vertexShaderId, int fragmentShaderId) {
         super.initGL(vertexShaderId, fragmentShaderId);
-        textureCoords = new float[]{
-//                0.0f, 0.0f,
-//                1.0f, 0.0f,
+//        textureCoords = new float[]{
+////                0.0f, 0.0f,
+////                1.0f, 0.0f,
+////                1.0f, 1.0f,
+////                0.0f, 1.0f
+//
 //                1.0f, 1.0f,
-//                0.0f, 1.0f
-
-                1.0f, 1.0f,
-                0.0f, 1.0f,
-                0.0f, 0.0f,
-                1.0f, 0.0f
-
-        };
-//        vMatrix = GLES20.glGetUniformLocation(mProgram, "vMatrix");
+//                0.0f, 1.0f,
+//                0.0f, 0.0f,
+//                1.0f, 0.0f
+//
+//        };
+//        vMatrix = GLES30.glGetUniformLocation(mProgram, "vMatrix");
     }
 
     @Override
@@ -44,10 +46,10 @@ public class CameraFilter extends AbstractFboFilter2 {
     @Override
     public void beforeDraw(FilterContext filterContext) {
         super.beforeDraw(filterContext);
-//        vMatrix = GLES20.glGetUniformLocation(mProgram, "vMatrix");
+        vMatrix = GLES30.glGetUniformLocation(mProgram, "vMatrix");
 //        Matrix.setIdentityM(mProjectMatrix,0);
 //        Matrix.rotateM(mProjectMatrix,0,90,1,1,0);
-//        GLES20.glUniformMatrix4fv(vMatrix, 1, false, filterContext.cameraMtx, 0);
+        GLES30.glUniformMatrix4fv(vMatrix, 1, false, filterContext.cameraMtx, 0);
     }
 
 

@@ -48,6 +48,7 @@ public class BaseRectTextureRender implements GLSurfaceView.Renderer{
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
+        filterChain.setSize(width,height);
         triangleFilter.setSize(width,height);
         triangleEdgeFilter.setSize(width,height);
         screenFilter2.setSize(width,height);

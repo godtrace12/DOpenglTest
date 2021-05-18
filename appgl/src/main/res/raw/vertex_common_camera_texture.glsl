@@ -6,6 +6,8 @@ uniform mat4 vMatrix;
 
  void main() {
 //     gl_Position = vMatrix * vPosition;
+////     gl_Position = vPosition;
+//     aCoord = vTextureCoord;
      gl_Position = vPosition;
-     aCoord = vTextureCoord;
+     aCoord = (vMatrix * vec4(vTextureCoord,1.0,1.0)).xy;
  }
