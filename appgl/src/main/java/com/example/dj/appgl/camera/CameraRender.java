@@ -17,6 +17,7 @@ import com.example.dj.appgl.camera.base.CameraManegerXx;
 import com.example.dj.appgl.filter.CameraFilter;
 import com.example.dj.appgl.filter.ScreenFilter2;
 import com.example.dj.appgl.filter.SoulFilter;
+import com.example.dj.appgl.filter.StickFilter;
 import com.example.dj.appgl.filter.base.AbstractRect2DFilter;
 import com.example.dj.appgl.filter.base.FilterChain;
 import com.example.dj.appgl.filter.base.FilterContext;
@@ -39,6 +40,7 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
     private CameraFilter cameraFilter;
     private ScreenFilter2 screenFilter;
     private SoulFilter soulFilter;
+    private StickFilter stickFilter;
     int[] texture;
     List<AbstractRect2DFilter> filters = new ArrayList<>();
     FilterChain filterChain;
@@ -63,10 +65,12 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
         cameraFilter = new CameraFilter();
         screenFilter = new ScreenFilter2();
         soulFilter = new SoulFilter();
+        stickFilter = new StickFilter(glSurfaceView.getContext());
 //        createAndBindVideoTexture();
 //        mCameraManeger.OpenCamera(mCameraTexture);
         filters.add(cameraFilter);
         filters.add(soulFilter);
+        filters.add(stickFilter);
         filters.add(screenFilter);
         filterChain = new FilterChain(filters,0,new FilterContext());
         //录制视频的宽、高

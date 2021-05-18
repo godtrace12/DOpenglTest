@@ -34,8 +34,8 @@ public class SoulFilter extends AbstractFboFilter2 {
         GLES20.glUniform1f(scalePercent, scale + 1.0f);
 
 
-        mix += 0.08f;
-        scale += 0.08f;
+        mix += 0.03f;
+        scale += 0.03f;
         if (mix >= 1.0) {
             mix = 0.0f;
         }
