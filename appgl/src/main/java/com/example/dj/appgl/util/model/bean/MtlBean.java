@@ -1,4 +1,4 @@
-package com.example.dj.appgl.model.bean;
+package com.example.dj.appgl.util.model.bean;
 
 /**
  * 材料/纹理数据

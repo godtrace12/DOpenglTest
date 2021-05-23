@@ -5,7 +5,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 
-import com.example.dj.appgl.model.bean.MtlBean;
+import com.example.dj.appgl.util.model.bean.MtlBean;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package com.example.dj.appgl.model.bean;
+package com.example.dj.appgl.util.model.bean;
 
 import java.util.ArrayList;
 import java.util.List;
