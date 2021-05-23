@@ -13,6 +13,7 @@ import com.example.dj.appgl.camera.CameraActivity;
 import com.example.dj.appgl.camera.CameraRecordActivity;
 import com.example.dj.appgl.fbo.TriangleFboActivity;
 import com.example.dj.appgl.fbo.RectFboTestActivity;
+import com.example.dj.appgl.model.ModelLoadActivity;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -22,6 +23,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnRecordCamera;
     private Button btnFBO;
     private Button btnFBOTest;
+    private Button btnModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnFBO.setOnClickListener(this);
         btnFBOTest = findViewById(R.id.btnFBOTest);
         btnFBOTest.setOnClickListener(this);
+        btnModel = findViewById(R.id.btnModel);
+        btnModel.setOnClickListener(this);
     }
 
     @Override
@@ -65,6 +69,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivity(intent);
         }else if(viewId == R.id.btnFBOTest){
             Intent intent = new Intent(MainActivity.this, RectFboTestActivity.class);
+            startActivity(intent);
+        }else if(viewId == R.id.btnModel){
+            Intent intent = new Intent(MainActivity.this, ModelLoadActivity.class);
             startActivity(intent);
         }
     }

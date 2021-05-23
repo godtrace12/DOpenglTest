@@ -52,6 +52,12 @@
                 android:layout_height="wrap_content"
                 android:text="FBO"/>
 
+            <Button
+                android:id="@+id/btnModel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="模型加载"/>
+
         </LinearLayout>
 
 
