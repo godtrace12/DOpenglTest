@@ -12,7 +12,6 @@ import android.util.Log;
 import com.example.dj.appgl.R;
 import com.example.dj.appgl.base.AppCore;
 import com.example.dj.appgl.util.GLDataUtil;
-import com.example.dj.appgl.util.OpenGLUtil;
 import com.example.dj.appgl.util.ResReadUtils;
 import com.example.dj.appgl.util.ShaderUtils;
 import com.example.dj.appgl.util.TextureUtils;
@@ -27,10 +26,10 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 
-/** 等腰直角三角形+纹理贴图
+/** 模型加载及背景图加载显示
  *
  * **/
-public class ModelLoadRenderer2 implements GLSurfaceView.Renderer{
+public class ModelBgLoadRenderer implements GLSurfaceView.Renderer{
     private static final String TAG = "TriangleTextureRenderer";
     int mWidth,mHeight;
     // --------------- 1 绘制模型
@@ -76,7 +75,7 @@ public class ModelLoadRenderer2 implements GLSurfaceView.Renderer{
     private final float[] mMVPMatrixFloor = new float[16];
     private final float[] modelMatrix = new float[16];
 
-    public ModelLoadRenderer2() {
+    public ModelBgLoadRenderer() {
         list = LoadObjectUtil.loadObject(rockDir + "/rock.obj",
                 AppCore.getInstance().getResources(), rockDir);
 
@@ -99,15 +98,12 @@ public class ModelLoadRenderer2 implements GLSurfaceView.Renderer{
 
     int generateProgram(){
         String vertexShaderStr = ResReadUtils.readResource(R.raw.vertex_base_mvp_shader);
-//        String vertexShaderStr = ResReadUtils.readResource(R.raw.advanced_opengl_depth_testing_vertex);
         int vertexShaderId = ShaderUtils.compileVertexShader(vertexShaderStr);
         //编译片段着色程序
         String fragmentShaderStr = ResReadUtils.readResource(R.raw.fragment_base_shader);
-//        String fragmentShaderStr = ResReadUtils.readResource(R.raw.advanced_opengl_depth_testing_fragment);
         int fragmentShaderId = ShaderUtils.compileFragmentShader(fragmentShaderStr);
         //连接程序
         int program = ShaderUtils.linkProgram(vertexShaderId, fragmentShaderId);
-//        int program = OpenGLUtil.createProgram(vertexShaderStr,fragmentShaderStr);
         return program;
     }
 
@@ -137,37 +133,26 @@ public class ModelLoadRenderer2 implements GLSurfaceView.Renderer{
         GLES30.glEnable(GLES30.GL_DEPTH_TEST);
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT| GLES30.GL_DEPTH_BUFFER_BIT);
         //开启深度测试
+        drawModel();
+        drawBackFloor();
 
+    }
+
+
+    // 参数顶点坐标handle位置，纹理坐标handle位置，纹理位置
+    void drawModel(){
         //左乘矩阵
         int uMaxtrixLocation = GLES30.glGetUniformLocation(mProgram,"vMatrix");
         // 将前面计算得到的mMVPMatrix(frustumM setLookAtM 通过multiplyMM 相乘得到的矩阵) 传入vMatrix中，与顶点矩阵进行相乘
         GLES30.glUniformMatrix4fv(uMaxtrixLocation,1,false,mMVPMatrix,0);
 
-        int aPositionLocation = GLES30.glGetAttribLocation(mProgram,"vPosition");
-        GLES30.glEnableVertexAttribArray(aPositionLocation);
+        int vertexPosLoc = GLES30.glGetAttribLocation(mProgram,"vPosition");
+        GLES30.glEnableVertexAttribArray(vertexPosLoc);
 
-        int aTextureLocation = GLES20.glGetAttribLocation(mProgram,"vTextureCoord");
-        int vTextureFilterLoc = GLES20.glGetUniformLocation(mProgram, "vTexture");
+        int textPosLoc = GLES20.glGetAttribLocation(mProgram,"vTextureCoord");
+        int textureLoc = GLES20.glGetUniformLocation(mProgram, "vTexture");
         //启用顶点颜色句柄
-        GLES30.glEnableVertexAttribArray(aTextureLocation);
-
-        drawModel(aPositionLocation,aTextureLocation,vTextureFilterLoc);
-
-        //禁止顶点数组的句柄
-        GLES30.glDisableVertexAttribArray(aPositionLocation);
-        GLES30.glDisableVertexAttribArray(aTextureLocation);
-//        drawBackFloor();
-
-        drawBackFloor2();
-
-//        drawFloor();
-
-//        drawFloor2();
-    }
-
-
-    // 参数顶点坐标handle位置，纹理坐标handle位置，纹理位置
-    void drawModel(int vertexPosLoc,int textPosLoc,int textureLoc){
+        GLES30.glEnableVertexAttribArray(textPosLoc);
         //绘制模型
         if (list != null && !list.isEmpty()) {
             for (ObjectBean item : list) {
@@ -206,52 +191,15 @@ public class ModelLoadRenderer2 implements GLSurfaceView.Renderer{
                 }
             }
         }
+        //禁止顶点数组的句柄
+        GLES30.glDisableVertexAttribArray(vertexPosLoc);
+        GLES30.glDisableVertexAttribArray(textPosLoc);
     }
+
+
 
     // 参数顶点坐标handle位置，纹理坐标handle位置，纹理位置
     void drawBackFloor(){
-        int textureId = textureFloor;
-        Matrix.setIdentityM(modelMatrix, 0);
-
-        Matrix.multiplyMM(mMVPMatrixFloor, 0, mViewMatrix, 0, modelMatrix, 0);
-        Matrix.multiplyMM(mMVPMatrixFloor, 0, mProjectMatrix, 0, mMVPMatrixFloor, 0);
-
-        //是否需要2个program?
-        //左乘矩阵
-        int uMaxtrixLocation = GLES30.glGetUniformLocation(mProgramBg,"vMatrix");
-        // 将前面计算得到的mMVPMatrix(frustumM setLookAtM 通过multiplyMM 相乘得到的矩阵) 传入vMatrix中，与顶点矩阵进行相乘
-        GLES30.glUniformMatrix4fv(uMaxtrixLocation,1,false,mMVPMatrixFloor,0);
-
-        int vertexPosLoc = GLES30.glGetAttribLocation(mProgramBg,"vPosition");
-        GLES30.glEnableVertexAttribArray(vertexPosLoc);
-
-        int textPosLoc = GLES30.glGetAttribLocation(mProgramBg,"vTextureCoord");
-        int vTextureFilterLoc = GLES30.glGetUniformLocation(mProgramBg, "vTexture");
-        //启用顶点颜色句柄
-        GLES30.glEnableVertexAttribArray(textPosLoc);
-
-        // 传入顶点坐标
-//        FloatBuffer planVertexBuffer = GLDataUtil.createFloatBuffer(planeVertices);
-        GLES30.glVertexAttribPointer(vertexPosLoc, 3, GLES20.GL_FLOAT,
-                false, 5 * 4, planVertexBuffer);
-        // 纹理坐标
-        planVertexBuffer.position(3);
-        GLES30.glVertexAttribPointer(textPosLoc, 2, GLES20.GL_FLOAT,
-                false, 5 * 4, planVertexBuffer);
-        GLES30.glActiveTexture(GLES20.GL_TEXTURE0);
-        GLES30.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
-        GLES30.glUniform1i(vTextureFilterLoc, 0);
-
-        // 绘制顶点
-        GLES30.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
-
-        GLES30.glDisableVertexAttribArray(vertexPosLoc);
-        GLES30.glDisableVertexAttribArray(textPosLoc);
-
-    }
-
-    // 参数顶点坐标handle位置，纹理坐标handle位置，纹理位置
-    void drawBackFloor2(){
         int textureId = textureFloor;
         Matrix.setIdentityM(modelMatrix, 0);
 
@@ -285,8 +233,6 @@ public class ModelLoadRenderer2 implements GLSurfaceView.Renderer{
         // 将前面计算得到的mMVPMatrix(frustumM setLookAtM 通过multiplyMM 相乘得到的矩阵) 传入vMatrix中，与顶点矩阵进行相乘
         GLES30.glUniformMatrix4fv(uMaxtrixLocation,1,false,mMVPMatrixFloor,0);
 
-//        //启用顶点颜色句柄
-//        GLES30.glEnableVertexAttribArray(textPosLoc);
 
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0);
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureId);
@@ -298,93 +244,6 @@ public class ModelLoadRenderer2 implements GLSurfaceView.Renderer{
         GLES30.glDisableVertexAttribArray(vertexPosLoc);
         GLES30.glDisableVertexAttribArray(textPosLoc);
 
-    }
-
-
-    private void drawFloor(){
-//        int shaderProgram = generateProgram();
-        int shaderProgram = mProgramBg;
-        GLES30.glUseProgram(shaderProgram);
-        // 传入顶点坐标
-        int positionHandle = GLES30.glGetAttribLocation(shaderProgram, "vPosition");
-        GLES30.glEnableVertexAttribArray(positionHandle);
-        // 纹理坐标
-        int textHandle = GLES30.glGetAttribLocation(shaderProgram, "vTextureCoord");
-        GLES30.glEnableVertexAttribArray(textHandle);
-
-        // 传入顶点坐标
-        FloatBuffer planVertexBuffer = GLDataUtil.createFloatBuffer(planeVertices);
-        GLES30.glVertexAttribPointer(positionHandle, 3, GLES30.GL_FLOAT,
-                false, 5 * 4, planVertexBuffer);
-        // 纹理坐标
-        planVertexBuffer.position(3);
-        GLES30.glVertexAttribPointer(textHandle, 2, GLES30.GL_FLOAT,
-                false, 5 * 4, planVertexBuffer);
-
-        int mMVPMatrixHandle = GLES30.glGetUniformLocation(shaderProgram, "vMatrix");
-        Matrix.setIdentityM(modelMatrix, 0);
-
-        Matrix.multiplyMM(mMVPMatrix, 0, mViewMatrix, 0, modelMatrix, 0);
-        Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mMVPMatrix, 0);
-        GLES30.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mMVPMatrix, 0);
-
-        int texturePosHandle = GLES30.glGetUniformLocation(shaderProgram, "vTexture");
-
-        GLES30.glActiveTexture(GLES30.GL_TEXTURE0);
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureFloor);
-        GLES30.glUniform1i(texturePosHandle, 0);
-
-        // 绘制顶点
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 6);
-
-        GLES30.glDisableVertexAttribArray(positionHandle);
-        GLES20.glDisableVertexAttribArray(textHandle);
-    }
-
-
-    private void drawFloor2(){
-        int type = 0;
-        int shaderProgram = mProgramBg;
-        GLES30.glUseProgram(shaderProgram);
-        // 传入顶点坐标
-        int positionHandle = GLES30.glGetAttribLocation(shaderProgram, "aPosition");
-        GLES30.glEnableVertexAttribArray(positionHandle);
-        // 纹理坐标
-        int textHandle = GLES30.glGetAttribLocation(shaderProgram, "aTexCoords");
-        GLES30.glEnableVertexAttribArray(textHandle);
-
-        // 传入顶点坐标
-        FloatBuffer planVertexBuffer = GLDataUtil.createFloatBuffer(planeVertices);
-        GLES30.glVertexAttribPointer(positionHandle, 3, GLES30.GL_FLOAT,
-                false, 5 * 4, planVertexBuffer);
-        // 纹理坐标
-        planVertexBuffer.position(3);
-        GLES30.glVertexAttribPointer(textHandle, 2, GLES30.GL_FLOAT,
-                false, 5 * 4, planVertexBuffer);
-
-        int mMVPMatrixHandle = GLES30.glGetUniformLocation(shaderProgram, "uMVPMatrix");
-        int typeHandle = GLES30.glGetUniformLocation(shaderProgram, "type");
-        GLES30.glUniform1i(typeHandle, type);
-        Matrix.setIdentityM(modelMatrix, 0);
-        //Matrix.translateM(modelMatrix, 0, 2.0f, 0.0f, -4.0f);
-        //Matrix.rotateM(modelMatrix, 0, angleInDegrees, 0.0f, 1.0f, 0.0f);
-
-        Matrix.multiplyMM(mMVPMatrix, 0, mViewMatrix, 0, modelMatrix, 0);
-        Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mMVPMatrix, 0);
-        GLES30.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mMVPMatrix, 0);
-
-        int texturePosHandle = GLES30.glGetUniformLocation(shaderProgram, "texture");
-//        OpenGLUtil.bindTexture(texturePosHandle, floorTexture, 0);
-
-        GLES30.glActiveTexture(GLES30.GL_TEXTURE0);
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureFloor);
-        GLES30.glUniform1i(texturePosHandle, 0);
-
-        // 绘制顶点
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 6);
-
-        GLES30.glDisableVertexAttribArray(positionHandle);
-        GLES30.glDisableVertexAttribArray(textHandle);
     }
 
 

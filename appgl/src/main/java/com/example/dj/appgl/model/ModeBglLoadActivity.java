@@ -5,11 +5,11 @@ import android.os.Bundle;
 
 import com.example.dj.appgl.base.AbsGLSurfaceActivity;
 
-public class ModelLoadActivity extends AbsGLSurfaceActivity {
+public class ModeBglLoadActivity extends AbsGLSurfaceActivity {
 
     @Override
     protected GLSurfaceView.Renderer bindRenderer() {
-        return new ModelLoadRenderer();
+        return new ModelBgLoadRenderer();
     }
 
     @Override
