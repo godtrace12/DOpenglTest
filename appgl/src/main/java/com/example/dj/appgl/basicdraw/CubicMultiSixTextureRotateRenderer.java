@@ -216,6 +216,7 @@ public class CubicMultiSixTextureRotateRenderer implements GLSurfaceView.Rendere
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT | GLES30.GL_DEPTH_BUFFER_BIT);
         //开启深度测试
         GLES30.glEnable(GLES20.GL_DEPTH_TEST);
 
