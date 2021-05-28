@@ -48,16 +48,53 @@ public class ModelBgLoadRenderer implements GLSurfaceView.Renderer{
     public static final String planetDir = "planet", rockDir = "rock";
 
     //---------------- 2 绘制平面背景
+//    private float[] planeVertices = {
+//            // positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
+//            5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
+//            -5.0f, -0.5f, 5.0f, 0.0f, 0.0f,
+//            -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
+//
+//            5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
+//            -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
+//            5.0f, -0.5f, -5.0f, 2.0f, 2.0f
+//    };
+
+    //中间一条
+//    private float[] planeVertices = {
+//            // positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
+//            4.0f, 1f, 0f, 2.0f, 0.0f,
+//            -4.5f, 1f, 0f, 0.0f, 0.0f,
+//            -4.5f, -1f, 0f, 0.0f, 2.0f,
+//
+//            4.0f, 1f, 0f, 2.0f, 0.0f,
+//            -4.5f, -1f, 0f, 0.0f, 2.0f,
+//            4.0f, -1f, 0f, 2.0f, 2.0f
+//    };
+
+    // 实际显示的大小和顶点坐标以及观察的距离有关
+    // 或者背景不使用透视投影？？！！
     private float[] planeVertices = {
             // positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
-            5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
-            -5.0f, -0.5f, 5.0f, 0.0f, 0.0f,
-            -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
+            3f, 5f, 0f, 2.0f, 0.0f,
+            -3f, 5f, 0f, 0.0f, 0.0f,
+            -3f, -5f, 0f, 0.0f, 2.0f,
 
-            5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
-            -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
-            5.0f, -0.5f, -5.0f, 2.0f, 2.0f
+            3f, 5f, 0f, 2.0f, 0.0f,
+            -3f, -5f, 0f, 0.0f, 2.0f,
+            3f, -5f, 0f, 2.0f, 2.0f
     };
+
+//    private float[] planeVertices = {
+//            // positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
+//            1.0f, -0.5f, 1.0f, 2.0f, 0.0f,
+//            -1.0f, -0.5f, 1.0f, 0.0f, 0.0f,
+//            -1.0f, -0.5f, -1.0f, 0.0f, 2.0f,
+//
+//            1.0f, -0.5f, 1.0f, 2.0f, 0.0f,
+//            -1.0f, -0.5f, -1.0f, 0.0f, 2.0f,
+//            1.0f, -0.5f, -.0f, 2.0f, 2.0f
+//    };
+
 //    private float[] planeVertices = {
 //            // positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
 //            -1f, -0.5f, -1f, 1.0f, 0.0f,
@@ -116,7 +153,7 @@ public class ModelBgLoadRenderer implements GLSurfaceView.Renderer{
         //设置透视投影
         Matrix.frustumM(mProjectMatrix,0,-ratio,ratio,-1,1,1,10);
         //设置相机位置
-        Matrix.setLookAtM(mViewMatrix,0,0,0,4.5f,//摄像机坐标
+        Matrix.setLookAtM(mViewMatrix,0,0,0,5f,//摄像机坐标
                 0f,0f,0f,//目标物的中心坐标
                 0f,1.0f,0.0f);//相机方向
         //接着是摄像机顶部的方向了，如下图，很显然相机旋转，up的方向就会改变，这样就会会影响到绘制图像的角度。
@@ -227,11 +264,16 @@ public class ModelBgLoadRenderer implements GLSurfaceView.Renderer{
         GLES30.glVertexAttribPointer(textPosLoc, 2, GLES20.GL_FLOAT,
                 false, 5 * 4, planVertexBuffer);
 
+//        float[] mMVPMatrixIdentity = new float[16];
+//        Matrix.setIdentityM(mMVPMatrixIdentity, 0);
 
         //左乘矩阵
         int uMaxtrixLocation = GLES30.glGetUniformLocation(mProgramBg,"vMatrix");
         // 将前面计算得到的mMVPMatrix(frustumM setLookAtM 通过multiplyMM 相乘得到的矩阵) 传入vMatrix中，与顶点矩阵进行相乘
         GLES30.glUniformMatrix4fv(uMaxtrixLocation,1,false,mMVPMatrixFloor,0);
+
+//        GLES30.glUniformMatrix4fv(uMaxtrixLocation,1,false,mMVPMatrixIdentity,0);
+
 
 
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0);
