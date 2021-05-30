@@ -16,6 +16,15 @@ import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
+
+/***
+ * 遗留疑问：
+ * 1   Matrix.setLookAtM(）centerZ--物体中心位置的作用？？？？
+ * 2   vec4 pos = uMVPMatrix * vec4(aPosition, 1.0); 顶点着色器，w值为何设置为1
+ * 在典型情况下，w坐标设为1.0。x,y,z值通过除以w，来进⾏缩放。⽽除以1.0则本质上不改
+变x,y,z值。
+ * */
+
 class SkyboxRenderer: AbsSensorRenderer() {
     //立方体的8个顶点
     private val skyboxVertices = floatArrayOf(
@@ -76,15 +85,6 @@ class SkyboxRenderer: AbsSensorRenderer() {
         Matrix.setIdentityM(rotationMatrix, 0)
     }
 
-//    constructor(){
-//
-//        vertexShaderCode =  ResReadUtils.readResource(R.raw.texture_vertext)
-//        fragmentShaderCode =  ResReadUtils.readResource(R.raw.texture_fragment)
-//        skyboxVertexShader = ResReadUtils.readResource(R.raw.advanced_opengl_cube_maps_vertex)
-//        skyboxFragmentShader = ResReadUtils.readResource(R.raw.advanced_opengl_cube_maps_fragment)
-//
-//        Matrix.setIdentityM(rotationMatrix, 0)
-//    }
 
     override fun rotation(rotateMatrix: FloatArray) {
         rotationMatrix = rotateMatrix
@@ -101,15 +101,11 @@ class SkyboxRenderer: AbsSensorRenderer() {
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-//        super.onSurfaceCreated(gl, config)
-
         skyboxTexture = TextureUtils.createTextureCube(AppCore.getInstance().context, intArrayOf(
                 R.drawable.ic_cube_maps_right, R.drawable.ic_cube_maps_left, R.drawable.ic_cube_maps_top,
                 R.drawable.ic_cube_maps_bottom, R.drawable.ic_cube_maps_back, R.drawable.ic_cube_maps_front
         ))
         skyBoxRenderer = SkyBoxRenderer()
-
-        // 设置背景色
 
         // 设置背景色
         GLES20.glClearColor(Color.red(bg) / 255.0f, Color.green(bg) / 255.0f,
