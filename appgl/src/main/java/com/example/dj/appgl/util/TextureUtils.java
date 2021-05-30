@@ -7,6 +7,7 @@ import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.opengl.GLUtils;
+import android.os.Build;
 import android.util.Log;
 
 import javax.microedition.khronos.opengles.GL10;
@@ -225,6 +226,52 @@ public class TextureUtils {
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0);
 
         return textureIds[0];
+    }
+
+    /**
+     * 立方体贴图
+     * @param context context
+     * @param resIds  贴图集合，顺序是：
+     *                <ul><li>右{@link GLES20#GL_TEXTURE_CUBE_MAP_POSITIVE_X}</li>
+     *                <li>左{@link GLES20#GL_TEXTURE_CUBE_MAP_NEGATIVE_X}</li>
+     *                <li>上{@link GLES20#GL_TEXTURE_CUBE_MAP_POSITIVE_Y}</li>
+     *                <li>下{@link GLES20#GL_TEXTURE_CUBE_MAP_NEGATIVE_Y}</li>
+     *                <li>后{@link GLES20#GL_TEXTURE_CUBE_MAP_POSITIVE_Z}</li>
+     *                <li>前{@link GLES20#GL_TEXTURE_CUBE_MAP_NEGATIVE_Z}</li></ul>
+     * @return int
+     */
+    public static int createTextureCube(Context context, int[] resIds) {
+        if (resIds != null && resIds.length >= 6) {
+            int[] texture = new int[1];
+            //生成纹理
+            GLES30.glGenTextures(1, texture, 0);
+            //生成纹理
+            GLES30.glBindTexture(GLES30.GL_TEXTURE_CUBE_MAP, texture[0]);
+            GLES30.glTexParameteri(GLES30.GL_TEXTURE_CUBE_MAP, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR);
+            GLES30.glTexParameteri(GLES30.GL_TEXTURE_CUBE_MAP, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR);
+            GLES30.glTexParameteri(GLES30.GL_TEXTURE_CUBE_MAP, GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_CLAMP_TO_EDGE);
+            GLES30.glTexParameteri(GLES30.GL_TEXTURE_CUBE_MAP, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_CLAMP_TO_EDGE);
+//            if (OpenGLVersion > 2 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+//                GLES30.glTexParameteri(GLES30.GL_TEXTURE_CUBE_MAP, GLES30.GL_TEXTURE_WRAP_R, GLES30.GL_CLAMP_TO_EDGE);
+//            }
+
+            Bitmap bitmap;
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inScaled = false;
+            for (int i = 0; i < resIds.length; i++) {
+                bitmap = BitmapFactory.decodeResource(context.getResources(),
+                        resIds[i], options);
+                if (bitmap == null) {
+                    GLES30.glDeleteTextures(1, texture, 0);
+                    return 0;
+                }
+                GLUtils.texImage2D(GLES30.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, bitmap, 0);
+                bitmap.recycle();
+            }
+            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0);
+            return texture[0];
+        }
+        return 0;
     }
 
 
