@@ -15,6 +15,7 @@ import com.example.dj.appgl.fbo.TriangleFboActivity;
 import com.example.dj.appgl.fbo.RectFboTestActivity;
 import com.example.dj.appgl.model.ModeBglLoadActivity;
 import com.example.dj.appgl.model.ModelLoadActivity;
+import com.example.dj.appgl.skybox.SkyboxActivity;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnFBOTest;
     private Button btnModel;
     private Button btnModelBg;
+    private Button btnSkybox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnModel.setOnClickListener(this);
         btnModelBg = findViewById(R.id.btnModelBg);
         btnModelBg.setOnClickListener(this);
+        btnSkybox = findViewById(R.id.btnSkybox);
+        btnSkybox.setOnClickListener(this);
     }
 
     @Override
@@ -79,6 +83,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivity(intent);
         }else if(viewId == R.id.btnModelBg){
             Intent intent = new Intent(MainActivity.this, ModeBglLoadActivity.class);
+            startActivity(intent);
+        }else if(viewId == R.id.btnSkybox){
+            Intent intent = new Intent(MainActivity.this, SkyboxActivity.class);
             startActivity(intent);
         }
     }

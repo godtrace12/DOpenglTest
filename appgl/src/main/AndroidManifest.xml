@@ -25,6 +25,7 @@
         <activity android:name=".fbo.RectFboTestActivity" />
         <activity android:name=".model.ModelLoadActivity" />
         <activity android:name=".model.ModeBglLoadActivity" />
+        <activity android:name=".skybox.SkyboxActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
