@@ -26,6 +26,8 @@ import javax.microedition.khronos.opengles.GL10
  * */
 
 class SkyboxRenderer: AbsSensorRenderer() {
+
+    //1------------- 天空盒skybox坐标 -----------------
     //立方体的8个顶点
     private val skyboxVertices = floatArrayOf(
             -1f, 1f, 1f,  // 上左前顶点
@@ -54,6 +56,46 @@ class SkyboxRenderer: AbsSensorRenderer() {
             7, 2, 3
     )
 
+    //2-------------- 立方体物体顶点纹理坐标 ----------------------
+    private var cubeVertices: FloatArray? = floatArrayOf( // positions          // texture Coords
+            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+            0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+            0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+            -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+            -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+            -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+            -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+            0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+            0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+            0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+            -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
+    )
+
     private val mMVPMatrix: FloatArray? = FloatArray(16)
     private val projectionMatrix: FloatArray? = FloatArray(16)
     private val viewMatrix: FloatArray? = FloatArray(16)
@@ -72,6 +114,8 @@ class SkyboxRenderer: AbsSensorRenderer() {
     protected var fragmentShaderCode: String? = null
 
     private var skyBoxRenderer: SkyBoxRenderer? = null
+    private var textureRenderer: TextureRenderer? = null
+
     private var mWidth:Int = 0
     private var mHeight:Int = 0
     protected var bg = Color.BLACK
@@ -105,8 +149,9 @@ class SkyboxRenderer: AbsSensorRenderer() {
                 R.drawable.ic_cube_maps_right, R.drawable.ic_cube_maps_left, R.drawable.ic_cube_maps_top,
                 R.drawable.ic_cube_maps_bottom, R.drawable.ic_cube_maps_back, R.drawable.ic_cube_maps_front
         ))
+        cubeTexture = TextureUtils.loadTexture(AppCore.getInstance().context,R.drawable.hzw5)
         skyBoxRenderer = SkyBoxRenderer()
-
+        textureRenderer = TextureRenderer()
         // 设置背景色
         GLES20.glClearColor(Color.red(bg) / 255.0f, Color.green(bg) / 255.0f,
                 Color.blue(bg) / 255.0f, Color.alpha(bg) / 255.0f)
@@ -123,6 +168,7 @@ class SkyboxRenderer: AbsSensorRenderer() {
         // 清屏
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
         drawSkyBox()
+        drawTexture()
     }
 
 
@@ -146,6 +192,30 @@ class SkyboxRenderer: AbsSensorRenderer() {
         GLES30.glDrawElements(GLES30.GL_TRIANGLES, 36,
                 GLES30.GL_UNSIGNED_SHORT, GLDataUtil.createShortBuffer(skyboxIndex))
         skyBoxRenderer!!.end()
+    }
+
+    private fun drawTexture() {
+        textureRenderer!!.start()
+        val vertexBuffer: FloatBuffer = GLDataUtil.createFloatBuffer(cubeVertices)
+        GLES20.glVertexAttribPointer(textureRenderer!!.positionHandle, 3, GLES20.GL_FLOAT,
+                false, 5 * 4, vertexBuffer)
+        vertexBuffer.position(3)
+        GLES20.glVertexAttribPointer(textureRenderer!!.textCoordsHandle, 2, GLES20.GL_FLOAT,
+                false, 5 * 4, vertexBuffer)
+        Matrix.setIdentityM(modelMatrix, 0)
+        Matrix.translateM(modelMatrix, 0, 0.5f, 0.5f, -2f)
+        Matrix.scaleM(modelMatrix, 0, 0.5f, 0.5f, 0.5f)
+        Matrix.rotateM(modelMatrix, 0, 45f, 1.0f, 0f, 0f)
+        Matrix.multiplyMM(mMVPMatrix, 0, viewMatrix, 0, modelMatrix, 0)
+        Matrix.multiplyMM(mMVPMatrix, 0, projectionMatrix, 0, mMVPMatrix, 0)
+        GLES20.glUniformMatrix4fv(textureRenderer!!.mMVPMatrixHandle, 1, false, mMVPMatrix, 0)
+
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
+        GLES20.glBindTexture(GLES30.GL_TEXTURE_2D, cubeTexture)
+        GLES20.glUniform1i(textureRenderer!!.texturePosHandle, 0)
+
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36)
+        textureRenderer!!.end()
     }
 
 
@@ -176,6 +246,40 @@ class SkyboxRenderer: AbsSensorRenderer() {
         }
 
     }
+
+    inner class TextureRenderer{
+        private var shaderProgram:Int =0
+        var positionHandle:Int = 0
+        var textCoordsHandle:Int = 0
+        var mMVPMatrixHandle:Int =0
+        var texturePosHandle:Int =0
+
+        init {
+            var vertexShaderId:Int = ShaderUtils.compileVertexShader(vertexShaderCode)
+            var fragmentShaderId:Int = ShaderUtils.compileFragmentShader(fragmentShaderCode)
+            shaderProgram = ShaderUtils.linkProgram(vertexShaderId, fragmentShaderId)
+            positionHandle = GLES20.glGetAttribLocation(shaderProgram, "aPosition")
+            textCoordsHandle = GLES20.glGetAttribLocation(shaderProgram, "aTexCoords")
+            mMVPMatrixHandle = GLES20.glGetUniformLocation(shaderProgram, "uMVPMatrix")
+            texturePosHandle = GLES20.glGetUniformLocation(shaderProgram, "texture")
+        }
+
+        fun start() {
+            GLES20.glUseProgram(shaderProgram)
+            GLES20.glEnableVertexAttribArray(positionHandle)
+            GLES20.glEnableVertexAttribArray(texturePosHandle)
+        }
+
+        fun end() {
+            GLES20.glDisableVertexAttribArray(positionHandle)
+            GLES20.glDisableVertexAttribArray(texturePosHandle)
+            GLES20.glUseProgram(0)
+        }
+
+
+    }
+
+
 
     companion object {
         private const val TAG = "SkyboxRenderer"
