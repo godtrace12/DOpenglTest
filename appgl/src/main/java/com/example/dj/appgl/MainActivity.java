@@ -11,6 +11,7 @@ import com.example.dj.appgl.basicdraw.CubicSampleActivity;
 import com.example.dj.appgl.basicdraw.TriangleSampleActivity;
 import com.example.dj.appgl.camera.CameraActivity;
 import com.example.dj.appgl.camera.CameraRecordActivity;
+import com.example.dj.appgl.camera3d.Camera3DActivity;
 import com.example.dj.appgl.fbo.TriangleFboActivity;
 import com.example.dj.appgl.fbo.RectFboTestActivity;
 import com.example.dj.appgl.model.ModeBglLoadActivity;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnModel;
     private Button btnModelBg;
     private Button btnSkybox;
+    private Button btnCamera3D;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnModelBg.setOnClickListener(this);
         btnSkybox = findViewById(R.id.btnSkybox);
         btnSkybox.setOnClickListener(this);
+        btnCamera3D = findViewById(R.id.btnCamera3D);
+        btnCamera3D.setOnClickListener(this);
     }
 
     @Override
@@ -86,6 +90,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivity(intent);
         }else if(viewId == R.id.btnSkybox){
             Intent intent = new Intent(MainActivity.this, SkyboxActivity.class);
+            startActivity(intent);
+        }else if(viewId == R.id.btnCamera3D){
+            Intent intent = new Intent(MainActivity.this, Camera3DActivity.class);
             startActivity(intent);
         }
     }
