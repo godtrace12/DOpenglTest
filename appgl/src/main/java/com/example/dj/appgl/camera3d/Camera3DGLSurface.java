@@ -9,10 +9,11 @@ import com.example.dj.appgl.camera.CameraQuarRender;
 import com.example.dj.appgl.camera.base.AbsObjectRender;
 import com.example.dj.appgl.camera.base.BaseCameraRenderer;
 import com.example.dj.appgl.camera.object.TrianCamColorRender;
+import com.example.dj.appgl.camera3d.obj.CubicRender;
 
-public class Camera3DGLSurface extends GLSurfaceView/* implements SurfaceTexture.OnFrameAvailableListener */{
+public class Camera3DGLSurface extends GLSurfaceView implements SurfaceTexture.OnFrameAvailableListener {
 
-    private Camera3DRender render;
+    private BaseCameraRenderer render;
 
     public Camera3DGLSurface(Context context) {
         super(context);
@@ -21,15 +22,22 @@ public class Camera3DGLSurface extends GLSurfaceView/* implements SurfaceTexture
     public Camera3DGLSurface(Context context, AttributeSet attrs) {
         super(context, attrs);
         setEGLContextClientVersion(3);
-        render = new Camera3DRender(this);
+        render = new Camera3DRender(context,this);
         setRenderer(render);
         setRenderMode(RENDERMODE_WHEN_DIRTY);
+        render.setObjectRender(new CubicRender());
     }
 
-//    @Override
-//    public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-//        requestRender();
-//    }
+    public void setObjectRender(AbsObjectRender absObjectRender){
+        if (render != null){
+            render.setObjectRender(absObjectRender);
+        }
+    }
+
+    @Override
+    public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+        requestRender();
+    }
 
 
 }
