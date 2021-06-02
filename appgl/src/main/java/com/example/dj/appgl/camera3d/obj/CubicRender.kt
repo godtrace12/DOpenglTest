@@ -7,7 +7,6 @@ import android.util.Log
 import com.example.dj.appgl.R
 import com.example.dj.appgl.base.AppCore
 import com.example.dj.appgl.camera.base.AbsObjectRender
-import com.example.dj.appgl.skybox.SkyboxRenderer
 import com.example.dj.appgl.util.GLDataUtil
 import com.example.dj.appgl.util.ResReadUtils
 import com.example.dj.appgl.util.ShaderUtils
@@ -68,7 +67,11 @@ class CubicRender: AbsObjectRender() {
     private var projectionMatrix: FloatArray? = FloatArray(16)
     private var cubeTexture:Int = 0
     private var shaderProgram:Int =0
+    // 旋转矩阵
+    private var rotationMatrix = FloatArray(16)
 
+    //累计旋转过的角度
+    private var angle = 0f
 
     /**
      * 【说明】： 在onSurfaceCreated中调用,program要在onSurfaceCreated中调用才能成功
@@ -80,7 +83,7 @@ class CubicRender: AbsObjectRender() {
     override fun initProgram() {
         vertexShaderCode =  ResReadUtils.readResource(R.raw.texture_vertext)
         fragmentShaderCode =  ResReadUtils.readResource(R.raw.texture_fragment)
-        cubeTexture = TextureUtils.loadTexture(AppCore.getInstance().context,R.drawable.hzw2)
+        cubeTexture = TextureUtils.loadTexture(AppCore.getInstance().context,R.drawable.hzw5)
         textureRenderer = TextureRenderer()
 
 
@@ -98,15 +101,12 @@ class CubicRender: AbsObjectRender() {
         Log.e(TAG, "onSurfaceChanged: mWidth="+width+" mHeight="+height+" ratio="+ratio)
         //初始化矩阵
         Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1f, 1f, 1f, 7f)
-        Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 1f, 0f, 0f, 0.2f, 0f, 1f, 0f)
+        Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 2f, 0f, 0f, 0.0f, 0f, 1f, 0f)
 
     }
 
     override fun onDrawFrame() {
-//        projectionMatrix = projectMatrix
-//        viewMatrix = cameraMatrix
         drawTexture()
-
     }
 
     private fun drawTexture() {
@@ -121,7 +121,7 @@ class CubicRender: AbsObjectRender() {
         Matrix.setIdentityM(modelMatrix, 0)
 //        Matrix.translateM(modelMatrix, 0, 0.5f, 0.5f, -2f)
         Matrix.scaleM(modelMatrix, 0, 0.5f, 0.5f, 0.5f)
-        Matrix.rotateM(modelMatrix, 0, 45f, 1.0f, 0f, 0f)
+        Matrix.rotateM(modelMatrix, 0, angle, 1.0f, 1.0f, 0f)
         Matrix.multiplyMM(mMVPMatrix, 0, viewMatrix, 0, modelMatrix, 0)
         Matrix.multiplyMM(mMVPMatrix, 0, projectionMatrix, 0, mMVPMatrix, 0)
         GLES20.glUniformMatrix4fv(textureRenderer!!.mMVPMatrixHandle, 1, false, mMVPMatrix, 0)
@@ -132,6 +132,10 @@ class CubicRender: AbsObjectRender() {
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36)
         textureRenderer!!.end()
+        angle +=2
+        if(angle >= 360){
+            angle = 0F
+        }
     }
 
 

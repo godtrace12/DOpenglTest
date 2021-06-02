@@ -36,7 +36,11 @@ class Camera3DRender(ctx: Context?, listener: OnFrameAvailableListener?): BaseCa
     private val mMVPMatrix = FloatArray(16)
     private val mTempMatrix = FloatArray(16)
 
-    private val mPosCoordinate = floatArrayOf(-1f, -1f, -1f, 1f, 1f, -1f, 1f, 1f)
+    private val mPosCoordinate = floatArrayOf(
+            -1f, -1f,1f,
+            -1f, 1f,1f,
+            1f, -1f,1f,
+            1f, 1f,1f)
     private val mTexCoordinate = floatArrayOf(0f, 1f, 1f, 1f, 0f, 0f, 1f, 0f)
 
     private var mPosBuffer: FloatBuffer? = null
@@ -56,7 +60,7 @@ class Camera3DRender(ctx: Context?, listener: OnFrameAvailableListener?): BaseCa
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         //编译顶点着色程序
-        val vertexShaderStr = ResReadUtils.readResource(R.raw.vertex_camera_texture)
+        val vertexShaderStr = ResReadUtils.readResource(R.raw.vertex_camera3d_texture)
         val vertexShaderId = ShaderUtils.compileVertexShader(vertexShaderStr)
         //编译片段着色程序
         val fragmentShaderStr = ResReadUtils.readResource(R.raw.fragment_camera_shade)
@@ -84,10 +88,13 @@ class Camera3DRender(ctx: Context?, listener: OnFrameAvailableListener?): BaseCa
     }
 
     override fun onDrawFrame(gl: GL10?) {
+        GLES30.glEnable(GLES20.GL_DEPTH_TEST)
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
         //开启深度测试
         //开启深度测试
-        GLES30.glEnable(GLES20.GL_DEPTH_TEST)
+//        GLES30.glEnable(GLES30.GL_CULL_FACE)
+//        GLES30.glDisable(GLES30.GL_CULL_FACE)
+//        GLES30.glCullFace(GLES30.GL_BACK)
         /********** 绘制摄像头画面   */
         //在OpenGLES环境中使用程序
         GLES30.glUseProgram(mProgram)
@@ -97,7 +104,7 @@ class Camera3DRender(ctx: Context?, listener: OnFrameAvailableListener?): BaseCa
         // 将前面计算得到的mMVPMatrix(frustumM setLookAtM 通过multiplyMM 相乘得到的矩阵) 传入vMatrix中，与顶点矩阵进行相乘
         GLES30.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mMVPMatrix, 0)
         mCameraTexture!!.updateTexImage() //通过此方法更新接收到的预览数据
-        GLES30.glVertexAttribPointer(uPosHandle, 2, GLES30.GL_FLOAT, false, 0, mPosBuffer)
+        GLES30.glVertexAttribPointer(uPosHandle, 3, GLES30.GL_FLOAT, false, 0, mPosBuffer)
         GLES30.glVertexAttribPointer(aTexHandle, 2, GLES30.GL_FLOAT, false, 0, mTexBuffer)
         GLES30.glEnableVertexAttribArray(uPosHandle)
         GLES30.glEnableVertexAttribArray(aTexHandle)
@@ -106,9 +113,9 @@ class Camera3DRender(ctx: Context?, listener: OnFrameAvailableListener?): BaseCa
         GLES30.glDisableVertexAttribArray(uPosHandle)
         GLES30.glDisableVertexAttribArray(aTexHandle)
         GLES30.glUseProgram(0)
-        GLES20.glDepthFunc(GLES20.GL_LESS)
+//        GLES20.glDepthFunc(GLES20.GL_LESS)
         /********* 开始绘制三角形  */
-        GLES20.glDepthFunc(GLES20.GL_LEQUAL)
+//        GLES20.glDepthFunc(GLES20.GL_LEQUAL)
         // 调用父类，完成另外添加进来的图形的绘制
         super.onDrawFrame(gl)
     }

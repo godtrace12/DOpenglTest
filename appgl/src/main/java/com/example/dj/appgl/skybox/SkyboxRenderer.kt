@@ -203,9 +203,9 @@ class SkyboxRenderer: AbsSensorRenderer() {
         GLES20.glVertexAttribPointer(textureRenderer!!.textCoordsHandle, 2, GLES20.GL_FLOAT,
                 false, 5 * 4, vertexBuffer)
         Matrix.setIdentityM(modelMatrix, 0)
-        Matrix.translateM(modelMatrix, 0, 0.5f, 0.5f, -2f)
+        Matrix.translateM(modelMatrix, 0, 0.0f, 0.0f, -2f)
         Matrix.scaleM(modelMatrix, 0, 0.5f, 0.5f, 0.5f)
-        Matrix.rotateM(modelMatrix, 0, 45f, 1.0f, 0f, 0f)
+        Matrix.rotateM(modelMatrix, 0, 45f, 1.0f, 1.0f, 0f)
         Matrix.multiplyMM(mMVPMatrix, 0, viewMatrix, 0, modelMatrix, 0)
         Matrix.multiplyMM(mMVPMatrix, 0, projectionMatrix, 0, mMVPMatrix, 0)
         GLES20.glUniformMatrix4fv(textureRenderer!!.mMVPMatrixHandle, 1, false, mMVPMatrix, 0)
