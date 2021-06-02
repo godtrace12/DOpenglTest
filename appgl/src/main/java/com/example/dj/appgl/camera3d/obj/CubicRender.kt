@@ -5,47 +5,70 @@ import android.opengl.GLES30
 import android.opengl.Matrix
 import android.util.Log
 import com.example.dj.appgl.R
+import com.example.dj.appgl.base.AppCore
 import com.example.dj.appgl.camera.base.AbsObjectRender
+import com.example.dj.appgl.skybox.SkyboxRenderer
 import com.example.dj.appgl.util.GLDataUtil
 import com.example.dj.appgl.util.ResReadUtils
 import com.example.dj.appgl.util.ShaderUtils
+import com.example.dj.appgl.util.TextureUtils
 import java.nio.FloatBuffer
 
 class CubicRender: AbsObjectRender() {
     private val TAG = "TriangleColorRender"
 
-    //3个定点，等腰直角
-    private val vertexCoords = floatArrayOf(
-            0.5f, 0.5f, 0.0f,  // top
-            -0.5f, -0.5f, 0.0f,  // bottom left
-            0.5f, -0.5f, 0.0f // bottom right
+    private var cubeVertices: FloatArray? = floatArrayOf( // positions          // texture Coords
+            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+            0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+            0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+            -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+            -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+            -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+            -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+            0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+            0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+            0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+            -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
     )
-    private val colorCoords = floatArrayOf(
-            0.5f, 1.0f, 0.0f, 1.0f,
-            0.5f, 0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 1.0f, 1.0f
-    )
 
-    //顶点数组buffer
-    private var vertexBuffer: FloatBuffer? = null
+    protected var vertexShaderCode: String? = null
+    protected var fragmentShaderCode: String? = null
 
-    //颜色数组buffer
-    private var colorBuffer: FloatBuffer? = null
+    private var textureRenderer: TextureRenderer? = null
 
-    //渲染程序
-//    public int mProgram;
 
-    //渲染程序
-    //    public int mProgram;
-    //三角形变换临时矩阵
-    private val rotationMatrix = FloatArray(16)
-    private val mTriangleTempMatrix = FloatArray(16)
-    private val mvpMatrix = FloatArray(16)
+    private val modelMatrix: FloatArray? = FloatArray(16)
+    private val mMVPMatrix: FloatArray? = FloatArray(16)
+    private var viewMatrix: FloatArray? = FloatArray(16)
+    private var projectionMatrix: FloatArray? = FloatArray(16)
+    private var cubeTexture:Int = 0
+    private var shaderProgram:Int =0
 
-    //旋转角度
-    private var angle = 0f
-
-    fun TrianCamColorRender() {}
 
     /**
      * 【说明】： 在onSurfaceCreated中调用,program要在onSurfaceCreated中调用才能成功
@@ -55,51 +78,94 @@ class CubicRender: AbsObjectRender() {
      * @return
      */
     override fun initProgram() {
-        // 三角形绘制相关初始化
-        vertexBuffer = GLDataUtil.createFloatBuffer(vertexCoords)
-        colorBuffer = GLDataUtil.createFloatBuffer(colorCoords)
-        //编译顶点着色程序
-        val verTriShaderStr = ResReadUtils.readResource(R.raw.vertex_base_matrix_shader)
-        val verTriShaderId = ShaderUtils.compileVertexShader(verTriShaderStr)
-        //编译片段着色程序
-        val fragTriShaderStr = ResReadUtils.readResource(R.raw.fragment_base_common_shader)
-        val fragTriShaderId = ShaderUtils.compileFragmentShader(fragTriShaderStr)
-        //连接程序
-        mProgram = ShaderUtils.linkProgram(verTriShaderId, fragTriShaderId)
-        if (mProgram == 0) {
-            Log.e(TAG, "initProgram: 初始化失败")
-        } else {
-            Log.e(TAG, "initProgram: 初始化成功$mProgram")
+        vertexShaderCode =  ResReadUtils.readResource(R.raw.texture_vertext)
+        fragmentShaderCode =  ResReadUtils.readResource(R.raw.texture_fragment)
+        cubeTexture = TextureUtils.loadTexture(AppCore.getInstance().context,R.drawable.hzw5)
+        textureRenderer = TextureRenderer()
+
+
+//        var vertexShaderId:Int = ShaderUtils.compileVertexShader(vertexShaderCode)
+//        var fragmentShaderId:Int = ShaderUtils.compileFragmentShader(fragmentShaderCode)
+//        mProgram = ShaderUtils.linkProgram(vertexShaderId, fragmentShaderId)
+//        shaderProgram = mProgram
+        mProgram = textureRenderer!!.shaderProgram
+        if (mProgram == 0){
+            Log.e(TAG, "initProgram: cubic 初始化失败")
         }
+        var width = 1080
+        var height = 2076
+        var ratio:Float = ((width+0.0f)/height)
+        Log.e(TAG, "onSurfaceChanged: mWidth="+width+" mHeight="+height+" ratio="+ratio)
+        //初始化矩阵
+//        Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1f, 1f, 1f, 1000f)
+//        Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 0f, 0f, 0f, -1f, 0f, 1f, 0f)
+
     }
 
     override fun onDrawFrame() {
-//            Log.e(TAG, "start: 绘制三角形"+mProgram);
-        GLES30.glUseProgram(mProgram)
-        Matrix.setIdentityM(rotationMatrix, 0)
-        Matrix.multiplyMM(mTriangleTempMatrix, 0, projectMatrix, 0, cameraMatrix, 0)
-        Matrix.rotateM(rotationMatrix, 0, angle, 0f, 0f, 1f)
-        Matrix.multiplyMM(mvpMatrix, 0, mTriangleTempMatrix, 0, rotationMatrix, 0)
+        projectionMatrix = projectMatrix
+        viewMatrix = cameraMatrix
+        drawTexture()
 
-        //左乘矩阵
-        val uMaxtrixLocation = GLES30.glGetUniformLocation(mProgram, "vMatrix")
-        // 将前面计算得到的mMVPMatrix(frustumM setLookAtM 通过multiplyMM 相乘得到的矩阵) 传入vMatrix中，与顶点矩阵进行相乘
-        GLES30.glUniformMatrix4fv(uMaxtrixLocation, 1, false, mvpMatrix, 0)
-        val aPositionLocation = GLES30.glGetAttribLocation(mProgram, "vPosition")
-        GLES30.glEnableVertexAttribArray(aPositionLocation)
-        //x y z 所以数据size 是3
-        GLES30.glVertexAttribPointer(aPositionLocation, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer)
-        val aColorLocation = GLES20.glGetAttribLocation(mProgram, "aColor")
-        //准备颜色数据 rgba 所以数据size是 4
-        GLES30.glVertexAttribPointer(aColorLocation, 4, GLES30.GL_FLOAT, false, 0, colorBuffer)
-        //启用顶点颜色句柄
-        GLES30.glEnableVertexAttribArray(aColorLocation)
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 3)
-
-        //禁止顶点数组的句柄
-        GLES30.glDisableVertexAttribArray(aPositionLocation)
-        GLES30.glDisableVertexAttribArray(aColorLocation)
-        GLES30.glUseProgram(0)
-        angle += 1f
     }
+
+    private fun drawTexture() {
+//        Log.e(TAG, "drawTexture: cubic render")
+        textureRenderer!!.start()
+        val vertexBuffer: FloatBuffer = GLDataUtil.createFloatBuffer(cubeVertices)
+        GLES20.glVertexAttribPointer(textureRenderer!!.positionHandle, 3, GLES20.GL_FLOAT,
+                false, 5 * 4, vertexBuffer)
+        vertexBuffer.position(3)
+        GLES20.glVertexAttribPointer(textureRenderer!!.textCoordsHandle, 2, GLES20.GL_FLOAT,
+                false, 5 * 4, vertexBuffer)
+        Matrix.setIdentityM(modelMatrix, 0)
+//        Matrix.translateM(modelMatrix, 0, 0.5f, 0.5f, -2f)
+        Matrix.scaleM(modelMatrix, 0, 0.5f, 0.5f, 0.5f)
+        Matrix.rotateM(modelMatrix, 0, 45f, 1.0f, 0f, 0f)
+        Matrix.multiplyMM(mMVPMatrix, 0, viewMatrix, 0, modelMatrix, 0)
+        Matrix.multiplyMM(mMVPMatrix, 0, projectionMatrix, 0, mMVPMatrix, 0)
+        GLES20.glUniformMatrix4fv(textureRenderer!!.mMVPMatrixHandle, 1, false, mMVPMatrix, 0)
+
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
+        GLES20.glBindTexture(GLES30.GL_TEXTURE_2D, cubeTexture)
+        GLES20.glUniform1i(textureRenderer!!.texturePosHandle, 0)
+
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36)
+        textureRenderer!!.end()
+    }
+
+
+    inner class TextureRenderer{
+         var shaderProgram:Int =0
+        var positionHandle:Int = 0
+        var textCoordsHandle:Int = 0
+        var mMVPMatrixHandle:Int =0
+        var texturePosHandle:Int =0
+
+        init {
+            var vertexShaderId:Int = ShaderUtils.compileVertexShader(vertexShaderCode)
+            var fragmentShaderId:Int = ShaderUtils.compileFragmentShader(fragmentShaderCode)
+            shaderProgram = ShaderUtils.linkProgram(vertexShaderId, fragmentShaderId)
+            positionHandle = GLES20.glGetAttribLocation(shaderProgram, "aPosition")
+            textCoordsHandle = GLES20.glGetAttribLocation(shaderProgram, "aTexCoords")
+            mMVPMatrixHandle = GLES20.glGetUniformLocation(shaderProgram, "uMVPMatrix")
+            texturePosHandle = GLES20.glGetUniformLocation(shaderProgram, "texture")
+        }
+
+        fun start() {
+            GLES20.glUseProgram(shaderProgram)
+            GLES20.glEnableVertexAttribArray(positionHandle)
+            GLES20.glEnableVertexAttribArray(texturePosHandle)
+        }
+
+        fun end() {
+            GLES20.glDisableVertexAttribArray(positionHandle)
+            GLES20.glDisableVertexAttribArray(texturePosHandle)
+            GLES20.glUseProgram(0)
+        }
+
+
+    }
+
+
 }

@@ -59,7 +59,7 @@ class Camera3DRender(ctx: Context?, listener: OnFrameAvailableListener?): BaseCa
         val vertexShaderStr = ResReadUtils.readResource(R.raw.vertex_camera_texture)
         val vertexShaderId = ShaderUtils.compileVertexShader(vertexShaderStr)
         //编译片段着色程序
-        val fragmentShaderStr = ResReadUtils.readResource(R.raw.fragment_camera_quarter_mirror_shade)
+        val fragmentShaderStr = ResReadUtils.readResource(R.raw.fragment_camera_shade)
         val fragmentShaderId = ShaderUtils.compileFragmentShader(fragmentShaderStr)
         //连接程序
         mProgram = ShaderUtils.linkProgram(vertexShaderId, fragmentShaderId)
