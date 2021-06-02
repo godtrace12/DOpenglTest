@@ -85,6 +85,9 @@ class Camera3DRender(ctx: Context?, listener: OnFrameAvailableListener?): BaseCa
 
     override fun onDrawFrame(gl: GL10?) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
+        //开启深度测试
+        //开启深度测试
+        GLES30.glEnable(GLES20.GL_DEPTH_TEST)
         /********** 绘制摄像头画面   */
         //在OpenGLES环境中使用程序
         GLES30.glUseProgram(mProgram)

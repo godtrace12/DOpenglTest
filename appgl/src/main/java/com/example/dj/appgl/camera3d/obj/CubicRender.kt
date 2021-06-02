@@ -80,7 +80,7 @@ class CubicRender: AbsObjectRender() {
     override fun initProgram() {
         vertexShaderCode =  ResReadUtils.readResource(R.raw.texture_vertext)
         fragmentShaderCode =  ResReadUtils.readResource(R.raw.texture_fragment)
-        cubeTexture = TextureUtils.loadTexture(AppCore.getInstance().context,R.drawable.hzw5)
+        cubeTexture = TextureUtils.loadTexture(AppCore.getInstance().context,R.drawable.hzw2)
         textureRenderer = TextureRenderer()
 
 
@@ -97,14 +97,14 @@ class CubicRender: AbsObjectRender() {
         var ratio:Float = ((width+0.0f)/height)
         Log.e(TAG, "onSurfaceChanged: mWidth="+width+" mHeight="+height+" ratio="+ratio)
         //初始化矩阵
-//        Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1f, 1f, 1f, 1000f)
-//        Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 0f, 0f, 0f, -1f, 0f, 1f, 0f)
+        Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1f, 1f, 1f, 7f)
+        Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 1f, 0f, 0f, 0.2f, 0f, 1f, 0f)
 
     }
 
     override fun onDrawFrame() {
-        projectionMatrix = projectMatrix
-        viewMatrix = cameraMatrix
+//        projectionMatrix = projectMatrix
+//        viewMatrix = cameraMatrix
         drawTexture()
 
     }
