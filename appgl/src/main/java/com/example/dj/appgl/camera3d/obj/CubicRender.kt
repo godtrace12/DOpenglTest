@@ -14,7 +14,7 @@ import com.example.dj.appgl.util.TextureUtils
 import java.nio.FloatBuffer
 
 class CubicRender: AbsObjectRender() {
-    private val TAG = "TriangleColorRender"
+    private val TAG = "CubicRender"
 
     private var cubeVertices: FloatArray? = floatArrayOf( // positions          // texture Coords
             -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
@@ -66,9 +66,6 @@ class CubicRender: AbsObjectRender() {
     private var viewMatrix: FloatArray? = FloatArray(16)
     private var projectionMatrix: FloatArray? = FloatArray(16)
     private var cubeTexture:Int = 0
-    private var shaderProgram:Int =0
-    // 旋转矩阵
-    private var rotationMatrix = FloatArray(16)
 
     //累计旋转过的角度
     private var angle = 0f
@@ -86,23 +83,20 @@ class CubicRender: AbsObjectRender() {
         cubeTexture = TextureUtils.loadTexture(AppCore.getInstance().context,R.drawable.hzw5)
         textureRenderer = TextureRenderer()
 
-
-//        var vertexShaderId:Int = ShaderUtils.compileVertexShader(vertexShaderCode)
-//        var fragmentShaderId:Int = ShaderUtils.compileFragmentShader(fragmentShaderCode)
-//        mProgram = ShaderUtils.linkProgram(vertexShaderId, fragmentShaderId)
-//        shaderProgram = mProgram
         mProgram = textureRenderer!!.shaderProgram
         if (mProgram == 0){
             Log.e(TAG, "initProgram: cubic 初始化失败")
         }
-        var width = 1080
-        var height = 2076
+    }
+
+    // 设置透视和view矩阵
+    private fun initProjectViewMatrix(aWidth : Int,aHeight:Int){
+        var width = aWidth
+        var height = aHeight
         var ratio:Float = ((width+0.0f)/height)
-        Log.e(TAG, "onSurfaceChanged: mWidth="+width+" mHeight="+height+" ratio="+ratio)
         //初始化矩阵
         Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1f, 1f, 1f, 7f)
         Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 2f, 0f, 0f, 0.0f, 0f, 1f, 0f)
-
     }
 
     override fun onDrawFrame() {
@@ -110,13 +104,13 @@ class CubicRender: AbsObjectRender() {
     }
 
     private fun drawTexture() {
-//        Log.e(TAG, "drawTexture: cubic render")
+        initProjectViewMatrix(mWidth,mHeight)
         textureRenderer!!.start()
         val vertexBuffer: FloatBuffer = GLDataUtil.createFloatBuffer(cubeVertices)
-        GLES20.glVertexAttribPointer(textureRenderer!!.positionHandle, 3, GLES20.GL_FLOAT,
+        GLES30.glVertexAttribPointer(textureRenderer!!.positionHandle, 3, GLES30.GL_FLOAT,
                 false, 5 * 4, vertexBuffer)
         vertexBuffer.position(3)
-        GLES20.glVertexAttribPointer(textureRenderer!!.textCoordsHandle, 2, GLES20.GL_FLOAT,
+        GLES30.glVertexAttribPointer(textureRenderer!!.textCoordsHandle, 2, GLES30.GL_FLOAT,
                 false, 5 * 4, vertexBuffer)
         Matrix.setIdentityM(modelMatrix, 0)
 //        Matrix.translateM(modelMatrix, 0, 0.5f, 0.5f, -2f)
@@ -124,13 +118,13 @@ class CubicRender: AbsObjectRender() {
         Matrix.rotateM(modelMatrix, 0, angle, 1.0f, 1.0f, 0f)
         Matrix.multiplyMM(mMVPMatrix, 0, viewMatrix, 0, modelMatrix, 0)
         Matrix.multiplyMM(mMVPMatrix, 0, projectionMatrix, 0, mMVPMatrix, 0)
-        GLES20.glUniformMatrix4fv(textureRenderer!!.mMVPMatrixHandle, 1, false, mMVPMatrix, 0)
+        GLES30.glUniformMatrix4fv(textureRenderer!!.mMVPMatrixHandle, 1, false, mMVPMatrix, 0)
 
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
-        GLES20.glBindTexture(GLES30.GL_TEXTURE_2D, cubeTexture)
-        GLES20.glUniform1i(textureRenderer!!.texturePosHandle, 0)
+        GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, cubeTexture)
+        GLES30.glUniform1i(textureRenderer!!.texturePosHandle, 0)
 
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36)
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
         textureRenderer!!.end()
         angle +=2
         if(angle >= 360){
@@ -150,22 +144,22 @@ class CubicRender: AbsObjectRender() {
             var vertexShaderId:Int = ShaderUtils.compileVertexShader(vertexShaderCode)
             var fragmentShaderId:Int = ShaderUtils.compileFragmentShader(fragmentShaderCode)
             shaderProgram = ShaderUtils.linkProgram(vertexShaderId, fragmentShaderId)
-            positionHandle = GLES20.glGetAttribLocation(shaderProgram, "aPosition")
-            textCoordsHandle = GLES20.glGetAttribLocation(shaderProgram, "aTexCoords")
-            mMVPMatrixHandle = GLES20.glGetUniformLocation(shaderProgram, "uMVPMatrix")
-            texturePosHandle = GLES20.glGetUniformLocation(shaderProgram, "texture")
+            positionHandle = GLES30.glGetAttribLocation(shaderProgram, "aPosition")
+            textCoordsHandle = GLES30.glGetAttribLocation(shaderProgram, "aTexCoords")
+            mMVPMatrixHandle = GLES30.glGetUniformLocation(shaderProgram, "uMVPMatrix")
+            texturePosHandle = GLES30.glGetUniformLocation(shaderProgram, "texture")
         }
 
         fun start() {
-            GLES20.glUseProgram(shaderProgram)
-            GLES20.glEnableVertexAttribArray(positionHandle)
-            GLES20.glEnableVertexAttribArray(texturePosHandle)
+            GLES30.glUseProgram(shaderProgram)
+            GLES30.glEnableVertexAttribArray(positionHandle)
+            GLES30.glEnableVertexAttribArray(texturePosHandle)
         }
 
         fun end() {
-            GLES20.glDisableVertexAttribArray(positionHandle)
-            GLES20.glDisableVertexAttribArray(texturePosHandle)
-            GLES20.glUseProgram(0)
+            GLES30.glDisableVertexAttribArray(positionHandle)
+            GLES30.glDisableVertexAttribArray(texturePosHandle)
+            GLES30.glUseProgram(0)
         }
 
 

@@ -44,6 +44,7 @@ public abstract class BaseCameraRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceChanged(GL10 gl10, int i, int i1) {
         for (AbsObjectRender objRender:objectRenders){
             objRender.setProjAndCamMatrix(mProjectMatrix,mCameraMatrix);
+            objRender.setScreenWidthHeight(i,i1);
         }
     }
 

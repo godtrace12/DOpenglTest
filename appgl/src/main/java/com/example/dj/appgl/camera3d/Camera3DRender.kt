@@ -18,7 +18,7 @@ import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
 class Camera3DRender(ctx: Context?, listener: OnFrameAvailableListener?): BaseCameraRenderer(){
-    private val TAG = "CameraTriangleRender"
+    private val TAG = "Camera3DRender"
     private var mContext: Context? = null
     private var mCameraManeger: CameraManeger? = null
     private var mCameraTexture: SurfaceTexture? = null
@@ -31,8 +31,6 @@ class Camera3DRender(ctx: Context?, listener: OnFrameAvailableListener?): BaseCa
     private var mMVPMatrixHandle = 0
 
     //透视矩阵、相机矩阵定义放在基类中，方便传给其他绘制对象
-    //    private float[] mProjectMatrix = new float[16];
-    //    private float[] mCameraMatrix  = new float[16];
     private val mMVPMatrix = FloatArray(16)
     private val mTempMatrix = FloatArray(16)
 
@@ -75,26 +73,13 @@ class Camera3DRender(ctx: Context?, listener: OnFrameAvailableListener?): BaseCa
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
-        GLES30.glViewport(0, 0, width, height)
-        val ratio = width.toFloat() / height
-        Matrix.orthoM(mProjectMatrix, 0, -ratio, ratio, -1f, 1f, 1f, 7f)
-        Matrix.setLookAtM(mCameraMatrix, 0, 0f, 0f, 3f,
-                0f, 0f, 0f,
-                0f, 1.0f, 0.0f) // 3代表眼睛的坐标点
-        //        triangleRender.setProjAndCamMatrix(mProjectMatrix,mCameraMatrix);
-        Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mCameraMatrix, 0)
-        // 调用父类，完成另外添加进来的图形的透视、相机矩阵初始化
         super.onSurfaceChanged(gl, width, height)
     }
 
     override fun onDrawFrame(gl: GL10?) {
         GLES30.glEnable(GLES20.GL_DEPTH_TEST)
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
+        GLES30.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
         //开启深度测试
-        //开启深度测试
-//        GLES30.glEnable(GLES30.GL_CULL_FACE)
-//        GLES30.glDisable(GLES30.GL_CULL_FACE)
-//        GLES30.glCullFace(GLES30.GL_BACK)
         /********** 绘制摄像头画面   */
         //在OpenGLES环境中使用程序
         GLES30.glUseProgram(mProgram)
@@ -113,9 +98,7 @@ class Camera3DRender(ctx: Context?, listener: OnFrameAvailableListener?): BaseCa
         GLES30.glDisableVertexAttribArray(uPosHandle)
         GLES30.glDisableVertexAttribArray(aTexHandle)
         GLES30.glUseProgram(0)
-//        GLES20.glDepthFunc(GLES20.GL_LESS)
         /********* 开始绘制三角形  */
-//        GLES20.glDepthFunc(GLES20.GL_LEQUAL)
         // 调用父类，完成另外添加进来的图形的绘制
         super.onDrawFrame(gl)
     }

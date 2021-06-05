@@ -21,6 +21,9 @@ public abstract class AbsObjectRender {
     private FloatBuffer colorBuffer;
     //渲染程序
     public int mProgram = 0;
+    //屏幕宽和高
+    protected int mWidth =0;
+    protected int mHeight =0;
     /**
      *【说明】： 在onSurfaceCreated中调用,program要在onSurfaceCreated中调用才能成功
      *@author daijun
@@ -54,4 +57,9 @@ public abstract class AbsObjectRender {
     *@return
     */
     abstract public void onDrawFrame();
+
+    public void setScreenWidthHeight(int width,int heigt){
+        this.mWidth = width;
+        this.mHeight = heigt;
+    }
 }

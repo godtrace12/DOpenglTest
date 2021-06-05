@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
  */
 public abstract class AbsGLSurfaceActivity extends AppCompatActivity {
 
-    private GLSurfaceView mGLSurfaceView;
+    protected GLSurfaceView mGLSurfaceView;
 
     protected abstract GLSurfaceView.Renderer bindRenderer();
     protected GLSurfaceView.Renderer renderer;
@@ -29,6 +29,7 @@ public abstract class AbsGLSurfaceActivity extends AppCompatActivity {
         mGLSurfaceView.setEGLContextClientVersion(3);
         renderer = bindRenderer();
         mGLSurfaceView.setRenderer(renderer);
+        mGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     }
 
 }
