@@ -17,7 +17,7 @@ varying vec2 TexCoord;
 void main() {
     fragPos = vec3(uMVMatrix * aPosition);
     norm = normalize(vec3(uMVMatrix * vec4(aNormal, 0.0)));
-//    aObjectColor = objectColor;
+    aObjectColor = objectColor;
     gl_Position = uMVPMatrix * aPosition;
     // 纹理坐标
     TexCoord = aTexCoords;

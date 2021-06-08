@@ -5,6 +5,7 @@ import android.opengl.GLES20
 import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
+import android.os.SystemClock
 import android.util.Log
 import com.example.dj.appgl.R
 import com.example.dj.appgl.base.AppCore
@@ -109,6 +110,49 @@ class PhongLightRenderer: GLSurfaceView.Renderer{
             0.0f, 1.0f, 0.0f,
             0.0f, 1.0f, 0.0f
     )
+
+    /**
+     * 各个面颜色
+     */
+    private val cubeColorData = floatArrayOf( // 红
+            1.0f, 0.0f, 0.0f,
+            1.0f, 0.0f, 0.0f,
+            1.0f, 0.0f, 0.0f,
+            1.0f, 0.0f, 0.0f,
+            1.0f, 0.0f, 0.0f,
+            1.0f, 0.0f, 0.0f,  // 蓝
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,  // 黄
+            1.0f, 1.0f, 0.0f,
+            1.0f, 1.0f, 0.0f,
+            1.0f, 1.0f, 0.0f,
+            1.0f, 1.0f, 0.0f,
+            1.0f, 1.0f, 0.0f,
+            1.0f, 1.0f, 0.0f,  // 青
+            0.0f, 1.0f, 1.0f,
+            0.0f, 1.0f, 1.0f,
+            0.0f, 1.0f, 1.0f,
+            0.0f, 1.0f, 1.0f,
+            0.0f, 1.0f, 1.0f,
+            0.0f, 1.0f, 1.0f,  // 绿
+            0.0f, 1.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,  // 品红
+            1.0f, 0.0f, 1.0f,
+            1.0f, 0.0f, 1.0f,
+            1.0f, 0.0f, 1.0f,
+            1.0f, 0.0f, 1.0f,
+            1.0f, 0.0f, 1.0f,
+            1.0f, 0.0f, 1.0f
+    )
+
     //光源的shadeCode
     private var vertexLightShaderCode:String? = null
 
@@ -179,7 +223,12 @@ class PhongLightRenderer: GLSurfaceView.Renderer{
         // 清屏
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
 
+        val angleInDegrees = 360.0f / 10000.0f * (SystemClock.uptimeMillis() % 10000L)
+        Log.e("dj", "onDrawFrame: "+angleInDegrees)
+
         Matrix.setIdentityM(mLightModelMatrix, 0)
+        Matrix.rotateM(mLightModelMatrix, 0, angleInDegrees, 0.0f, 1.0f, 0.0f);
+
         //Matrix.translateM(mLightModelMatrix, 0, 0.0f, 0.0f, 1.0f);
         Matrix.multiplyMV(mLightPosInWorldSpace, 0, mLightModelMatrix, 0, mLightPosInModelSpace, 0)
         Matrix.multiplyMV(mLightPosInEyeSpace, 0, viewMatrix, 0, mLightPosInWorldSpace, 0)
@@ -233,6 +282,13 @@ class PhongLightRenderer: GLSurfaceView.Renderer{
         val aTexCoordsHandle = GLES20.glGetAttribLocation(shaderProgram, "aTexCoords")
         GLES20.glVertexAttribPointer(aTexCoordsHandle, 2, GLES20.GL_FLOAT,
                 false, 5 * 4, vertexBuffer)
+
+        // 塞入颜色数据
+        // 颜色
+        val colorHandle = GLES20.glGetAttribLocation(shaderProgram, "objectColor")
+        GLES20.glEnableVertexAttribArray(colorHandle)
+        GLES20.glVertexAttribPointer(colorHandle, 3, GLES20.GL_FLOAT,
+                false, 3 * 4, GLDataUtil.createFloatBuffer(cubeColorData))
 
         // 法向量
         val normalBuffer: FloatBuffer = GLDataUtil.createFloatBuffer(cubeNormal)

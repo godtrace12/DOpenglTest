@@ -20,15 +20,15 @@ void main() {
     float specularStrength = 2.5;
     vec3 viewDir = normalize(-fragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 16.0);
     vec3 specular = spec * specularStrength * lightColor;
 
     vec4 textColor = texture2D(texture,TexCoord);
 
     // 结果
-//    vec3 result = (ambient + diffuse + specular) * aObjectColor;//-- 1颜色
-    vec3 textureColor = textColor.xyz;
-    vec3 result = (ambient + diffuse + specular) * textureColor;
+    vec3 result = (ambient + diffuse + specular) * aObjectColor;//-- 1颜色
+//    vec3 textureColor = vec3(textColor.r,textColor.g,textColor.b);
+//    vec3 result = (ambient + diffuse + specular) * textureColor;
 
     gl_FragColor = vec4(result, 1.0);
 }
