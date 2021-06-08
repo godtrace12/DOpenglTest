@@ -75,6 +75,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Cam3D"/>
+
+            <Button
+                android:id="@+id/btnFengLight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="光照"/>
         </LinearLayout>
 
 
