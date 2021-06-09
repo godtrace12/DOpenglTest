@@ -10,7 +10,7 @@ public class FengLightActivity extends AbsGLSurfaceActivity {
 
     @Override
     protected GLSurfaceView.Renderer bindRenderer() {
-        return new PhongLightRenderer();
+        return new TextureMapLightRenderer();
     }
 
     @Override
