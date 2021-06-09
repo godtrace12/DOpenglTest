@@ -18,7 +18,7 @@ void main() {
 
     // 镜面光照
     float specularStrength = 2.5;
-    vec3 viewDir = normalize(-fragPos);
+    vec3 viewDir = normalize(-fragPos);//在观察空间计算的好处是，观察者的位置总是(0, 0, 0)，
     vec3 reflectDir = reflect(-lightDir, norm);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 16.0);
     vec3 specular = spec * specularStrength * lightColor;
