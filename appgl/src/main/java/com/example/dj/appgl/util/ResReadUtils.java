@@ -35,6 +35,7 @@ public class ResReadUtils {
                 builder.append(textLine);
                 builder.append("\n");
             }
+            streamReader.close();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (Resources.NotFoundException e) {

@@ -39,14 +39,20 @@ public class TextureUtils {
         // 绑定纹理到OpenGL
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureIds[0]);
 
-        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR_MIPMAP_LINEAR);
-        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER,
+                GLES20.GL_LINEAR);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER,
+                GLES20.GL_LINEAR);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S,
+                 GLES20.GL_REPEAT);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T,
+                GLES20.GL_REPEAT);
 
         // 加载bitmap到纹理中
         GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, bitmap, 0);
 
         // 生成MIP贴图
-        GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D);
+//        GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D);
 
         // 数据如果已经被加载进OpenGL,则可以回收该bitmap
         bitmap.recycle();
@@ -272,6 +278,33 @@ public class TextureUtils {
             return texture[0];
         }
         return 0;
+    }
+
+    /**
+     * 绑定纹理
+     * @param location 句柄
+     * @param texture  纹理id
+     * @param index    索引
+     */
+    public static void bindTexture(int location, int texture, int index) {
+        bindTexture(location, texture, index, GLES20.GL_TEXTURE_2D);
+    }
+
+    /**
+     * 绑定纹理
+     * @param location    句柄
+     * @param texture     纹理值
+     * @param index       绑定的位置
+     * @param textureType 纹理类型
+     */
+    public static void bindTexture(int location, int texture, int index, int textureType) {
+        // 最多支持绑定32个纹理
+        if (index > 31) {
+            throw new IllegalArgumentException("index must be no more than 31!");
+        }
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + index);
+        GLES20.glBindTexture(textureType, texture);
+        GLES20.glUniform1i(location, index);
     }
 
 

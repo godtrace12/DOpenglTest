@@ -2,7 +2,6 @@ package com.example.dj.appgl.light
 
 import android.graphics.Color
 import android.opengl.GLES20
-import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import android.os.SystemClock
@@ -138,7 +137,6 @@ class TextureMapLightRenderer: GLSurfaceView.Renderer{
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
 
         val angleInDegrees = 360.0f / 10000.0f * (SystemClock.uptimeMillis() % 10000L)
-        Log.e("dj", "onDrawFrame: "+angleInDegrees)
 
         Matrix.setIdentityM(mLightModelMatrix, 0)
         Matrix.rotateM(mLightModelMatrix, 0, angleInDegrees, 0.0f, 1.0f, 0.0f);
@@ -149,8 +147,8 @@ class TextureMapLightRenderer: GLSurfaceView.Renderer{
 
         Matrix.setIdentityM(modelMatrix, 0)
 
-        drawLight()
         drawCube()
+        drawLight()
     }
 
 
@@ -230,10 +228,15 @@ class TextureMapLightRenderer: GLSurfaceView.Renderer{
         val materialEmissionPosHandle = GLES20.glGetUniformLocation(shaderProgram, "material.emission")
 
         //启用纹理
-        bindTexture(materialDiffusePosHandle,diffuse,0)
-        bindTexture(materialSpecularPosHandle,emission,1)
-        bindTexture(materialShininessPosHandle,specular,2)
-        GLES20.glUniform1f(materialEmissionPosHandle, 256.0f)
+//        bindTexture(materialDiffusePosHandle,diffuse,0)
+//        bindTexture(materialSpecularPosHandle,emission,1)
+//        bindTexture(materialEmissionPosHandle,specular,2)
+        // 不对原因，emssion和shaine取错
+        TextureUtils.bindTexture(materialDiffusePosHandle, diffuse, 0)
+        TextureUtils.bindTexture(materialSpecularPosHandle, emission, 1)
+        TextureUtils.bindTexture(materialEmissionPosHandle, specular, 2)
+
+        GLES20.glUniform1f(materialShininessPosHandle, 256.0f)
 
         // 2-- 光照
         val lightAmbientPosHandle = GLES20.glGetUniformLocation(shaderProgram, "light.ambient")
@@ -249,10 +252,7 @@ class TextureMapLightRenderer: GLSurfaceView.Renderer{
 
 
         // 绘制顶点
-//        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36)
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, cubeVertices!!.size/(3+3+2))
-
-
         GLES20.glDisableVertexAttribArray(positionHandle)
         GLES20.glDisableVertexAttribArray(normalHandle)
         GLES20.glDisableVertexAttribArray(aTexCoordsHandle)
