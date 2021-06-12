@@ -280,6 +280,7 @@ class PhongLightRenderer: GLSurfaceView.Renderer{
         vertexBuffer.position(3)
         // 纹理坐标
         val aTexCoordsHandle = GLES20.glGetAttribLocation(shaderProgram, "aTexCoords")
+        GLES20.glEnableVertexAttribArray(aTexCoordsHandle)
         GLES20.glVertexAttribPointer(aTexCoordsHandle, 2, GLES20.GL_FLOAT,
                 false, 5 * 4, vertexBuffer)
 

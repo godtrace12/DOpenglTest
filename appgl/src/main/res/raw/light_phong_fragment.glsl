@@ -30,9 +30,6 @@ void main() {
     vec4 textColor = texture2D(texture,TexCoord);
 
     // 结果
-    vec3 result = (ambient + diffuse + specular) * aObjectColor;//-- 1颜色
-//    vec3 textureColor = vec3(textColor.r,textColor.g,textColor.b);
-//    vec3 result = (ambient + diffuse + specular) * textureColor;
-
+    vec3 result = (ambient + diffuse + specular) * vec3(textColor);//-- 1颜色
     gl_FragColor = vec4(result, 1.0);
 }
