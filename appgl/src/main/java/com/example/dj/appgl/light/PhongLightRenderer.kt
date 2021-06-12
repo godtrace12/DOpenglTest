@@ -20,95 +20,50 @@ import javax.microedition.khronos.opengles.GL10
 class PhongLightRenderer: GLSurfaceView.Renderer{
 
     //2-------------- 立方体物体顶点纹理坐标 ----------------------
-    private var cubeVertices: FloatArray? = floatArrayOf( // positions          // texture Coords
+    private var cubeVertices: FloatArray? = floatArrayOf(
+            // positions（3位）          // texture Coords(2位)  //normal(3位)
             //后
-            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-            0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,0.0f,0.0f,-1.0f,
+            0.5f, -0.5f, -0.5f, 1.0f, 0.0f,0.0f,0.0f,-1.0f,
+            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,0.0f,0.0f,-1.0f,
+            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,0.0f,0.0f,-1.0f,
+            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,0.0f,0.0f,-1.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,0.0f,0.0f,-1.0f,
             //前
-            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-            0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-            0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-            0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-            -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
-            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,0.0f, 0.0f, 1.0f,
+            0.5f, -0.5f, 0.5f, 1.0f, 0.0f,0.0f, 0.0f, 1.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 1.0f,0.0f, 0.0f, 1.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 1.0f,0.0f, 0.0f, 1.0f,
+            -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,0.0f, 0.0f, 1.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,0.0f, 0.0f, 1.0f,
             //左
-            -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-            -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-            -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+            -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,-1.0f, 0.0f, 0.0f,
+            -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,-1.0f, 0.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,-1.0f, 0.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,-1.0f, 0.0f, 0.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,-1.0f, 0.0f, 0.0f,
+            -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,-1.0f, 0.0f, 0.0f,
             //右
-            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-            0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,1.0f, 0.0f, 0.0f,
+            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,1.0f, 0.0f, 0.0f,
+            0.5f, -0.5f, -0.5f, 0.0f, 1.0f,1.0f, 0.0f, 0.0f,
+            0.5f, -0.5f, -0.5f, 0.0f, 1.0f,1.0f, 0.0f, 0.0f,
+            0.5f, -0.5f, 0.5f, 0.0f, 0.0f,1.0f, 0.0f, 0.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,1.0f, 0.0f, 0.0f,
             //下
-            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-            0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-            0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,0.0f, -1.0f, 0.0f,
+            0.5f, -0.5f, -0.5f, 1.0f, 1.0f,0.0f, -1.0f, 0.0f,
+            0.5f, -0.5f, 0.5f, 1.0f, 0.0f,0.0f, -1.0f, 0.0f,
+            0.5f, -0.5f, 0.5f, 1.0f, 0.0f,0.0f, -1.0f, 0.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,0.0f, -1.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,0.0f, -1.0f, 0.0f,
             //上
-            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-            -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
-            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
-    )
-
-    // 向量坐标
-    private var cubeNormal:FloatArray?= floatArrayOf(
-            //后
-            0.0f,0.0f,-1.0f,
-            0.0f,0.0f,-1.0f,
-            0.0f,0.0f,-1.0f,
-            0.0f,0.0f,-1.0f,
-            0.0f,0.0f,-1.0f,
-            0.0f,0.0f,-1.0f,
-            //前
-            0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 1.0f,
-            //左
-            -1.0f, 0.0f, 0.0f,
-            -1.0f, 0.0f, 0.0f,
-            -1.0f, 0.0f, 0.0f,
-            -1.0f, 0.0f, 0.0f,
-            -1.0f, 0.0f, 0.0f,
-            -1.0f, 0.0f, 0.0f,
-            // 右
-            1.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 0.0f,
-            // 下
-            0.0f, -1.0f, 0.0f,
-            0.0f, -1.0f, 0.0f,
-            0.0f, -1.0f, 0.0f,
-            0.0f, -1.0f, 0.0f,
-            0.0f, -1.0f, 0.0f,
-            0.0f, -1.0f, 0.0f,
-            // 上
-            0.0f, 1.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-            0.0f, 1.0f, 0.0f
+            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,0.0f, 1.0f, 0.0f,
+            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,0.0f, 1.0f, 0.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,0.0f, 1.0f, 0.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,0.0f, 1.0f, 0.0f,
+            -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,0.0f, 1.0f, 0.0f,
+            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,0.0f, 1.0f, 0.0f
     )
 
     //光源的shadeCode
@@ -139,6 +94,8 @@ class PhongLightRenderer: GLSurfaceView.Renderer{
     protected var bg = Color.BLACK
     private var mWidth:Int=0
     private var mHeight:Int=0
+    // 顶点数据buffer
+    private lateinit var vertexBuffer:FloatBuffer
 
     init {
         vertexShaderCode = ResReadUtils.readResource(R.raw.light_phong_vertex)
@@ -168,6 +125,8 @@ class PhongLightRenderer: GLSurfaceView.Renderer{
                 0f, 0f, 0f,
                 0f, 1.0f, 0.0f)
         GLES20.glViewport(0, 0, width, height)
+        vertexBuffer = GLDataUtil.createFloatBuffer(cubeVertices)
+
 
     }
 
@@ -232,23 +191,22 @@ class PhongLightRenderer: GLSurfaceView.Renderer{
         // 传入顶点坐标
         val positionHandle = GLES20.glGetAttribLocation(shaderProgram, "aPosition")
         GLES20.glEnableVertexAttribArray(positionHandle)
-        val vertexBuffer: FloatBuffer = GLDataUtil.createFloatBuffer(cubeVertices)
+        vertexBuffer.position(0)
         GLES20.glVertexAttribPointer(positionHandle, 3, GLES20.GL_FLOAT,
-                false, 5 * 4, vertexBuffer)
+                false, 8 * 4, vertexBuffer)
         vertexBuffer.position(3)
         // 纹理坐标
         val aTexCoordsHandle = GLES20.glGetAttribLocation(shaderProgram, "aTexCoords")
         GLES20.glEnableVertexAttribArray(aTexCoordsHandle)
         GLES20.glVertexAttribPointer(aTexCoordsHandle, 2, GLES20.GL_FLOAT,
-                false, 5 * 4, vertexBuffer)
+                false, 8 * 4, vertexBuffer)
 
         // 法向量
-        val normalBuffer: FloatBuffer = GLDataUtil.createFloatBuffer(cubeNormal)
         val normalHandle = GLES20.glGetAttribLocation(shaderProgram, "aNormal")
         GLES20.glEnableVertexAttribArray(normalHandle)
-        vertexBuffer.position(3)
+        vertexBuffer.position(5)
         GLES20.glVertexAttribPointer(normalHandle, 3, GLES20.GL_FLOAT,
-                false, 3 * 4, normalBuffer)
+                false, 8 * 4, vertexBuffer)
 
 
 
@@ -270,8 +228,7 @@ class PhongLightRenderer: GLSurfaceView.Renderer{
         GLES20.glUniform1i(texturePosHandle, 0)
 
         // 绘制顶点
-//        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36)
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, cubeVertices!!.size/(3+2))
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, cubeVertices!!.size/(3+2+3))
 
 
         GLES20.glDisableVertexAttribArray(positionHandle)
