@@ -98,8 +98,8 @@ class PhongLightRenderer: GLSurfaceView.Renderer{
     private lateinit var vertexBuffer:FloatBuffer
 
     init {
-        vertexShaderCode = ResReadUtils.readResource(R.raw.light_phong_vertex)
-        fragmentShaderCode = ResReadUtils.readResource(R.raw.light_phong_fragment)
+        vertexShaderCode = ResReadUtils.readResource(R.raw.vertex_light_phong_shade)
+        fragmentShaderCode = ResReadUtils.readResource(R.raw.fragment_light_phong_shade)
         vertexLightShaderCode = ResReadUtils.readResource(R.raw.vertex_point_light_shade)
         fragmentLightShaderCode = ResReadUtils.readResource(R.raw.fragment_point_light_shade)
 
