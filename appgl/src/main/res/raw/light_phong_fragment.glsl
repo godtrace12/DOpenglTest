@@ -3,7 +3,6 @@ varying vec2 TexCoord;
 varying vec3 fragPos;
 varying vec3 norm;
 uniform vec3 aLightPos;
-varying vec3 aObjectColor;
 uniform sampler2D texture;
 void main() {
     //1--- 环境光照

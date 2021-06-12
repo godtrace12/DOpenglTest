@@ -111,48 +111,6 @@ class PhongLightRenderer: GLSurfaceView.Renderer{
             0.0f, 1.0f, 0.0f
     )
 
-    /**
-     * 各个面颜色
-     */
-    private val cubeColorData = floatArrayOf( // 红
-            1.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 0.0f,  // 蓝
-            0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 1.0f,  // 黄
-            1.0f, 1.0f, 0.0f,
-            1.0f, 1.0f, 0.0f,
-            1.0f, 1.0f, 0.0f,
-            1.0f, 1.0f, 0.0f,
-            1.0f, 1.0f, 0.0f,
-            1.0f, 1.0f, 0.0f,  // 青
-            0.0f, 1.0f, 1.0f,
-            0.0f, 1.0f, 1.0f,
-            0.0f, 1.0f, 1.0f,
-            0.0f, 1.0f, 1.0f,
-            0.0f, 1.0f, 1.0f,
-            0.0f, 1.0f, 1.0f,  // 绿
-            0.0f, 1.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,  // 品红
-            1.0f, 0.0f, 1.0f,
-            1.0f, 0.0f, 1.0f,
-            1.0f, 0.0f, 1.0f,
-            1.0f, 0.0f, 1.0f,
-            1.0f, 0.0f, 1.0f,
-            1.0f, 0.0f, 1.0f
-    )
-
     //光源的shadeCode
     private var vertexLightShaderCode:String? = null
 
@@ -283,13 +241,6 @@ class PhongLightRenderer: GLSurfaceView.Renderer{
         GLES20.glEnableVertexAttribArray(aTexCoordsHandle)
         GLES20.glVertexAttribPointer(aTexCoordsHandle, 2, GLES20.GL_FLOAT,
                 false, 5 * 4, vertexBuffer)
-
-        // 塞入颜色数据
-        // 颜色
-        val colorHandle = GLES20.glGetAttribLocation(shaderProgram, "objectColor")
-        GLES20.glEnableVertexAttribArray(colorHandle)
-        GLES20.glVertexAttribPointer(colorHandle, 3, GLES20.GL_FLOAT,
-                false, 3 * 4, GLDataUtil.createFloatBuffer(cubeColorData))
 
         // 法向量
         val normalBuffer: FloatBuffer = GLDataUtil.createFloatBuffer(cubeNormal)
