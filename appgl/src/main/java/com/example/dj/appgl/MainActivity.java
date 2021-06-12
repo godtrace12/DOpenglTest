@@ -15,6 +15,7 @@ import com.example.dj.appgl.camera3d.Camera3DActivity;
 import com.example.dj.appgl.fbo.TriangleFboActivity;
 import com.example.dj.appgl.fbo.RectFboTestActivity;
 import com.example.dj.appgl.light.FengLightActivity;
+import com.example.dj.appgl.light.TextureLightActivity;
 import com.example.dj.appgl.model.ModeBglLoadActivity;
 import com.example.dj.appgl.model.ModelLoadActivity;
 import com.example.dj.appgl.skybox.SkyboxActivity;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnSkybox;
     private Button btnCamera3D;
     private Button btnFengLight;
+    private Button btnTextureLight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +65,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnCamera3D.setOnClickListener(this);
         btnFengLight = findViewById(R.id.btnFengLight);
         btnFengLight.setOnClickListener(this);
+        btnTextureLight = findViewById(R.id.btnTextureLight);
+        btnTextureLight.setOnClickListener(this);
     }
 
     @Override
@@ -100,6 +104,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivity(intent);
         }else if(viewId == R.id.btnFengLight){
             Intent intent = new Intent(MainActivity.this, FengLightActivity.class);
+            startActivity(intent);
+        }else if(viewId == R.id.btnTextureLight){
+            Intent intent = new Intent(MainActivity.this, TextureLightActivity.class);
             startActivity(intent);
         }
     }

@@ -16,7 +16,9 @@ import com.example.dj.appgl.util.TextureUtils
 import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
-
+/****
+ * 光照贴图
+ * **/
 class TextureMapLightRenderer: GLSurfaceView.Renderer{
 
     //2-------------- 立方体物体顶点纹理坐标 ----------------------
@@ -89,9 +91,9 @@ class TextureMapLightRenderer: GLSurfaceView.Renderer{
     private var mHeight:Int=0
 
     // 纹理
+    private var ambient:Int = 0
     private var diffuse:Int = 0
     private var specular:Int = 0
-    private var emission:Int = 0
 
     init {
         vertexShaderCode = ResReadUtils.readResource(R.raw.light_maps_vertex)
@@ -107,9 +109,9 @@ class TextureMapLightRenderer: GLSurfaceView.Renderer{
         GLES20.glClearColor(Color.red(bg) / 255.0f, Color.green(bg) / 255.0f,
                 Color.blue(bg) / 255.0f, Color.alpha(bg) / 255.0f)
         //纹理的创建也需要放到opengl线程
-        diffuse = TextureUtils.loadTexture(AppCore.getInstance().context,R.drawable.ic_light_maps_image1)
-        specular = TextureUtils.loadTexture(AppCore.getInstance().context,R.drawable.ic_light_maps_image2)
-        emission = TextureUtils.loadTexture(AppCore.getInstance().context,R.drawable.ic_light_maps_image3)
+        ambient = TextureUtils.loadTexture(AppCore.getInstance().context,R.drawable.ic_light_maps_image1)
+        diffuse = TextureUtils.loadTexture(AppCore.getInstance().context,R.drawable.ic_light_maps_image2)
+        specular = TextureUtils.loadTexture(AppCore.getInstance().context,R.drawable.ic_light_maps_image3)
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
@@ -214,7 +216,9 @@ class TextureMapLightRenderer: GLSurfaceView.Renderer{
         Matrix.multiplyMM(mMVPMatrix, 0, projectionMatrix, 0, mMVPMatrix, 0)
         GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mMVPMatrix, 0)
 
-        //如何理解？？
+        // 生成法线矩阵，移除对法向量错误缩放的影响
+        // Normal = mat3(transpose(inverse(model))) * aNormal; model对应于model乘以view矩阵
+        // 逆矩阵计算比较耗时，所以不放着色器中进行，改为放到cpu中计算
         val normalMatrix = Matrix4f()
         normalMatrix.loadMultiply(Matrix4f(viewMatrix), Matrix4f(modelMatrix))
         normalMatrix.inverse()
@@ -222,19 +226,15 @@ class TextureMapLightRenderer: GLSurfaceView.Renderer{
         GLES20.glUniformMatrix4fv(mNormalPosHandle, 1, false, normalMatrix.array, 0)
 
         //1--立方体纹理材质
+        val materialAmbientPosHandle = GLES20.glGetUniformLocation(shaderProgram, "material.ambient")
         val materialDiffusePosHandle = GLES20.glGetUniformLocation(shaderProgram, "material.diffuse")
         val materialSpecularPosHandle = GLES20.glGetUniformLocation(shaderProgram, "material.specular")
         val materialShininessPosHandle = GLES20.glGetUniformLocation(shaderProgram, "material.shininess")
-        val materialEmissionPosHandle = GLES20.glGetUniformLocation(shaderProgram, "material.emission")
 
         //启用纹理
-//        bindTexture(materialDiffusePosHandle,diffuse,0)
-//        bindTexture(materialSpecularPosHandle,emission,1)
-//        bindTexture(materialEmissionPosHandle,specular,2)
-        // 不对原因，emssion和shaine取错
-        TextureUtils.bindTexture(materialDiffusePosHandle, diffuse, 0)
-        TextureUtils.bindTexture(materialSpecularPosHandle, emission, 1)
-        TextureUtils.bindTexture(materialEmissionPosHandle, specular, 2)
+        TextureUtils.bindTexture(materialAmbientPosHandle, ambient, 0)
+        TextureUtils.bindTexture(materialDiffusePosHandle, diffuse, 1)
+        TextureUtils.bindTexture(materialSpecularPosHandle, specular, 2)
 
         GLES20.glUniform1f(materialShininessPosHandle, 256.0f)
 
@@ -250,7 +250,6 @@ class TextureMapLightRenderer: GLSurfaceView.Renderer{
         GLES20.glUniform3f(lightSpecularPosHandle, 1.0f, 1.0f, 1.0f)
 
 
-
         // 绘制顶点
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, cubeVertices!!.size/(3+3+2))
         GLES20.glDisableVertexAttribArray(positionHandle)
@@ -258,13 +257,6 @@ class TextureMapLightRenderer: GLSurfaceView.Renderer{
         GLES20.glDisableVertexAttribArray(aTexCoordsHandle)
     }
 
-
-    //启用纹理
-    fun bindTexture(handlePos:Int,texId:Int,index:Int){
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE0+index)
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texId)
-        GLES20.glUniform1i(handlePos, index)
-    }
 
 
 

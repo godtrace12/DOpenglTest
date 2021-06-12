@@ -28,6 +28,7 @@
         <activity android:name=".skybox.SkyboxActivity" />
         <activity android:name=".camera3d.Camera3DActivity" />
         <activity android:name=".light.FengLightActivity" />
+        <activity android:name=".light.TextureLightActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

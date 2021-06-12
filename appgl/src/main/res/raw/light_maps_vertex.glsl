@@ -13,6 +13,8 @@ varying vec2 TexCoord;
 
 void main() {
     fragPos = vec3(uMVMatrix * aPosition);
+//    norm = normalize(mat3(transpose(inverse(uMVMatrix))) * aNormal);
+    // mat3作用：把被处理过的矩阵强制转换为3×3矩阵，来保证它失去了位移属性以及能够乘以vec3的法向量
     norm = normalize(mat3(normalMatrix) * aNormal);
     TexCoord = aTexCoords;
     gl_Position = uMVPMatrix * aPosition;
