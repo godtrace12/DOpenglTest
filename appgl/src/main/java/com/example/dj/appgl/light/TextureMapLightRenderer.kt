@@ -233,6 +233,10 @@ class TextureMapLightRenderer: GLSurfaceView.Renderer{
 
         //启用纹理
         TextureUtils.bindTexture(materialAmbientPosHandle, ambient, 0)
+        //--- situation1  金属匡作为specular，则光照时，木纹中间无强光，黑色的部分没有反光，越是接近白色(金属框)反光越大
+//        TextureUtils.bindTexture(materialDiffusePosHandle, ambient, 1)
+//        TextureUtils.bindTexture(materialSpecularPosHandle, diffuse, 2)
+        //---- situation2 使用绿色贴图作为specular高亮
         TextureUtils.bindTexture(materialDiffusePosHandle, diffuse, 1)
         TextureUtils.bindTexture(materialSpecularPosHandle, specular, 2)
 
