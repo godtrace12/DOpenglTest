@@ -19,7 +19,7 @@ import static com.example.dj.record.MediaCodecConstant.videoTrackIndex;
  *
  * **/
 public class AudioCodeThread2 extends Thread{
-    private static final String TAG = "MediaRecorder";
+    private static final String TAG = "AudioRecorder";
     private MediaCodec mAudioCodec;
     private int audioTrack;
 
@@ -159,13 +159,13 @@ public class AudioCodeThread2 extends Thread{
                 Log.e(TAG, "run: audio formatchanged");
                 audioTrackIndex = mMuxer.addTrack(mAudioCodec.getOutputFormat());
                 Log.e(TAG, "run: audio formatchanged audioTrackIndex="+audioTrackIndex+" videoTrackIndex="+videoTrackIndex);
-//                if (videoTrackIndex != -1) {
+                if (videoTrackIndex != -1) {
                 Log.e(TAG, "run: audio muxer start");
                 mMuxer.start();
                 //标识编码开始
                 MediaCodecConstant.encodeStart = true;
                 muxListener.onMediaMuxerChangeListener(MediaCodecConstant.MUXER_START);
-//                }
+                }
             } else {
 //                Log.e(TAG, "codecAudioMM: wrapper outIndex="+outputBufferIndex);
                 while (outputBufferIndex >= 0) {

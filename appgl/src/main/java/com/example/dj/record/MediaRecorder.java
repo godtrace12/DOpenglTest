@@ -154,7 +154,22 @@ public class MediaRecorder {
     }
 
     private void onMediaMuxerChangeListener(int type){
-
+        if(type == MediaCodecConstant.MUXER_START){
+            if(audioCapture.getCaptureListener() == null){
+                audioCapture.setCaptureListener(new AudioCapture.AudioCaptureListener() {
+                    @Override
+                    public void onCaptureListener(byte[] audioSource, int audioReadSize) {
+//                            Log.e(TAG, "onCaptureListener: ");
+                        // 塞给音频编码线程
+                        // TODO: 6/14/21 判断状态
+                        if (MediaCodecConstant.audioStop || MediaCodecConstant.videoStop) {
+                            return;
+                        }
+                        audioCodeThread.setPcmSource(audioSource,audioReadSize);
+                    }
+                });
+            }
+        }
     }
 
     private void initAudioRecord(){
@@ -194,7 +209,7 @@ public class MediaRecorder {
             public void run() {
                 //画画
                 eglEnv.draw(textureId,timestamp);
-//                codec(false);
+                codec(false);
 //                codecAudio(false);
             }
         });
@@ -204,7 +219,7 @@ public class MediaRecorder {
     private void codec(boolean endOfStream) {
 //        Log.e(TAG, "codec: run codec");
         //给个结束信号
- /*       if (endOfStream) {
+        if (endOfStream) {
             Log.e(TAG, "codec: endOfStream");
             mMediaCodec.signalEndOfInputStream();
         }
@@ -232,6 +247,7 @@ public class MediaRecorder {
                     Log.e(TAG, "codec: start video muxer");
                     mMuxer.start();
                     MediaCodecConstant.encodeStart = true;
+                    onMediaMuxerChangeListener(MediaCodecConstant.MUXER_START);
                 }
             } else if (encoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
                 Log.e(TAG, "codec: video ignore buffer change");
@@ -273,7 +289,7 @@ public class MediaRecorder {
                     break;
                 }
             }
-        }*/
+        }
     }
 
     // 这个函数不会被执行，因为codec一直在循环阻塞当中
