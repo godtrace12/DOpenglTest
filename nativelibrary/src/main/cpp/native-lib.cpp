@@ -4,10 +4,11 @@
 
 #include <jni.h>
 #include <string>
+#include <jni.h>
 
-//extern "C"
-//JNIEXPORT jlong JNICALL
-//Java_com_enjoy_enjoyplayer_EnjoyPlayer_nativeInit(JNIEnv *env, jobject thiz) {
-//    EnjoyPlayer *player = new EnjoyPlayer(new JavaCallHelper(javaVM, env, thiz));
-//    return (jlong) player;
-//}
+
+extern "C"
+JNIEXPORT jstring JNICALL Java_com_example_dj_media_DPlayer_getStringFromNDK(JNIEnv *env, jclass clazz) {
+    return env->NewStringUTF("Hellow World，这是隔壁老李头的NDK的第一行代码");
+}
+
