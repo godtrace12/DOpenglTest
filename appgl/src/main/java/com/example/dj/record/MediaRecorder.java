@@ -228,12 +228,17 @@ public class MediaRecorder {
                 }
                 Log.e(TAG, "codec: read code video");
                 //调整时间戳
-                bufferInfo.presentationTimeUs = (long) (bufferInfo.presentationTimeUs / mSpeed);
-                //有时候会出现异常 ： timestampUs xxx < lastTimestampUs yyy for Video track
-                if (bufferInfo.presentationTimeUs <= mLastTimeStamp) {
-                    bufferInfo.presentationTimeUs = (long) (mLastTimeStamp + 1_000_000 / 25 / mSpeed);
+                bufferInfo.presentationTimeUs = (long) (bufferInfo.presentationTimeUs);
+                if(mLastTimeStamp == 0){
+                    mLastTimeStamp = bufferInfo.presentationTimeUs;
                 }
-                mLastTimeStamp = bufferInfo.presentationTimeUs;
+                bufferInfo.presentationTimeUs = bufferInfo.presentationTimeUs - mLastTimeStamp;
+
+                //有时候会出现异常 ： timestampUs xxx < lastTimestampUs yyy for Video track
+//                if (bufferInfo.presentationTimeUs <= mLastTimeStamp) {
+//                    bufferInfo.presentationTimeUs = (long) (mLastTimeStamp + 1_000_000 / 25 / mSpeed);
+//                }
+//                mLastTimeStamp = bufferInfo.presentationTimeUs;
 
                 //正常则 encoderStatus 获得缓冲区下标
                 ByteBuffer encodedData = mMediaCodec.getOutputBuffer(encoderStatus);
