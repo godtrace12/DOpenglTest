@@ -1,2 +1,3 @@
+include ':nativelibrary'
 include ':app', ':appgl'
 rootProject.name='DOpenGL'
