@@ -9,10 +9,10 @@ import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
 
+import com.example.dj.record.bean.MediaCodecState;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import static com.example.dj.record.MediaCodecConstant.audioTrackIndex;
-import static com.example.dj.record.MediaCodecConstant.videoTrackIndex;
 
 /**
  *  音频录制编码线程
@@ -37,13 +37,15 @@ public class AudioCodeThread extends Thread{
     private long presentationTimeUs;
     private long pts;
     private MediaCodec.BufferInfo bufferInfo;//缓冲区
+    private MediaCodecState mCodecState;
 
 
-    public AudioCodeThread(MediaMuxer muxer, MediaMuxerChangeListener muxerChangeListener){
+    public AudioCodeThread(MediaMuxer muxer,MediaCodecState codecState, MediaMuxerChangeListener muxerChangeListener){
         this.mMuxer = muxer;
         this.isStop = true;
         this.muxListener = muxerChangeListener;
         pts = 0;
+        this.mCodecState = codecState;
     }
 
 
@@ -134,14 +136,14 @@ public class AudioCodeThread extends Thread{
                 mAudioCodec.stop();
                 mAudioCodec.release();
                 mAudioCodec = null;
-                MediaCodecConstant.audioStop = true;
+                mCodecState.audioStop = true;
 
-                if (MediaCodecConstant.videoStop) {
+                if (mCodecState.videoStop) {
                     Log.e(TAG, "codecAudioMM: stop mux");
                     mMuxer.stop();
                     mMuxer.release();
                     mMuxer = null;
-                    muxListener.onMediaMuxerChangeListener(MediaCodecConstant.MUXER_STOP);
+                    muxListener.onMediaMuxerChangeListener(MediaCodecState.MUXER_STOP);
                     break;
                 }
             }
@@ -153,19 +155,19 @@ public class AudioCodeThread extends Thread{
             int outputBufferIndex = mAudioCodec.dequeueOutputBuffer(bufferInfo, 0);
             if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                 Log.e(TAG, "run: audio formatchanged");
-                audioTrackIndex = mMuxer.addTrack(mAudioCodec.getOutputFormat());
-                Log.e(TAG, "run: audio formatchanged audioTrackIndex="+audioTrackIndex+" videoTrackIndex="+videoTrackIndex);
-                if (videoTrackIndex != -1) {
+                mCodecState.audioTrackIndex = mMuxer.addTrack(mAudioCodec.getOutputFormat());
+                Log.e(TAG, "run: audio formatchanged audioTrackIndex="+mCodecState.audioTrackIndex+" videoTrackIndex="+mCodecState.videoTrackIndex);
+                if (mCodecState.videoTrackIndex != -1) {
                 Log.e(TAG, "run: audio muxer start");
                 mMuxer.start();
                 //标识编码开始
-                MediaCodecConstant.encodeStart = true;
-                muxListener.onMediaMuxerChangeListener(MediaCodecConstant.MUXER_START);
+                mCodecState.encodeStart = true;
+                muxListener.onMediaMuxerChangeListener(MediaCodecState.MUXER_START);
                 }
             } else {
 //                Log.e(TAG, "codecAudioMM: wrapper outIndex="+outputBufferIndex);
                 while (outputBufferIndex >= 0) {
-                    if (!MediaCodecConstant.encodeStart) {
+                    if (!mCodecState.encodeStart) {
                         Log.d(TAG, "run: 线程延迟 bfIndex="+outputBufferIndex);
                         SystemClock.sleep(10);
                         continue;
@@ -179,7 +181,7 @@ public class AudioCodeThread extends Thread{
                         pts = bufferInfo.presentationTimeUs;
                     }
                     bufferInfo.presentationTimeUs = bufferInfo.presentationTimeUs - pts;
-                    mMuxer.writeSampleData(audioTrackIndex, outputBuffer, bufferInfo);
+                    mMuxer.writeSampleData(mCodecState.audioTrackIndex, outputBuffer, bufferInfo);
 
                     mAudioCodec.releaseOutputBuffer(outputBufferIndex, false);
                     outputBufferIndex = mAudioCodec.dequeueOutputBuffer(bufferInfo, 0);

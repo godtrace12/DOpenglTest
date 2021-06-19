@@ -9,11 +9,13 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.Surface;
 
+import com.example.dj.record.bean.MediaCodecState;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import static com.example.dj.record.MediaCodecConstant.audioTrackIndex;
-import static com.example.dj.record.MediaCodecConstant.videoTrackIndex;
+//import static com.example.dj.record.MediaCodecConstant.audioTrackIndex;
+//import static com.example.dj.record.MediaCodecConstant.videoTrackIndex;
 
 /**
  * 视频写入thread,进行视频编码参数初始化以及编码
@@ -35,15 +37,17 @@ public class VideoCodecThread extends Thread {
     private int mWidth;
     private int mHeight;
     private Surface mSurface;
+    private MediaCodecState mCodecState;
 
 
 
     public VideoCodecThread( MediaMuxer mediaMuxer,int width,int height,
-                            MediaMuxerChangeListener listener) {
+                             MediaCodecState codecState, MediaMuxerChangeListener listener) {
         this.mediaMuxer = mediaMuxer;
         this.listener = listener;
         pts = 0;
-        videoTrackIndex = -1;
+        this.mCodecState = codecState;
+        mCodecState.videoTrackIndex = -1;
         this.mWidth = width;
         this.mHeight = height;
     }
@@ -59,12 +63,12 @@ public class VideoCodecThread extends Thread {
         //颜色空间 从 surface当中获得
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities
                 .COLOR_FormatSurface);
-        int bitrate = 1080 *2340*4;
+        int bitrate = 1080 *2340*2;
         //码率
-        format.setInteger(MediaFormat.KEY_BIT_RATE, 1500_000);
+        format.setInteger(MediaFormat.KEY_BIT_RATE, bitrate);
         //帧率
         format.setInteger(MediaFormat.KEY_FRAME_RATE, 30);
-        //关键帧间隔
+        //关键帧间隔-每秒关键帧数
         format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             format.setInteger(MediaFormat.KEY_PROFILE, MediaCodecInfo.CodecProfileLevel.AVCProfileHigh);
@@ -91,9 +95,9 @@ public class VideoCodecThread extends Thread {
                 mMediaCodec.stop();
                 mMediaCodec.release();
                 mMediaCodec = null;
-                MediaCodecConstant.videoStop = true;
+                mCodecState.videoStop = true;
 
-                if (MediaCodecConstant.audioStop && mediaMuxer != null) {
+                if (mCodecState.audioStop && mediaMuxer != null) {
                     Log.e(TAG, "codecVideo: stop mux");
                     mediaMuxer.stop();
                     mediaMuxer.release();
@@ -107,21 +111,21 @@ public class VideoCodecThread extends Thread {
                 break;
             int outputBufferIndex = mMediaCodec.dequeueOutputBuffer(bufferInfo, 0);
             if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-                videoTrackIndex = mediaMuxer.addTrack(mMediaCodec.getOutputFormat());
-                Log.e(TAG, "run: video formatchanged videoTrackIndex="+videoTrackIndex+" audioTrackIndex="+audioTrackIndex);
-                if (audioTrackIndex != -1) {
+                mCodecState.videoTrackIndex = mediaMuxer.addTrack(mMediaCodec.getOutputFormat());
+                Log.e(TAG, "run: video formatchanged videoTrackIndex="+mCodecState.videoTrackIndex+" audioTrackIndex="+mCodecState.audioTrackIndex);
+                if (mCodecState.audioTrackIndex != -1) {
                     Log.e(TAG, "run: video muxer start");
                     mediaMuxer.start();
                     //标识编码开始
-                    MediaCodecConstant.encodeStart = true;
+                    mCodecState.encodeStart = true;
                     // 可以考虑不回调
-                    listener.onMediaMuxerChangeListener(MediaCodecConstant.MUXER_START);
+                    listener.onMediaMuxerChangeListener(MediaCodecState.MUXER_START);
                 }
             } else if(outputBufferIndex == MediaCodec.INFO_TRY_AGAIN_LATER){
-                Log.e(TAG, "run: try later");
+
             }else {
                 while (outputBufferIndex >= 0) {
-                    if (!MediaCodecConstant.encodeStart) {
+                    if (!mCodecState.encodeStart) {
                         Log.d(TAG, "run: 线程延迟");
                         SystemClock.sleep(10);
                         continue;
@@ -135,7 +139,7 @@ public class VideoCodecThread extends Thread {
                         pts = bufferInfo.presentationTimeUs;
                     }
                     bufferInfo.presentationTimeUs = bufferInfo.presentationTimeUs - pts;
-                    mediaMuxer.writeSampleData(videoTrackIndex, outputBuffer, bufferInfo);
+                    mediaMuxer.writeSampleData(mCodecState.videoTrackIndex, outputBuffer, bufferInfo);
                     Log.d(TAG, "视频秒数时间戳 = " + bufferInfo.presentationTimeUs / 1000000.0f);
 //                    if (bufferInfo != null)
 //                        listener.onMediaInfoListener((int) (bufferInfo.presentationTimeUs / 1000000));
@@ -156,6 +160,6 @@ public class VideoCodecThread extends Thread {
 
     public void stopVideoCodec() {
         isStop = true;
-        MediaCodecConstant.videoStop = true;
+        mCodecState.videoStop = true;
     }
 }

@@ -8,6 +8,8 @@ import android.os.HandlerThread;
 import android.util.Log;
 import android.view.Surface;
 
+import com.example.dj.record.bean.MediaCodecState;
+
 import java.io.IOException;
 
 public class MediaRecorder {
@@ -29,6 +31,8 @@ public class MediaRecorder {
     private AudioCodeThread audioCodeThread;
     //3----------- 音频采集 ------------
     private AudioCapture audioCapture;
+    // 录制状态相关
+    private MediaCodecState mediaCodecState;
 
 
     public MediaRecorder(Context context, String path, EGLContext glContext, int width, int
@@ -45,6 +49,7 @@ public class MediaRecorder {
         //混合器 (复用器) 将编码的h.264封装为mp4
         mMuxer = new MediaMuxer(mPath,
                 MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+        mediaCodecState = new MediaCodecState();
         //开启视频编码
         mSurface = initVideoCodec();
         startVideoCodec();
@@ -68,11 +73,10 @@ public class MediaRecorder {
     }
 
     private Surface initVideoCodec(){
-        videoCodecThread = new VideoCodecThread(mMuxer, mWidth, mHeight, new MediaMuxerChangeListener() {
+        videoCodecThread = new VideoCodecThread(mMuxer, mWidth, mHeight,mediaCodecState, new MediaMuxerChangeListener() {
             @Override
             public void onMediaMuxerChangeListener(int type) {
                 Log.e(TAG, "onMediaMuxerChangeListener: type");
-//                onMediaMuxerChangeListener(type);
                 onHandleMediaMuxerChange(type);
             }
         });
@@ -96,44 +100,28 @@ public class MediaRecorder {
         audioCapture = new AudioCapture();
         audioCapture.start();
 
-        MediaCodecConstant.audioStop = false;
-        MediaCodecConstant.videoStop = false;
+        mediaCodecState.audioStop = false;
+        mediaCodecState.videoStop = false;
 
-        audioCodeThread = new AudioCodeThread(mMuxer, new MediaMuxerChangeListener() {
+        audioCodeThread = new AudioCodeThread(mMuxer, mediaCodecState,new MediaMuxerChangeListener() {
             @Override
             public void onMediaMuxerChangeListener(int type) {
                 Log.e(TAG, "onMediaMuxerChangeListener: ");
-                // TODO: 6/14/21  开始进行音频采集
-                if(type == MediaCodecConstant.MUXER_START){
-                    if(audioCapture.getCaptureListener() == null){
-                        audioCapture.setCaptureListener(new AudioCapture.AudioCaptureListener() {
-                            @Override
-                            public void onCaptureListener(byte[] audioSource, int audioReadSize) {
-//                            Log.e(TAG, "onCaptureListener: ");
-                                // 塞给音频编码线程
-                                // TODO: 6/14/21 判断状态
-                                if (MediaCodecConstant.audioStop || MediaCodecConstant.videoStop) {
-                                    return;
-                                }
-                                audioCodeThread.setPcmSource(audioSource,audioReadSize);
-                            }
-                        });
-                    }
-                }
+                onHandleMediaMuxerChange(type);
             }
         });
         audioCodeThread.initAudioRecord();
 
         // 配置声音解码及播放
 //        initAudioRecord();
-        MediaCodecConstant.videoTrackIndex = -1;
-        MediaCodecConstant.audioTrackIndex = -1;
-        MediaCodecConstant.encodeStart = false;
+        mediaCodecState.videoTrackIndex = -1;
+        mediaCodecState.audioTrackIndex = -1;
+        mediaCodecState.encodeStart = false;
         audioCodeThread.startCodec();
     }
 
     private void onHandleMediaMuxerChange(int type){
-        if(type == MediaCodecConstant.MUXER_START){
+        if(type == MediaCodecState.MUXER_START){
             if(audioCapture.getCaptureListener() == null){
                 audioCapture.setCaptureListener(new AudioCapture.AudioCaptureListener() {
                     @Override
@@ -141,7 +129,7 @@ public class MediaRecorder {
 //                            Log.e(TAG, "onCaptureListener: ");
                         // 塞给音频编码线程
                         // TODO: 6/14/21 判断状态
-                        if (MediaCodecConstant.audioStop || MediaCodecConstant.videoStop) {
+                        if (mediaCodecState.audioStop || mediaCodecState.videoStop) {
                             return;
                         }
                         audioCodeThread.setPcmSource(audioSource,audioReadSize);
@@ -256,8 +244,8 @@ public class MediaRecorder {
     public void stop() {
         // 释放
         isStart = false;
-        MediaCodecConstant.encodeStart = false;
-        MediaCodecConstant.videoStop = true;
+        mediaCodecState.encodeStart = false;
+        mediaCodecState.videoStop = true;
         // 音频采集
         audioCapture.stop();
         audioCodeThread.stopCodec();
