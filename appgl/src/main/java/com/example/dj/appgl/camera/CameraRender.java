@@ -25,8 +25,11 @@ import com.example.dj.record.MediaRecorder;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -81,7 +84,8 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
                 .getAbsolutePath();
 
         Log.e("dj", "onSurfaceCreated: "+filePath+"\n"+"filePath2="+filePath2);
-        recordFilePath = filePath2+"/a.mp4";
+        String newFileName = new SimpleDateFormat("yyyyMMdd_HHmm", Locale.CHINA).format(new Date());
+        recordFilePath = filePath2+"/"+newFileName+".mp4";
         Log.e(TAG, "File Path: "+recordFilePath);
 
         mRecorder = new MediaRecorder(mContext, recordFilePath,

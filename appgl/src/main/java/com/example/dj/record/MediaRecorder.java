@@ -1,22 +1,14 @@
 package com.example.dj.record;
 
 import android.content.Context;
-import android.media.AudioFormat;
-import android.media.AudioRecord;
-import android.media.MediaCodec;
-import android.media.MediaCodecInfo;
-import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.opengl.EGLContext;
-import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.Surface;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 public class MediaRecorder {
     private static final String TAG = "MediaRecorder";
@@ -25,18 +17,16 @@ public class MediaRecorder {
     private final String mPath;
     private final Context mContext;
 
-    private MediaCodec mMediaCodec;
     private Surface mSurface;
     private EGLContext mGlContext;
     private MediaMuxer mMuxer;
     private Handler mHandler;
     private boolean isStart;
-    private int track;
-    private float mSpeed;
-    private long mLastTimeStamp;
     private EGLEnv eglEnv;
+    // 1------------- 视频录制相关(放到单独线程)
+    private VideoCodecThread videoCodecThread;
     //2------------- 音频录制相关  --------------
-    private AudioCodeThread2 audioCodeThread;
+    private AudioCodeThread audioCodeThread;
     //3----------- 音频采集 ------------
     private AudioCapture audioCapture;
 
@@ -52,40 +42,14 @@ public class MediaRecorder {
     }
 
     public void start(float speed) throws IOException {
-        mSpeed = speed;
-        MediaFormat format = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC,
-                mWidth, mHeight);
-        //颜色空间 从 surface当中获得
-        format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities
-                .COLOR_FormatSurface);
-        int bitrate = 1080 *2340*4;
-        //码率
-        format.setInteger(MediaFormat.KEY_BIT_RATE, 1500_000);
-        //帧率
-        format.setInteger(MediaFormat.KEY_FRAME_RATE, 30);
-        //关键帧间隔
-        format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            format.setInteger(MediaFormat.KEY_PROFILE, MediaCodecInfo.CodecProfileLevel.AVCProfileHigh);
-            format.setInteger(MediaFormat.KEY_LEVEL, MediaCodecInfo.CodecProfileLevel.AVCLevel31);
-        }
-        //创建编码器
-        mMediaCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC);
-        //配置编码器
-        mMediaCodec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
-        //这个surface显示的内容就是要编码的画面
-        mSurface = mMediaCodec.createInputSurface();
-
         //混合器 (复用器) 将编码的h.264封装为mp4
         mMuxer = new MediaMuxer(mPath,
                 MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
-
+        //开启视频编码
+        mSurface = initVideoCodec();
+        startVideoCodec();
+        //开启音频采集和编码
         startAudioCaptureCodec();
-
-        //开启编码
-        mMediaCodec.start();
-//        mAudioCodec.start();
-//        audioRecord.startRecording();
 
         //創建OpenGL 的 環境
         HandlerThread handlerThread = new HandlerThread("codec-gl");
@@ -103,6 +67,29 @@ public class MediaRecorder {
 
     }
 
+    private Surface initVideoCodec(){
+        videoCodecThread = new VideoCodecThread(mMuxer, mWidth, mHeight, new MediaMuxerChangeListener() {
+            @Override
+            public void onMediaMuxerChangeListener(int type) {
+                Log.e(TAG, "onMediaMuxerChangeListener: type");
+//                onMediaMuxerChangeListener(type);
+                onHandleMediaMuxerChange(type);
+            }
+        });
+        try {
+            return videoCodecThread.initVideoRecord();
+        } catch (IOException e) {
+            Log.e(TAG, "startVideoCodec: 视频编码开启异常");
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // 开始进行视频编码
+    private void startVideoCodec(){
+        videoCodecThread.startCodec();
+    }
+
     // 音频采集及录制
     private void startAudioCaptureCodec(){
         // 音频采集
@@ -112,7 +99,7 @@ public class MediaRecorder {
         MediaCodecConstant.audioStop = false;
         MediaCodecConstant.videoStop = false;
 
-        audioCodeThread = new AudioCodeThread2(mMuxer, new MediaMuxerChangeListener() {
+        audioCodeThread = new AudioCodeThread(mMuxer, new MediaMuxerChangeListener() {
             @Override
             public void onMediaMuxerChangeListener(int type) {
                 Log.e(TAG, "onMediaMuxerChangeListener: ");
@@ -145,7 +132,7 @@ public class MediaRecorder {
         audioCodeThread.startCodec();
     }
 
-    private void onMediaMuxerChangeListener(int type){
+    private void onHandleMediaMuxerChange(int type){
         if(type == MediaCodecConstant.MUXER_START){
             if(audioCapture.getCaptureListener() == null){
                 audioCapture.setCaptureListener(new AudioCapture.AudioCaptureListener() {
@@ -177,93 +164,93 @@ public class MediaRecorder {
             public void run() {
                 //画画
                 eglEnv.draw(textureId,timestamp);
-                codec(false);
+//                codec(false);
 //                codecAudio(false);
             }
         });
     }
 
 
-    private void codec(boolean endOfStream) {
-//        Log.e(TAG, "codec: run codec");
-        //给个结束信号
-        if (endOfStream) {
-            Log.e(TAG, "codec: endOfStream");
-            mMediaCodec.signalEndOfInputStream();
-        }
-        while (true) {
-            Log.e(TAG, "codec: in the while loop--------");
-            //获得输出缓冲区 (编码后的数据从输出缓冲区获得)
-            MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
-            int encoderStatus = mMediaCodec.dequeueOutputBuffer(bufferInfo, 10_000);
-
-            //需要更多数据
-            if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
-                Log.e(TAG, "codec: video tray again later");
-                //如果是结束那直接退出，否则继续循环
-                if (!endOfStream) {
-                    break;
-                }
-            } else if (encoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-                Log.e(TAG, "codec: add video track");
-                //输出格式发生改变  第一次总会调用所以在这里开启混合器
-                MediaFormat newFormat = mMediaCodec.getOutputFormat();
-                track = mMuxer.addTrack(newFormat);
-                MediaCodecConstant.videoTrackIndex = track;
-                Log.e(TAG, "run: video formatchanged videoTrackIndex="+MediaCodecConstant.videoTrackIndex+" audioTrackIndex="+MediaCodecConstant.audioTrackIndex);
-                if(MediaCodecConstant.audioTrackIndex != -1){
-                    Log.e(TAG, "codec: start video muxer");
-                    mMuxer.start();
-                    MediaCodecConstant.encodeStart = true;
-                    onMediaMuxerChangeListener(MediaCodecConstant.MUXER_START);
-                }
-            } else if (encoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
-                Log.e(TAG, "codec: video ignore buffer change");
-                //可以忽略
-            } else {
-                Log.e(TAG, "codec: read code video before");
-                if(!MediaCodecConstant.encodeStart){
-                    SystemClock.sleep(10);
-                    continue;
-                }
-                Log.e(TAG, "codec: read code video");
-                //调整时间戳
-                bufferInfo.presentationTimeUs = (long) (bufferInfo.presentationTimeUs);
-                if(mLastTimeStamp == 0){
-                    mLastTimeStamp = bufferInfo.presentationTimeUs;
-                }
-                bufferInfo.presentationTimeUs = bufferInfo.presentationTimeUs - mLastTimeStamp;
-
-                //有时候会出现异常 ： timestampUs xxx < lastTimestampUs yyy for Video track
-//                if (bufferInfo.presentationTimeUs <= mLastTimeStamp) {
-//                    bufferInfo.presentationTimeUs = (long) (mLastTimeStamp + 1_000_000 / 25 / mSpeed);
+//    private void codec(boolean endOfStream) {
+////        Log.e(TAG, "codec: run codec");
+//        //给个结束信号
+//        if (endOfStream) {
+//            Log.e(TAG, "codec: endOfStream");
+//            mMediaCodec.signalEndOfInputStream();
+//        }
+//        while (true) {
+//            Log.e(TAG, "codec: in the while loop--------");
+//            //获得输出缓冲区 (编码后的数据从输出缓冲区获得)
+//            MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
+//            int encoderStatus = mMediaCodec.dequeueOutputBuffer(bufferInfo, 10_000);
+//
+//            //需要更多数据
+//            if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
+//                Log.e(TAG, "codec: video tray again later");
+//                //如果是结束那直接退出，否则继续循环
+//                if (!endOfStream) {
+//                    break;
 //                }
-//                mLastTimeStamp = bufferInfo.presentationTimeUs;
-
-                //正常则 encoderStatus 获得缓冲区下标
-                ByteBuffer encodedData = mMediaCodec.getOutputBuffer(encoderStatus);
-                //如果当前的buffer是配置信息，不管它 不用写出去
-                if ((bufferInfo.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
-                    bufferInfo.size = 0;
-                }
-                if (bufferInfo.size != 0) {
-                    //设置从哪里开始读数据(读出来就是编码后的数据)
-                    encodedData.position(bufferInfo.offset);
-                    //设置能读数据的总长度
-                    encodedData.limit(bufferInfo.offset + bufferInfo.size);
-                    //写出为mp4
-                    mMuxer.writeSampleData(track, encodedData, bufferInfo);
-                }
-                // 释放这个缓冲区，后续可以存放新的编码后的数据啦
-                mMediaCodec.releaseOutputBuffer(encoderStatus, false);
-                // 如果给了结束信号 signalEndOfInputStream
-                if ((bufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-                    Log.e(TAG, "codec: break encode");
-                    break;
-                }
-            }
-        }
-    }
+//            } else if (encoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+//                Log.e(TAG, "codec: add video track");
+//                //输出格式发生改变  第一次总会调用所以在这里开启混合器
+//                MediaFormat newFormat = mMediaCodec.getOutputFormat();
+//                track = mMuxer.addTrack(newFormat);
+//                MediaCodecConstant.videoTrackIndex = track;
+//                Log.e(TAG, "run: video formatchanged videoTrackIndex="+MediaCodecConstant.videoTrackIndex+" audioTrackIndex="+MediaCodecConstant.audioTrackIndex);
+//                if(MediaCodecConstant.audioTrackIndex != -1){
+//                    Log.e(TAG, "codec: start video muxer");
+//                    mMuxer.start();
+//                    MediaCodecConstant.encodeStart = true;
+//                    onHandleMediaMuxerChange(MediaCodecConstant.MUXER_START);
+//                }
+//            } else if (encoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
+//                Log.e(TAG, "codec: video ignore buffer change");
+//                //可以忽略
+//            } else {
+//                Log.e(TAG, "codec: read code video before");
+//                if(!MediaCodecConstant.encodeStart){
+//                    SystemClock.sleep(10);
+//                    continue;
+//                }
+//                Log.e(TAG, "codec: read code video");
+//                //调整时间戳
+//                bufferInfo.presentationTimeUs = (long) (bufferInfo.presentationTimeUs);
+//                if(mLastTimeStamp == 0){
+//                    mLastTimeStamp = bufferInfo.presentationTimeUs;
+//                }
+//                bufferInfo.presentationTimeUs = bufferInfo.presentationTimeUs - mLastTimeStamp;
+//
+//                //有时候会出现异常 ： timestampUs xxx < lastTimestampUs yyy for Video track
+////                if (bufferInfo.presentationTimeUs <= mLastTimeStamp) {
+////                    bufferInfo.presentationTimeUs = (long) (mLastTimeStamp + 1_000_000 / 25 / mSpeed);
+////                }
+////                mLastTimeStamp = bufferInfo.presentationTimeUs;
+//
+//                //正常则 encoderStatus 获得缓冲区下标
+//                ByteBuffer encodedData = mMediaCodec.getOutputBuffer(encoderStatus);
+//                //如果当前的buffer是配置信息，不管它 不用写出去
+//                if ((bufferInfo.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
+//                    bufferInfo.size = 0;
+//                }
+//                if (bufferInfo.size != 0) {
+//                    //设置从哪里开始读数据(读出来就是编码后的数据)
+//                    encodedData.position(bufferInfo.offset);
+//                    //设置能读数据的总长度
+//                    encodedData.limit(bufferInfo.offset + bufferInfo.size);
+//                    //写出为mp4
+//                    mMuxer.writeSampleData(track, encodedData, bufferInfo);
+//                }
+//                // 释放这个缓冲区，后续可以存放新的编码后的数据啦
+//                mMediaCodec.releaseOutputBuffer(encoderStatus, false);
+//                // 如果给了结束信号 signalEndOfInputStream
+//                if ((bufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
+//                    Log.e(TAG, "codec: break encode");
+//                    break;
+//                }
+//            }
+//        }
+//    }
 
 
     public void stop() {
@@ -271,42 +258,13 @@ public class MediaRecorder {
         isStart = false;
         MediaCodecConstant.encodeStart = false;
         MediaCodecConstant.videoStop = true;
-//        mMediaCodec.stop();
-//        mMediaCodec.release();
-//        mMediaCodec = null;
-//        MediaCodecConstant.videoStop = true;
         // 音频采集
         audioCapture.stop();
         audioCodeThread.stopCodec();
+        videoCodecThread.stopVideoCodec();
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                mMediaCodec.stop();
-            mMediaCodec.release();
-            mMediaCodec = null;
-            MediaCodecConstant.videoStop = true;
-
-/*                MediaCodecConstant.encodeStart = false;
-//                codec(true);
-//                codecAudio(true);
-
-                mMediaCodec.stop();
-                mMediaCodec.release();
-                mMediaCodec = null;
-                MediaCodecConstant.videoStop = true;
-                // 音频采集
-//                audioRecord.stop();
-//                audioRecord.release();
-//                audioRecord = null;
-//                // 音频编码
-//                mAudioCodec.stop();
-//                mAudioCodec.release();
-//                mAudioCodec = null;
-                audioCapture.stop();
-                audioCodeThread.stopCodec();*/
-                // 混频器关闭
-//                mMuxer.stop();
-//                mMuxer.release();
                 eglEnv.release();
                 eglEnv = null;
 //                mMuxer = null;
