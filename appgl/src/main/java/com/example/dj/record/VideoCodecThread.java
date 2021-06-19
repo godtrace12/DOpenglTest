@@ -63,7 +63,7 @@ public class VideoCodecThread extends Thread {
         //颜色空间 从 surface当中获得
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities
                 .COLOR_FormatSurface);
-        int bitrate = 1080 *2340*2;
+        int bitrate = mWidth *mHeight*2;
         //码率
         format.setInteger(MediaFormat.KEY_BIT_RATE, bitrate);
         //帧率
