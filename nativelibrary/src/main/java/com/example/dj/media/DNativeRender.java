@@ -8,7 +8,7 @@ package com.example.dj.media;
  * @des： jni opengl的render类
  */
 public class DNativeRender {
-
+    public native void nativeInit();
     public native void nativeSetParamsInt(int paramType, int value0, int value1);
     public native void nativeOnSurfaceCreated();
     public native void nativeOnSurfaceChanged(int width, int height);

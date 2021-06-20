@@ -2,8 +2,10 @@ package com.example.dj.appgl;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.NativeActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -19,6 +21,8 @@ import com.example.dj.appgl.light.TextureLightActivity;
 import com.example.dj.appgl.model.ModeBglLoadActivity;
 import com.example.dj.appgl.model.ModelLoadActivity;
 import com.example.dj.appgl.skybox.SkyboxActivity;
+import com.example.dj.media.DPlayer;
+import com.example.dj.appgl.nativegl.NativeGLActivity;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -34,11 +38,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnCamera3D;
     private Button btnFengLight;
     private Button btnTextureLight;
+    private Button btnNative;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        String natvieStr = DPlayer.getNativeString();
+        Log.e("dj", "onCreate: "+natvieStr);
         findViews();
     }
 
@@ -67,6 +75,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnFengLight.setOnClickListener(this);
         btnTextureLight = findViewById(R.id.btnTextureLight);
         btnTextureLight.setOnClickListener(this);
+        btnNative = findViewById(R.id.btnNative);
+        btnNative.setOnClickListener(this);
     }
 
     @Override
@@ -107,6 +117,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivity(intent);
         }else if(viewId == R.id.btnTextureLight){
             Intent intent = new Intent(MainActivity.this, TextureLightActivity.class);
+            startActivity(intent);
+        }else if(viewId == R.id.btnNative){
+            Intent intent = new Intent(MainActivity.this, NativeGLActivity.class);
             startActivity(intent);
         }
     }

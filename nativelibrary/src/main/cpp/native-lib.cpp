@@ -34,6 +34,11 @@ JNIEXPORT void JNICALL nativeStringInit(JNIEnv *env, jclass clazz) {
 
 //2，--------------------- DNativeRender测试相关代码 ----------------
 
+JNIEXPORT void JNICALL nativeInit(JNIEnv *env, jobject instance)
+{
+    DNativeRenderContext::GetInstance();
+
+}
 
 JNIEXPORT void JNICALL nativeSetParamsInt
         (JNIEnv *env, jobject instance, jint paramType, jint value0, jint value1)
@@ -67,6 +72,7 @@ static JNINativeMethod g_PlayerMethods[] = {
 
 // DNativeRender jni注册方法
 static JNINativeMethod g_RenderMethods[] = {
+        {"nativeInit",                      "()V",       (void *)(nativeInit)},
         {"nativeSetParamsInt",              "(III)V",    (void *)(nativeSetParamsInt)},
         {"nativeOnSurfaceCreated",          "()V",       (void *)(nativeOnSurfaceCreated)},
         {"nativeOnSurfaceChanged",          "(II)V",     (void *)(nativeOnSurfaceChanged)},
