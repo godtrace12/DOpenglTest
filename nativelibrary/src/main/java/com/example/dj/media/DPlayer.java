@@ -5,5 +5,11 @@ public class DPlayer {
         System.loadLibrary("native-lib");
     }
 
-    public static native String getStringFromNDK();
+//    public static native String getStringFromNDK();
+
+
+    public static native String getNativeString();
+
+    public static native void nativeStringInit();
+
 }
