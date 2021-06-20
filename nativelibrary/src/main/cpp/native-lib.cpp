@@ -6,6 +6,7 @@
 #include <string>
 #include <jni.h>
 #include <android/log.h>
+#include "DNativeRenderContext.h"
 
 #define  TAG    "dj------"
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR,TAG,__VA_ARGS__)
@@ -18,6 +19,8 @@
 //    return env->NewStringUTF("Hellow World，这是隔壁老李头的NDK的第一行代码");
 //}
 
+// 1,-------------------- DPlayer测试相关代码 ----------------
+
 extern "C"
 JNIEXPORT jstring JNICALL getNativeString(JNIEnv *env, jclass clazz) {
     LOGE("dj---------- getNativeString");
@@ -29,9 +32,45 @@ JNIEXPORT void JNICALL nativeStringInit(JNIEnv *env, jclass clazz) {
     LOGE("dj---------- nativeInit","dj---");
 }
 
+//2，--------------------- DNativeRender测试相关代码 ----------------
+
+
+JNIEXPORT void JNICALL nativeSetParamsInt
+        (JNIEnv *env, jobject instance, jint paramType, jint value0, jint value1)
+{
+    DNativeRenderContext::GetInstance()->SetParamsInt(paramType, value0, value1);
+}
+
+JNIEXPORT void JNICALL nativeOnSurfaceCreated(JNIEnv *env, jobject instance)
+{
+    DNativeRenderContext::GetInstance()->OnSurfaceCreated();
+}
+
+extern "C"
+JNIEXPORT void JNICALL nativeOnSurfaceChanged(JNIEnv *env, jobject instance, jint width, jint height)
+{
+    DNativeRenderContext::GetInstance()->OnSurfaceChanged(width,height);
+}
+
+extern "C"
+JNIEXPORT void JNICALL nativeOnDrawFrame(JNIEnv *env, jobject instance)
+{
+    DNativeRenderContext::GetInstance()->OnDrawFrame();
+}
+
+
+// DPlayer jni注册方法
 static JNINativeMethod g_PlayerMethods[] = {
         {"nativeStringInit","()V",(void *)(nativeStringInit)},
         {"getNativeString","()Ljava/lang/String;",(void *)(getNativeString)},
+};
+
+// DNativeRender jni注册方法
+static JNINativeMethod g_RenderMethods[] = {
+        {"nativeSetParamsInt",              "(III)V",    (void *)(nativeSetParamsInt)},
+        {"nativeOnSurfaceCreated",          "()V",       (void *)(nativeOnSurfaceCreated)},
+        {"nativeOnSurfaceChanged",          "(II)V",     (void *)(nativeOnSurfaceChanged)},
+        {"nativeOnDrawFrame",               "()V",       (void *)(nativeOnDrawFrame)},
 };
 
 //动态注册jni函数
@@ -79,13 +118,13 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm,void* reserved){
         return JNI_ERR;
     }
 
-//    regRet = RegisterNativeMethods(env, NATIVE_BG_RENDER_CLASS_NAME, g_BgRenderMethods,
-//                                   sizeof(g_BgRenderMethods) /
-//                                   sizeof(g_BgRenderMethods[0]));
-//    if (regRet != JNI_TRUE)
-//    {
-//        return JNI_ERR;
-//    }
+    regRet = RegisterNativeMethods(env, NATIVE_GLRENDER_CLASS_NAME, g_RenderMethods,
+                                   sizeof(g_RenderMethods) /
+                                   sizeof(g_RenderMethods[0]));
+    if (regRet != JNI_TRUE)
+    {
+        return JNI_ERR;
+    }
 
     return JNI_VERSION_1_6;
 }
@@ -99,6 +138,7 @@ JNIEXPORT void JNI_OnUnload(JavaVM *jvm, void *p)
     }
 
     UnregisterNativeMethods(env, NATIVE_PLAYER_CLASS_NAME);
+    UnregisterNativeMethods(env,NATIVE_GLRENDER_CLASS_NAME);
 
 }
 

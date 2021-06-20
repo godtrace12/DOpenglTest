@@ -9,4 +9,8 @@ package com.example.dj.media;
  */
 public class DNativeRender {
 
+    public native void nativeSetParamsInt(int paramType, int value0, int value1);
+    public native void nativeOnSurfaceCreated();
+    public native void nativeOnSurfaceChanged(int width, int height);
+    public native void nativeOnDrawFrame();
 }
