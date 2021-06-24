@@ -32,26 +32,13 @@ class MediaGLRenderer(ctx:Context?,listener: SurfaceTexture.OnFrameAvailableList
 
     // 原来的方向不对
 
-//    private val mPosCoordinate = floatArrayOf(
-//            -1f, -1f,1f,
-//            -1f, 1f,1f,
-//            1f, -1f,1f,
-//            1f, 1f,1f)
-
     private val mPosCoordinate = floatArrayOf(
-            1f, -1f, 1f,
-            -1f, -1f, 1f,
-            1f, 1f, 1f,
-            -1f, 1f, 1f
-    )
-//    private val mTexCoordinate = floatArrayOf(0f, 1f, 1f, 1f, 0f, 0f, 1f, 0f)
+            -1f, -1f,1f,
+            -1f, 1f,1f,
+            1f, -1f,1f,
+            1f, 1f,1f)
 
-    private val mTexCoordinate = floatArrayOf(
-            1f, 0f,
-            0f, 0f,
-            1f, 1f,
-            0f, 1f
-    )
+    private val mTexCoordinate = floatArrayOf(0f, 0f, 0f, 1f, 1f, 0f, 1f, 1f)
 
     private var mPosBuffer: FloatBuffer? = null
     private var mTexBuffer: FloatBuffer? = null
@@ -95,7 +82,7 @@ class MediaGLRenderer(ctx:Context?,listener: SurfaceTexture.OnFrameAvailableList
         GLES30.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_LINEAR.toFloat())
         GLES30.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GL10.GL_TEXTURE_WRAP_S, GL10.GL_CLAMP_TO_EDGE)
         GLES30.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GL10.GL_TEXTURE_WRAP_T, GL10.GL_CLAMP_TO_EDGE)
-
+        GLES30.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,0)
         surfaceTexture = SurfaceTexture(textureId)
         surfaceTexture.setOnFrameAvailableListener(listener)
 
