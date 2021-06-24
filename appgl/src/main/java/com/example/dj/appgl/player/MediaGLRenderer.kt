@@ -116,7 +116,10 @@ class MediaGLRenderer(ctx:Context?,listener: SurfaceTexture.OnFrameAvailableList
         val vertexShaderStr = ResReadUtils.readResource(R.raw.vertex_media_player_shade)
         val vertexShaderId = ShaderUtils.compileVertexShader(vertexShaderStr)
         //编译片段着色程序
-        val fragmentShaderStr = ResReadUtils.readResource(R.raw.fragment_media_player_nostalgia_shade)
+        // fragment_media_player_normal_shade  --正常
+        // fragment_media_player_nostalgia_shade  -- 怀旧滤镜
+        // fragment_media_player_negative_shade  -- 负面滤镜
+        val fragmentShaderStr = ResReadUtils.readResource(R.raw.fragment_media_player_normal_shade)
         val fragmentShaderId = ShaderUtils.compileFragmentShader(fragmentShaderStr)
         //连接程序
         mProgram = ShaderUtils.linkProgram(vertexShaderId, fragmentShaderId)
