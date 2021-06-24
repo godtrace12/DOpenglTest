@@ -30,12 +30,28 @@ class MediaGLRenderer(ctx:Context?,listener: SurfaceTexture.OnFrameAvailableList
     protected var mCameraMatrix = FloatArray(16)
     private var mProgram = 0
 
+    // 原来的方向不对
+
+//    private val mPosCoordinate = floatArrayOf(
+//            -1f, -1f,1f,
+//            -1f, 1f,1f,
+//            1f, -1f,1f,
+//            1f, 1f,1f)
+
     private val mPosCoordinate = floatArrayOf(
-            -1f, -1f,1f,
-            -1f, 1f,1f,
-            1f, -1f,1f,
-            1f, 1f,1f)
-    private val mTexCoordinate = floatArrayOf(0f, 1f, 1f, 1f, 0f, 0f, 1f, 0f)
+            1f, -1f, 1f,
+            -1f, -1f, 1f,
+            1f, 1f, 1f,
+            -1f, 1f, 1f
+    )
+//    private val mTexCoordinate = floatArrayOf(0f, 1f, 1f, 1f, 0f, 0f, 1f, 0f)
+
+    private val mTexCoordinate = floatArrayOf(
+            1f, 0f,
+            0f, 0f,
+            1f, 1f,
+            0f, 1f
+    )
 
     private var mPosBuffer: FloatBuffer? = null
     private var mTexBuffer: FloatBuffer? = null
@@ -43,6 +59,7 @@ class MediaGLRenderer(ctx:Context?,listener: SurfaceTexture.OnFrameAvailableList
     lateinit var mPlayer: MediaPlayer
     //!!! 此路径需根据自己情况，改为自己手机里的视频路径
     private val videoUrl:String = "/storage/emulated/0/Android/data/aom.example.dj.appgl/files/big_buck_bunny.mp4"
+//    private val videoUrl:String = "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"
     private var textureId = 0
     private lateinit var surfaceTexture:SurfaceTexture
     private var listener: SurfaceTexture.OnFrameAvailableListener? = null
@@ -50,6 +67,9 @@ class MediaGLRenderer(ctx:Context?,listener: SurfaceTexture.OnFrameAvailableList
     private var uPosHandle = 0
     private var aTexHandle = 0
     private var mMVPMatrixHandle = 0
+    private var mTexRotateMatrixHandle = 0
+    // 旋转矩阵
+    private val rotateOriMatrix = FloatArray(16)
 
     init {
         this.mContext = ctx
@@ -93,10 +113,10 @@ class MediaGLRenderer(ctx:Context?,listener: SurfaceTexture.OnFrameAvailableList
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         //编译顶点着色程序
-        val vertexShaderStr = ResReadUtils.readResource(R.raw.vertex_camera3d_texture)
+        val vertexShaderStr = ResReadUtils.readResource(R.raw.vertex_media_player_shade)
         val vertexShaderId = ShaderUtils.compileVertexShader(vertexShaderStr)
         //编译片段着色程序
-        val fragmentShaderStr = ResReadUtils.readResource(R.raw.fragment_camera_shade)
+        val fragmentShaderStr = ResReadUtils.readResource(R.raw.fragment_media_player_nostalgia_shade)
         val fragmentShaderId = ShaderUtils.compileFragmentShader(fragmentShaderStr)
         //连接程序
         mProgram = ShaderUtils.linkProgram(vertexShaderId, fragmentShaderId)
@@ -114,15 +134,18 @@ class MediaGLRenderer(ctx:Context?,listener: SurfaceTexture.OnFrameAvailableList
         uPosHandle = GLES20.glGetAttribLocation(mProgram, "position")
         aTexHandle = GLES20.glGetAttribLocation(mProgram, "inputTextureCoordinate")
         mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "textureTransform")
+        mTexRotateMatrixHandle = GLES20.glGetUniformLocation(mProgram,"uTextRotateMatrix")
         // 将前面计算得到的mMVPMatrix(frustumM setLookAtM 通过multiplyMM 相乘得到的矩阵) 传入vMatrix中，与顶点矩阵进行相乘
         GLES30.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mMVPMatrix, 0)
         surfaceTexture!!.updateTexImage()
 
         //?? 为何要取矩阵？？!!!
-//        surfaceTexture.getTransformMatrix()
+        surfaceTexture.getTransformMatrix(rotateOriMatrix)
 
         GLES30.glVertexAttribPointer(uPosHandle, 3, GLES30.GL_FLOAT, false, 0, mPosBuffer)
-        GLES30.glVertexAttribPointer(aTexHandle, 2, GLES30.GL_FLOAT, false, 0, mTexBuffer)
+        GLES30.glVertexAttribPointer(aTexHandle, 2, GLES30.GL_FLOAT, false, 8, mTexBuffer)
+        GLES30.glUniformMatrix4fv(mTexRotateMatrixHandle, 1, false, rotateOriMatrix, 0)
+
         GLES30.glEnableVertexAttribArray(uPosHandle)
         GLES30.glEnableVertexAttribArray(aTexHandle)
         //顶点个数是4个 mPosCoordinate.length/2每个定点x、y2个坐标，所以得到顶点个数。
