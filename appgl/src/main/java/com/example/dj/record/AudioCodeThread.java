@@ -138,14 +138,19 @@ public class AudioCodeThread extends Thread{
                 mAudioCodec = null;
                 mCodecState.audioStop = true;
 
-                if (mCodecState.videoStop) {
-                    Log.e(TAG, "codecAudioMM: stop mux");
-                    mMuxer.stop();
-                    mMuxer.release();
-                    mMuxer = null;
-                    muxListener.onMediaMuxerChangeListener(MediaCodecState.MUXER_STOP);
-                    break;
-                }
+                    if (mCodecState.videoStop && mMuxer != null) {
+                        Log.e(TAG, "codecAudioMM: stop mux");
+                        if(mCodecState.muxStop){
+                            muxListener.onMediaMuxerChangeListener(MediaCodecState.MUXER_STOP);
+                            break;
+                        }
+                        mMuxer.stop();
+                        mCodecState.muxStop = true;
+                        mMuxer.release();
+                        mMuxer = null;
+                        muxListener.onMediaMuxerChangeListener(MediaCodecState.MUXER_STOP);
+                        break;
+                    }
             }
 
             if (mAudioCodec == null){

@@ -39,8 +39,6 @@ public class VideoCodecThread extends Thread {
     private Surface mSurface;
     private MediaCodecState mCodecState;
 
-
-
     public VideoCodecThread( MediaMuxer mediaMuxer,int width,int height,
                              MediaCodecState codecState, MediaMuxerChangeListener listener) {
         this.mediaMuxer = mediaMuxer;
@@ -97,14 +95,19 @@ public class VideoCodecThread extends Thread {
                 mMediaCodec = null;
                 mCodecState.videoStop = true;
 
-                if (mCodecState.audioStop && mediaMuxer != null) {
-                    Log.e(TAG, "codecVideo: stop mux");
-                    mediaMuxer.stop();
-                    mediaMuxer.release();
-                    mediaMuxer = null;
+                    if (mCodecState.audioStop && mediaMuxer != null) {
+                        Log.e(TAG, "codecVideo: stop mux");
+                        if(mCodecState.muxStop){
+//                            listener.onMediaMuxerChangeListener(MediaCodecState.MUXER_STOP);
+                            break;
+                        }
+                        mediaMuxer.stop();
+                        mCodecState.muxStop = true;
+                        mediaMuxer.release();
+                        mediaMuxer = null;
 //                    listener.onMediaMuxerChangeListener(MediaCodecConstant.MUXER_STOP);
-                    break;
-                }
+                        break;
+                    }
             }
 
             if (mMediaCodec == null)

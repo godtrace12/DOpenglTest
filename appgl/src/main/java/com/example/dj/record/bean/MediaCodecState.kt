@@ -28,6 +28,10 @@ class MediaCodecState {
     @kotlin.jvm.JvmField
     @Volatile var videoStop = false
 
+    //标记MediaMuxer -- 是否已停止mux,避免重复停止mux，造成状态错误
+    @kotlin.jvm.JvmField
+    @Volatile var muxStop = false
+
 
     init {
         audioTrackIndex = 0

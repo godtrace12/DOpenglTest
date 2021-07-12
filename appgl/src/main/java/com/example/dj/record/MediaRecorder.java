@@ -34,7 +34,6 @@ public class MediaRecorder {
     // 录制状态相关
     private MediaCodecState mediaCodecState;
 
-
     public MediaRecorder(Context context, String path, EGLContext glContext, int width, int
             height) {
         mContext = context.getApplicationContext();
