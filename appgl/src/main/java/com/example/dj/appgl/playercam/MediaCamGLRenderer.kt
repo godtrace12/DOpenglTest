@@ -58,6 +58,9 @@ class MediaCamGLRenderer(ctx:Context?, listener: SurfaceTexture.OnFrameAvailable
     private var mTexRotateMatrixHandle = 0
     // 旋转矩阵
     private val rotateOriMatrix = FloatArray(16)
+    private var mScreenWidth:Int? = 0
+    private var mScreenHeight:Int? = 0
+
 
     /****   摄像头预览相关   *****/
     private var mCameraManeger: CameraManeger? = null
@@ -151,12 +154,22 @@ class MediaCamGLRenderer(ctx:Context?, listener: SurfaceTexture.OnFrameAvailable
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
-
+        mScreenWidth = width
+        mScreenHeight = height
     }
 
     override fun onDrawFrame(gl: GL10?) {
-        GLES30.glEnable(GLES20.GL_DEPTH_TEST)
-        GLES30.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
+        GLES30.glViewport(0, 0, mScreenWidth!!, mScreenHeight!!)
+
+//        GLES30.glEnable(GLES20.GL_DEPTH_TEST)
+//        GLES30.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
+        drawVideoPicture(gl)
+        // 2、绘制摄像头预览画面
+        drawCamPicture(gl)
+        GLES30.glUseProgram(0)
+    }
+
+    private fun drawVideoPicture(gl: GL10?){
         GLES30.glUseProgram(mProgram)
         uPosHandle = GLES20.glGetAttribLocation(mProgram, "position")
         aTexHandle = GLES20.glGetAttribLocation(mProgram, "inputTextureCoordinate")
@@ -179,9 +192,6 @@ class MediaCamGLRenderer(ctx:Context?, listener: SurfaceTexture.OnFrameAvailable
         GLES30.glDrawArrays(GLES30.GL_TRIANGLE_STRIP, 0, mPosCoordinate.size / 2)
         GLES30.glDisableVertexAttribArray(uPosHandle)
         GLES30.glDisableVertexAttribArray(aTexHandle)
-        // 2、绘制摄像头预览画面
-//        drawCamPicture(gl)
-        GLES30.glUseProgram(0)
     }
 
     // 绘制摄像头预览画面
