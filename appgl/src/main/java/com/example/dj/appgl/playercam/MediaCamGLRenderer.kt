@@ -7,6 +7,7 @@ import android.opengl.*
 import android.util.Log
 import android.view.Surface
 import com.example.dj.appgl.R
+import com.example.dj.appgl.camera.base.CameraManeger
 import com.example.dj.appgl.util.GLDataUtil
 import com.example.dj.appgl.util.ResReadUtils
 import com.example.dj.appgl.util.ShaderUtils
@@ -58,6 +59,21 @@ class MediaCamGLRenderer(ctx:Context?, listener: SurfaceTexture.OnFrameAvailable
     // 旋转矩阵
     private val rotateOriMatrix = FloatArray(16)
 
+    /****   摄像头预览相关   *****/
+    private var mCameraManeger: CameraManeger? = null
+    private var mCameraTexture: SurfaceTexture? = null
+    private var mProgramCam = 0
+    //透视矩阵、相机矩阵定义放在基类中，方便传给其他绘制对象
+    private val mMVPMatrixCam = FloatArray(16)
+    private val mPosCoordinateCam = floatArrayOf(
+            -1f, -1f,1f,
+            -1f, 1f,1f,
+            1f, -1f,1f,
+            1f, 1f,1f)
+    private val mTexCoordinateCam = floatArrayOf(0f, 1f, 1f, 1f, 0f, 0f, 1f, 0f)
+    private var mPosBufferCam: FloatBuffer? = null
+    private var mTexBufferCam: FloatBuffer? = null
+
     init {
         this.mContext = ctx
         Matrix.setIdentityM(mProjectMatrix, 0)
@@ -67,6 +83,13 @@ class MediaCamGLRenderer(ctx:Context?, listener: SurfaceTexture.OnFrameAvailable
         mPlayer = MediaPlayer()
         mPosBuffer = GLDataUtil.createFloatBuffer(mPosCoordinate)
         mTexBuffer = GLDataUtil.createFloatBuffer(mTexCoordinate)
+
+        //2、 摄像头相关
+        Matrix.setIdentityM(mMVPMatrixCam, 0)
+        mPosBufferCam = GLDataUtil.createFloatBuffer(mPosCoordinateCam)
+        mTexBufferCam = GLDataUtil.createFloatBuffer(mTexCoordinateCam)
+        // 摄像头打开相关工具类
+        mCameraManeger = CameraManeger()
     }
 
     fun initMediaPlayer(){
@@ -99,6 +122,7 @@ class MediaCamGLRenderer(ctx:Context?, listener: SurfaceTexture.OnFrameAvailable
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
+        //1、 播放器相关着色器初始化
         //编译顶点着色程序
         val vertexShaderStr = ResReadUtils.readResource(R.raw.vertex_media_player_shade)
         val vertexShaderId = ShaderUtils.compileVertexShader(vertexShaderStr)
@@ -111,6 +135,19 @@ class MediaCamGLRenderer(ctx:Context?, listener: SurfaceTexture.OnFrameAvailable
         //连接程序
         mProgram = ShaderUtils.linkProgram(vertexShaderId, fragmentShaderId)
         initMediaPlayer()
+
+        //2、 摄像头预览相关初始化
+        //编译顶点着色程序
+        val vertexShaderStrCam = ResReadUtils.readResource(R.raw.vertex_camera3d_texture)
+        val vertexShaderIdCam = ShaderUtils.compileVertexShader(vertexShaderStrCam)
+        //编译片段着色程序
+        val fragmentShaderStrCam = ResReadUtils.readResource(R.raw.fragment_camera_shade)
+        val fragmentShaderIdCam = ShaderUtils.compileFragmentShader(fragmentShaderStrCam)
+        //连接程序
+        mProgramCam = ShaderUtils.linkProgram(vertexShaderIdCam, fragmentShaderIdCam)
+        createAndBindVideoTexture()
+        mCameraManeger!!.OpenCamera(mCameraTexture)
+
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
@@ -142,7 +179,51 @@ class MediaCamGLRenderer(ctx:Context?, listener: SurfaceTexture.OnFrameAvailable
         GLES30.glDrawArrays(GLES30.GL_TRIANGLE_STRIP, 0, mPosCoordinate.size / 2)
         GLES30.glDisableVertexAttribArray(uPosHandle)
         GLES30.glDisableVertexAttribArray(aTexHandle)
+        // 2、绘制摄像头预览画面
+//        drawCamPicture(gl)
         GLES30.glUseProgram(0)
+    }
+
+    // 绘制摄像头预览画面
+    private fun drawCamPicture(gl: GL10?){
+        //开启混合模式
+        GLES30.glEnable(GLES20.GL_BLEND)
+        GLES30.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA)
+
+        GLES30.glViewport(50, 50, 200, 200)
+        GLES30.glUseProgram(mProgramCam)
+        var uPosHandleCam = GLES20.glGetAttribLocation(mProgramCam, "position")
+        var aTexHandleCam = GLES20.glGetAttribLocation(mProgramCam, "inputTextureCoordinate")
+        var mMVPMatrixHandleCam = GLES20.glGetUniformLocation(mProgramCam, "textureTransform")
+        // 将前面计算得到的mMVPMatrix(frustumM setLookAtM 通过multiplyMM 相乘得到的矩阵) 传入vMatrix中，与顶点矩阵进行相乘
+        GLES30.glUniformMatrix4fv(mMVPMatrixHandleCam, 1, false, mMVPMatrixCam, 0)
+        mCameraTexture!!.updateTexImage()
+        GLES30.glVertexAttribPointer(uPosHandleCam, 3, GLES30.GL_FLOAT, false, 0, mPosBufferCam)
+        GLES30.glVertexAttribPointer(aTexHandleCam, 2, GLES30.GL_FLOAT, false, 0, mTexBufferCam)
+        GLES30.glEnableVertexAttribArray(uPosHandleCam)
+        GLES30.glEnableVertexAttribArray(aTexHandleCam)
+        //顶点个数是4个 mPosCoordinate.length/2每个定点x、y2个坐标，所以得到顶点个数。
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_STRIP, 0, mPosCoordinateCam.size / 2)
+        GLES30.glDisableVertexAttribArray(uPosHandleCam)
+        GLES30.glDisableVertexAttribArray(aTexHandleCam)
+//        GLES30.glUseProgram(0)
+
+        //关闭混合模式
+        GLES30.glDisable(GLES20.GL_BLEND)
+    }
+
+
+    // 创建摄像头纹理
+    private fun createAndBindVideoTexture() {
+        val texture = IntArray(1)
+        GLES30.glGenTextures(1, texture, 0) //生成一个OpenGl纹理
+        GLES30.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texture[0]) //申请纹理存储区域并设置相关参数
+        GLES30.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_LINEAR.toFloat())
+        GLES30.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_LINEAR.toFloat())
+        GLES30.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GL10.GL_TEXTURE_WRAP_S, GL10.GL_CLAMP_TO_EDGE)
+        GLES30.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GL10.GL_TEXTURE_WRAP_T, GL10.GL_CLAMP_TO_EDGE)
+        mCameraTexture = SurfaceTexture(texture[0]) //以上面OpenGl生成的纹理函数参数创建SurfaceTexture,SurfaceTexture接收的数据将传入该纹理
+        mCameraTexture!!.setOnFrameAvailableListener(listener) //设置SurfaceTexture的回调，通过摄像头预览数据已更新
     }
 
     companion object {

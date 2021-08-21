@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="48dp"
         android:layout_marginTop="36dp"
-        android:text="OpenGL"
+        android:text="OpenGLCam"
         app:layout_constraintStart_toEndOf="@+id/btn_play"
         app:layout_constraintTop_toBottomOf="@+id/gv_surface" />
 

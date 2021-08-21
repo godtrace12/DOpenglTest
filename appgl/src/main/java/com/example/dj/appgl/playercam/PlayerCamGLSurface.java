@@ -9,7 +9,7 @@ import com.example.dj.appgl.player.MediaGLRenderer;
 
 public class PlayerCamGLSurface extends GLSurfaceView implements SurfaceTexture.OnFrameAvailableListener {
 
-    private MediaGLRenderer render;
+    private MediaCamGLRenderer render;
 
     public PlayerCamGLSurface(Context context) {
         super(context);
@@ -18,7 +18,7 @@ public class PlayerCamGLSurface extends GLSurfaceView implements SurfaceTexture.
     public PlayerCamGLSurface(Context context, AttributeSet attrs) {
         super(context, attrs);
         setEGLContextClientVersion(3);
-        render = new MediaGLRenderer(context,this);
+        render = new MediaCamGLRenderer(context,this);
         setRenderer(render);
         setRenderMode(RENDERMODE_CONTINUOUSLY);
     }
