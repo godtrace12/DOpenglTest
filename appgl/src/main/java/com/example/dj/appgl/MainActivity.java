@@ -21,6 +21,7 @@ import com.example.dj.appgl.light.TextureLightActivity;
 import com.example.dj.appgl.model.ModeBglLoadActivity;
 import com.example.dj.appgl.model.ModelLoadActivity;
 import com.example.dj.appgl.player.MediaPlayerActivity;
+import com.example.dj.appgl.playercam.MediaPlayerCamActivity;
 import com.example.dj.appgl.skybox.SkyboxActivity;
 import com.example.dj.media.DPlayer;
 import com.example.dj.appgl.nativegl.NativeGLActivity;
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnTextureLight;
     private Button btnNative;
     private Button btnMediaPlayer;
+    private Button btnMediaPlayerCam;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +83,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnNative.setOnClickListener(this);
         btnMediaPlayer = findViewById(R.id.btnMediaPlayer);
         btnMediaPlayer.setOnClickListener(this);
+        btnMediaPlayerCam = findViewById(R.id.btnMediaPlayerCam);
+        btnMediaPlayerCam.setOnClickListener(this);
     }
 
     @Override
@@ -127,6 +131,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivity(intent);
         }else if(viewId == R.id.btnMediaPlayer){
             Intent intent = new Intent(MainActivity.this, MediaPlayerActivity.class);
+            startActivity(intent);
+        }else if(viewId == R.id.btnMediaPlayerCam){
+            Intent intent = new Intent(MainActivity.this, MediaPlayerCamActivity.class);
             startActivity(intent);
         }
     }
