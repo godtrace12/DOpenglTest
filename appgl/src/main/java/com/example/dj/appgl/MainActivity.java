@@ -2,12 +2,14 @@ package com.example.dj.appgl;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.Manifest;
 import android.app.NativeActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.dj.appgl.basicdraw.CubicSampleActivity;
 import com.example.dj.appgl.basicdraw.TriangleSampleActivity;
@@ -25,6 +27,11 @@ import com.example.dj.appgl.playercam.MediaPlayerCamActivity;
 import com.example.dj.appgl.skybox.SkyboxActivity;
 import com.example.dj.media.DPlayer;
 import com.example.dj.appgl.nativegl.NativeGLActivity;
+import com.tbruyelle.rxpermissions2.RxPermissions;
+
+import io.reactivex.Observer;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -52,6 +59,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String natvieStr = DPlayer.getNativeString();
         Log.e("dj", "onCreate: "+natvieStr);
         findViews();
+        requestPermission();
+    }
+
+    private void requestPermission(){
+        String[] permissionsGroup = new String[]{
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.CAMERA};
+        RxPermissions rxPermissions = new RxPermissions(MainActivity.this);
+        rxPermissions.request(permissionsGroup).subscribe(new Observer<Boolean>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull Boolean aBoolean) {
+                if(aBoolean){
+                    Toast.makeText(MainActivity.this,"已获取权限",Toast.LENGTH_SHORT).show();
+                }else{
+                    //只有用户拒绝开启权限，且选了不再提示时，才会走这里，否则会一直请求开启
+                    Toast.makeText(MainActivity.this, "主人，我被禁止啦，去设置权限设置那把我打开哟", Toast.LENGTH_LONG)
+                            .show();
+                }
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
     private void findViews() {
