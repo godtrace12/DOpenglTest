@@ -146,7 +146,7 @@ class MediaCamGLRenderer(ctx:Context?, listener: SurfaceTexture.OnFrameAvailable
         val vertexShaderStrCam = ResReadUtils.readResource(R.raw.vertex_cameraplayer_texture)
         val vertexShaderIdCam = ShaderUtils.compileVertexShader(vertexShaderStrCam)
         //编译片段着色程序
-        val fragmentShaderStrCam = ResReadUtils.readResource(R.raw.fragment_camera_shade)
+        val fragmentShaderStrCam = ResReadUtils.readResource(R.raw.fragment_camera_transparent_shade)
         val fragmentShaderIdCam = ShaderUtils.compileFragmentShader(fragmentShaderStrCam)
         //连接程序
         mProgramCam = ShaderUtils.linkProgram(vertexShaderIdCam, fragmentShaderIdCam)
