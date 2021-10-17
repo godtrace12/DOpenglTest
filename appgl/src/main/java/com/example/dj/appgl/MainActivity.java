@@ -28,6 +28,7 @@ import com.example.dj.appgl.skybox.SkyboxActivity;
 import com.example.dj.media.DPlayer;
 import com.example.dj.appgl.nativegl.NativeGLActivity;
 import com.tbruyelle.rxpermissions2.RxPermissions;
+import com.tencent.bugly.crashreport.CrashReport;
 
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnNative;
     private Button btnMediaPlayer;
     private Button btnMediaPlayerCam;
+    private Button btnNativeCrash;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,6 +131,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnMediaPlayer.setOnClickListener(this);
         btnMediaPlayerCam = findViewById(R.id.btnMediaPlayerCam);
         btnMediaPlayerCam.setOnClickListener(this);
+        btnNativeCrash = findViewById(R.id.btnNativeCrash);
+        btnNativeCrash.setOnClickListener(this);
     }
 
     @Override
@@ -179,6 +183,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }else if(viewId == R.id.btnMediaPlayerCam){
             Intent intent = new Intent(MainActivity.this, MediaPlayerCamActivity.class);
             startActivity(intent);
+        }else if(viewId == R.id.btnNativeCrash){
+//            CrashReport.testJavaCrash();
+            DPlayer.nativeStringInit();
         }
     }
 }

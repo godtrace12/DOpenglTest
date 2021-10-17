@@ -1,6 +1,17 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+
+apply plugin: 'bugly'
+
+bugly {
+    appId = 'e4c59fc9cf' // 注册时分配的App ID
+    appKey = '99bb0e4e-910d-4247-85e3-ea026cef03a2' // 注册时分配的App Key
+    uploadSymbol = true
+    debug = true
+    
+}
+
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
@@ -43,4 +54,6 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.4'
     implementation project(':nativelibrary')
+    implementation 'com.tencent.bugly:crashreport:3.2.3'
+    implementation 'com.tencent.bugly:nativecrashreport:3.7.47'
 }

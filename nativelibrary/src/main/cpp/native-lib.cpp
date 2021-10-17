@@ -30,6 +30,12 @@ JNIEXPORT jstring JNICALL getNativeString(JNIEnv *env, jclass clazz) {
 extern "C"
 JNIEXPORT void JNICALL nativeStringInit(JNIEnv *env, jclass clazz) {
     LOGE("dj---------- nativeInit","dj---");
+    double source = 100;
+    double beichu = 0.0;
+    int *p = 0;
+    *p = 1;
+    double result = source / beichu;
+    int j =4;
 }
 
 //2，--------------------- DNativeRender测试相关代码 ----------------
