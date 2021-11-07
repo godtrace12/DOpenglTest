@@ -22,6 +22,7 @@ import com.example.dj.appgl.light.FengLightActivity;
 import com.example.dj.appgl.light.TextureLightActivity;
 import com.example.dj.appgl.model.ModeBglLoadActivity;
 import com.example.dj.appgl.model.ModelLoadActivity;
+import com.example.dj.appgl.opencv.OpenCVActivity;
 import com.example.dj.appgl.player.MediaPlayerActivity;
 import com.example.dj.appgl.playercam.MediaPlayerCamActivity;
 import com.example.dj.appgl.skybox.SkyboxActivity;
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnMediaPlayer;
     private Button btnMediaPlayerCam;
     private Button btnNativeCrash;
+    private Button btnOpenCV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,6 +135,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnMediaPlayerCam.setOnClickListener(this);
         btnNativeCrash = findViewById(R.id.btnNativeCrash);
         btnNativeCrash.setOnClickListener(this);
+        btnOpenCV = findViewById(R.id.btnOpenCV);
+        btnOpenCV.setOnClickListener(this);
     }
 
     @Override
@@ -186,6 +190,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }else if(viewId == R.id.btnNativeCrash){
 //            CrashReport.testJavaCrash();
             DPlayer.nativeStringInit();
+        }else if(viewId == R.id.btnOpenCV){
+            Intent  intent = new Intent(MainActivity.this, OpenCVActivity.class);
+            startActivity(intent);
         }
     }
 }

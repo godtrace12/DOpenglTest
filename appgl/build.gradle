@@ -56,4 +56,5 @@ dependencies {
     implementation project(':nativelibrary')
     implementation 'com.tencent.bugly:crashreport:3.2.3'
     implementation 'com.tencent.bugly:nativecrashreport:3.7.47'
+    implementation project(':opencv')
 }

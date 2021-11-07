@@ -108,6 +108,12 @@
                 android:layout_height="wrap_content"
                 android:text="Native Crash Test"/>
 
+            <Button
+                android:id="@+id/btnOpenCV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="OpenCV Camera"/>
+
         </LinearLayout>
 
 

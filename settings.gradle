@@ -1,3 +1,7 @@
 include ':nativelibrary'
-include ':app', ':appgl'
+include ':appgl'
 rootProject.name='DOpenGL'
+//include ':sdk'//opencv sdk 工程
+//project(':opencv').projectDir = new File('/sdk')
+include ':opencv'//opencv sdk 工程
+project(':opencv').projectDir = new File('./sdk')
