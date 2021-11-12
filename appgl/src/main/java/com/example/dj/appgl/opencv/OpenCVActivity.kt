@@ -1,6 +1,5 @@
 package com.example.dj.appgl.opencv
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
@@ -18,9 +17,8 @@ import org.opencv.imgproc.Imgproc
 import org.opencv.imgproc.Imgproc.COLOR_BGRA2GRAY
 import org.opencv.objdetect.CascadeClassifier
 import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
-import java.io.InputStream
+
 
 class OpenCVActivity : AppCompatActivity() {
     var ivPic: ImageView? = null
@@ -43,7 +41,10 @@ class OpenCVActivity : AppCompatActivity() {
         ivPic = findViewById(R.id.ivPic)
         btnDetect = findViewById(R.id.btnDetect)
         btnDetect!!.setOnClickListener {
-            startDetect()
+//            startDetect()
+            srcPhotoBitmap = ((ivPic!!.drawable) as BitmapDrawable).bitmap
+            var grayBitmap = toGrayByOpencv(srcPhotoBitmap)
+            ivPic!!.setImageBitmap(grayBitmap)
         }
     }
 
@@ -58,25 +59,25 @@ class OpenCVActivity : AppCompatActivity() {
                         try {
 
 //                            System.loadLibrary("detection_based_tracker")
-                            var isStream:InputStream = resources.openRawResource(R.raw.lbpcascade_frontalface)
-                            val cascadeDir = getDir("cascade", Context.MODE_PRIVATE)
-                            mCascadeFile = File(cascadeDir,"lbpcascade_frontalface.xml")
-                            var os:FileOutputStream = FileOutputStream(mCascadeFile)
-
-                            val buffer = ByteArray(4096)
-                            var bytesRead: Int
-                            bytesRead = isStream.read(buffer)
-                            while (isStream.read(buffer).also { bytesRead = it } != -1){
-                                os.write(buffer,0,bytesRead)
-                            }
-                            isStream.close()
-                            os.close()
-                            var fileAbsolutePath = "/data/user/0/aom.example.dj.appgl/app_cascade/lbpcascade_frontalface.xml"
-                            mJavaDetector = CascadeClassifier(mCascadeFile!!.absolutePath)
-//                            mJavaDetector = CascadeClassifier(fileAbsolutePath)
-                            if(mJavaDetector!!.empty()){
-                                mJavaDetector = null
-                            }
+//                            var isStream:InputStream = resources.openRawResource(R.raw.lbpcascade_frontalface)
+//                            val cascadeDir = getDir("cascade", Context.MODE_PRIVATE)
+//                            mCascadeFile = File(cascadeDir,"lbpcascade_frontalface.xml")
+//                            var os:FileOutputStream = FileOutputStream(mCascadeFile)
+//
+//                            val buffer = ByteArray(4096)
+//                            var bytesRead: Int
+//                            bytesRead = isStream.read(buffer)
+//                            while (isStream.read(buffer).also { bytesRead = it } != -1){
+//                                os.write(buffer,0,bytesRead)
+//                            }
+//                            isStream.close()
+//                            os.close()
+//                            var fileAbsolutePath = "/data/user/0/aom.example.dj.appgl/app_cascade/lbpcascade_frontalface.xml"
+//                            mJavaDetector = CascadeClassifier(mCascadeFile!!.absolutePath)
+////                            mJavaDetector = CascadeClassifier(fileAbsolutePath)
+//                            if(mJavaDetector!!.empty()){
+//                                mJavaDetector = null
+//                            }
 
                         }catch (e:IOException){
                             Log.e(Companion.TAG, "onManagerConnected: "+e)
@@ -113,13 +114,23 @@ class OpenCVActivity : AppCompatActivity() {
         return dstBitmap
     }
 
+    // 图片灰度处理有效
+    fun toGrayByOpencv(srcBitmap: Bitmap?): Bitmap? {
+        val mat = Mat()
+        Utils.bitmapToMat(srcBitmap, mat)
+        val grayMat = Mat()
+        Imgproc.cvtColor(mat, grayMat, COLOR_BGRA2GRAY, 1)
+        Utils.matToBitmap(grayMat, srcBitmap)
+        return srcBitmap
+    }
+
     override fun onResume() {
         super.onResume()
         if (!OpenCVLoader.initDebug()) {
-            Log.d(TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization")
+            Log.e(TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization")
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, mLoadCallback)
         } else {
-            Log.d(TAG, "OpenCV library found inside package. Using it!")
+            Log.e(TAG, "OpenCV library found inside package. Using it!")
             mLoadCallback!!.onManagerConnected(LoaderCallbackInterface.SUCCESS)
         }
     }
