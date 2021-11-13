@@ -1,9 +1,10 @@
 apply plugin: 'com.android.application'
+//apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 26
     defaultConfig {
-        applicationId "org.opencv.samples.facedetect"
+//        applicationId "org.opencv.samples.facedetect"
         minSdkVersion 21
         targetSdkVersion 26
         versionCode 301
@@ -15,8 +16,13 @@ android {
 "-DANDROID_TOOLCHAIN=clang",
 "-DANDROID_STL=c++_shared"
                 targets "detection_based_tracker"
+//                abiFilters 'armeabi-v7a'    //只生成armv7的so
             }
         }
+
+//        ndk {
+//            abiFilters 'armeabi-v7a'    //只生成armv7的so
+//        }
     }
     buildTypes {
         release {
