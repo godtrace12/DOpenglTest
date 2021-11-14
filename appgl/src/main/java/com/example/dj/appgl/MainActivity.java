@@ -22,6 +22,7 @@ import com.example.dj.appgl.light.FengLightActivity;
 import com.example.dj.appgl.light.TextureLightActivity;
 import com.example.dj.appgl.model.ModeBglLoadActivity;
 import com.example.dj.appgl.model.ModelLoadActivity;
+import com.example.dj.appgl.opencv.OpenCV2Activity;
 import com.example.dj.appgl.opencv.OpenCVActivity;
 import com.example.dj.appgl.player.MediaPlayerActivity;
 import com.example.dj.appgl.playercam.MediaPlayerCamActivity;
@@ -30,6 +31,8 @@ import com.example.dj.media.DPlayer;
 import com.example.dj.appgl.nativegl.NativeGLActivity;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.tencent.bugly.crashreport.CrashReport;
+
+import org.opencv.samples.facedetect.FdActivity;
 
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;

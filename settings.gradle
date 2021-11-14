@@ -5,3 +5,4 @@ rootProject.name='DOpenGL'
 //project(':opencv').projectDir = new File('/sdk')
 include ':opencv'//opencv sdk 工程
 project(':opencv').projectDir = new File('./sdk')
+include ':face-detection'

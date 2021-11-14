@@ -1,5 +1,6 @@
 package com.example.dj.appgl.opencv
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
@@ -17,7 +18,9 @@ import org.opencv.imgproc.Imgproc
 import org.opencv.imgproc.Imgproc.COLOR_BGRA2GRAY
 import org.opencv.objdetect.CascadeClassifier
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
 
 
 class OpenCVActivity : AppCompatActivity() {
@@ -41,10 +44,10 @@ class OpenCVActivity : AppCompatActivity() {
         ivPic = findViewById(R.id.ivPic)
         btnDetect = findViewById(R.id.btnDetect)
         btnDetect!!.setOnClickListener {
-//            startDetect()
-            srcPhotoBitmap = ((ivPic!!.drawable) as BitmapDrawable).bitmap
-            var grayBitmap = toGrayByOpencv(srcPhotoBitmap)
-            ivPic!!.setImageBitmap(grayBitmap)
+            startDetect()
+//            srcPhotoBitmap = ((ivPic!!.drawable) as BitmapDrawable).bitmap
+//            var grayBitmap = toGrayByOpencv(srcPhotoBitmap)
+//            ivPic!!.setImageBitmap(grayBitmap)
         }
     }
 
@@ -58,26 +61,32 @@ class OpenCVActivity : AppCompatActivity() {
                     {
                         try {
 
-//                            System.loadLibrary("detection_based_tracker")
-//                            var isStream:InputStream = resources.openRawResource(R.raw.lbpcascade_frontalface)
-//                            val cascadeDir = getDir("cascade", Context.MODE_PRIVATE)
-//                            mCascadeFile = File(cascadeDir,"lbpcascade_frontalface.xml")
-//                            var os:FileOutputStream = FileOutputStream(mCascadeFile)
-//
-//                            val buffer = ByteArray(4096)
-//                            var bytesRead: Int
+                            System.loadLibrary("detection_based_tracker")
+                            var isStream: InputStream = resources.openRawResource(R.raw.lbpcascade_frontalface)
+                            val cascadeDir = getDir("cascade", Context.MODE_PRIVATE)
+                            mCascadeFile = File(cascadeDir,"lbpcascade_frontalface.xml")
+                            var os:FileOutputStream = FileOutputStream(mCascadeFile)
+
+                            val buffer = ByteArray(4096)
+                            var bytesRead: Int
 //                            bytesRead = isStream.read(buffer)
-//                            while (isStream.read(buffer).also { bytesRead = it } != -1){
+//                            while (isStream.read(buffer).also({ bytesRead = it }) != -1){
 //                                os.write(buffer,0,bytesRead)
 //                            }
-//                            isStream.close()
-//                            os.close()
-//                            var fileAbsolutePath = "/data/user/0/aom.example.dj.appgl/app_cascade/lbpcascade_frontalface.xml"
-//                            mJavaDetector = CascadeClassifier(mCascadeFile!!.absolutePath)
-////                            mJavaDetector = CascadeClassifier(fileAbsolutePath)
-//                            if(mJavaDetector!!.empty()){
-//                                mJavaDetector = null
-//                            }
+
+                            while (isStream.read(buffer).let { bytesRead = it
+                                        it != -1}){
+                                os.write(buffer,0,bytesRead)
+                            }
+                            isStream.close()
+                            os.close()
+                            var fileAbsolutePath = "/data/user/0/aom.example.dj.appgl/app_cascade/lbpcascade_frontalface.xml"
+                            Log.e(TAG, "onManagerConnected: fileAbsolutePath="+mCascadeFile!!.absolutePath)
+                            mJavaDetector = CascadeClassifier(mCascadeFile!!.absolutePath)
+//                            mJavaDetector = CascadeClassifier(fileAbsolutePath)
+                            if(mJavaDetector!!.empty()){
+                                mJavaDetector = null
+                            }
 
                         }catch (e:IOException){
                             Log.e(Companion.TAG, "onManagerConnected: "+e)
@@ -92,7 +101,8 @@ class OpenCVActivity : AppCompatActivity() {
 
     private fun startDetect(){
         srcPhotoBitmap = ((ivPic!!.drawable) as BitmapDrawable).bitmap
-        faceDetect(srcPhotoBitmap!!)
+        var faceBitmap = faceDetect(srcPhotoBitmap!!)
+        ivPic!!.setImageBitmap(faceBitmap)
     }
 
     private fun faceDetect(photo:Bitmap):Bitmap{
@@ -103,7 +113,7 @@ class OpenCVActivity : AppCompatActivity() {
         Imgproc.cvtColor(matSrc,matGray, COLOR_BGRA2GRAY)
         var faces = MatOfRect()
         mJavaDetector!!.detectMultiScale(matGray,faces,1.1,2,2,Size(30.0, 30.0),Size())
-        var faceList:ArrayList<Rect> = faces.toList() as ArrayList<Rect>
+        var faceList:ArrayList<Rect> =ArrayList<Rect>(faces.toList())
         matSrc.copyTo(matDst)
         if(faceList.size >0){
             for (rect in faceList){
@@ -111,6 +121,10 @@ class OpenCVActivity : AppCompatActivity() {
             }
         }
         var dstBitmap = Bitmap.createBitmap(photo.width,photo.height,Bitmap.Config.ARGB_8888)
+        Utils.matToBitmap(matDst, dstBitmap)
+        matDst.release()
+        matGray.release()
+        matSrc.release()
         return dstBitmap
     }
 
