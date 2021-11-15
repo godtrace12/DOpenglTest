@@ -33,13 +33,16 @@ class WaveRenderer(ctx: Context?):GLSurfaceView.Renderer {
     // 原来的方向不对
     private val mPosCoordinate = floatArrayOf(
             0.5f, 0.5f, 0.0f, // top
-            // top
             -0.5f, -0.5f, 0.0f, // bottom left
-            // bottom left
-            0.5f, -0.5f, 0.0f // bottom right
+            0.5f, -0.5f, 0.0f, // bottom right
+
+            0.5f, 0.5f, 0.0f, // top
+            -0.5f, -0.5f, 0.0f,// bottom left
+            -0.5f,0.5f,0.0f// top left
     )
 
-    private val mTexCoordinate = floatArrayOf(1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f)
+    private val mTexCoordinate = floatArrayOf(1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+            1.0f, 0.0f, 0.0f, 1.0f,0.0f,0.0f)
     private var mPosBuffer: FloatBuffer? = null
     private var mTexBuffer: FloatBuffer? = null
 
@@ -109,7 +112,7 @@ class WaveRenderer(ctx: Context?):GLSurfaceView.Renderer {
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         //绑定纹理
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureId)
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 3)
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 6)
         //禁止顶点数组的句柄
         GLES30.glDisableVertexAttribArray(aPositionLocation)
         GLES30.glDisableVertexAttribArray(aTextureLocation)
