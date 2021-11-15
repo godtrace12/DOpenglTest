@@ -12,8 +12,6 @@ import com.example.dj.appgl.util.GLDataUtil
 import com.example.dj.appgl.util.ResReadUtils
 import com.example.dj.appgl.util.ShaderUtils
 import com.example.dj.appgl.util.TextureUtils
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -34,12 +32,14 @@ class WaveRenderer(ctx: Context?):GLSurfaceView.Renderer {
     private var mProgram = 0
     // 原来的方向不对
     private val mPosCoordinate = floatArrayOf(
-            -1f, -1f,1f,
-            -1f, 1f,1f,
-            1f, -1f,1f,
-            1f, 1f,1f)
+            0.5f, 0.5f, 0.0f, // top
+            // top
+            -0.5f, -0.5f, 0.0f, // bottom left
+            // bottom left
+            0.5f, -0.5f, 0.0f // bottom right
+    )
 
-    private val mTexCoordinate = floatArrayOf(0f, 0f, 0f, 1f, 1f, 0f, 1f, 1f)
+    private val mTexCoordinate = floatArrayOf(1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f)
     private var mPosBuffer: FloatBuffer? = null
     private var mTexBuffer: FloatBuffer? = null
 
@@ -101,7 +101,7 @@ class WaveRenderer(ctx: Context?):GLSurfaceView.Renderer {
         GLES30.glVertexAttribPointer(aPositionLocation, 3, GLES30.GL_FLOAT, false, 0, mPosBuffer)
 
         val aTextureLocation = GLES20.glGetAttribLocation(mProgram, "aTextureCoord")
-        Log.e(Companion.TAG, "onDrawFrame: textureLocation=$aTextureLocation")
+//        Log.e(Companion.TAG, "onDrawFrame: textureLocation=$aTextureLocation")
         //纹理坐标数据 x、y，所以数据size是 2
         GLES30.glVertexAttribPointer(aTextureLocation, 2, GLES30.GL_FLOAT, false, 0, mTexBuffer)
         //启用顶点颜色句柄
