@@ -27,6 +27,7 @@ import com.example.dj.appgl.opencv.OpenCVActivity;
 import com.example.dj.appgl.player.MediaPlayerActivity;
 import com.example.dj.appgl.playercam.MediaPlayerCamActivity;
 import com.example.dj.appgl.skybox.SkyboxActivity;
+import com.example.dj.appgl.wave.WaveSampleActivity;
 import com.example.dj.media.DPlayer;
 import com.example.dj.appgl.nativegl.NativeGLActivity;
 import com.tbruyelle.rxpermissions2.RxPermissions;
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnMediaPlayerCam;
     private Button btnNativeCrash;
     private Button btnOpenCV;
+    private Button btnWave;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,6 +142,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnNativeCrash.setOnClickListener(this);
         btnOpenCV = findViewById(R.id.btnOpenCV);
         btnOpenCV.setOnClickListener(this);
+        btnWave = findViewById(R.id.btnWave);
+        btnWave.setOnClickListener(this);
     }
 
     @Override
@@ -195,6 +199,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             DPlayer.nativeStringInit();
         }else if(viewId == R.id.btnOpenCV){
             Intent  intent = new Intent(MainActivity.this, OpenCVActivity.class);
+            startActivity(intent);
+        }else if(viewId == R.id.btnWave){
+            Intent  intent = new Intent(MainActivity.this, WaveSampleActivity.class);
             startActivity(intent);
         }
     }

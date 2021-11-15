@@ -114,6 +114,12 @@
                 android:layout_height="wrap_content"
                 android:text="OpenCV Camera"/>
 
+            <Button
+                android:id="@+id/btnWave"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="波浪"/>
+
         </LinearLayout>
 
 

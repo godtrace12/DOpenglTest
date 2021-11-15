@@ -27,6 +27,7 @@
         android:theme="@style/AppTheme">
         <activity android:name=".opencv.OpenCVActivity"></activity>
         <activity android:name=".opencv.OpenCV2Activity"></activity>
+        <activity android:name=".wave.WaveSampleActivity"></activity>
         <activity android:name=".player.MediaPlayerActivity" />
         <activity android:name=".camera.CameraActivity" />
         <activity android:name=".camera.CameraRecordActivity" />
