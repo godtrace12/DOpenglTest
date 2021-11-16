@@ -32,13 +32,13 @@ class WaveRenderer(ctx: Context?):GLSurfaceView.Renderer {
     private var mProgram = 0
     // 原来的方向不对
     private val mPosCoordinate = floatArrayOf(
-            0.5f, 0.5f, 0.0f, // top
-            -0.5f, -0.5f, 0.0f, // bottom left
-            0.5f, -0.5f, 0.0f, // bottom right
+            1f, 1f, 0.0f, // top
+            -1f, -1f, 0.0f, // bottom left
+            1f, -1f, 0.0f, // bottom right
 
-            0.5f, 0.5f, 0.0f, // top
-            -0.5f, -0.5f, 0.0f,// bottom left
-            -0.5f,0.5f,0.0f// top left
+            1f, 1f, 0.0f, // top
+            -1f, -1f, 0.0f,// bottom left
+            -1f,1f,0.0f// top left
     )
 
     private val mTexCoordinate = floatArrayOf(1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
@@ -72,7 +72,7 @@ class WaveRenderer(ctx: Context?):GLSurfaceView.Renderer {
         //在OpenGLES环境中使用程序
         GLES30.glUseProgram(mProgram)
         //加载纹理
-        textureId = TextureUtils.loadTexture(AppCore.getInstance().context, R.drawable.world_map)
+        textureId = TextureUtils.loadTexture(AppCore.getInstance().context, R.drawable.ic_cube_maps_left)
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
