@@ -21,8 +21,10 @@ void main() {
      && (distance >= (u_time - u_Boundary))){
           float diff = (distance - u_time);
           float moveDis = 20.0*diff*(diff - u_Boundary)*(diff + u_Boundary);//采样坐标移动距离
-          vec2 unitDirectionVec = normalize(texCoord - touchXY);//单位方向向量
-          textCoord = textCoord + (unitDirectionVec * moveDis);
+//          vec2 unitDirectionVec = normalize(texCoord - touchXY);//单位方向向量
+//          textCoord = textCoord + (unitDirectionVec * moveDis);
+          textCoord = textCoord + moveDis;
+
      }
 
      vFragColor = texture(uTextureUnit,textCoord);

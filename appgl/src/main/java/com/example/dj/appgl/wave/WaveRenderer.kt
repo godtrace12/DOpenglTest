@@ -76,7 +76,10 @@ class WaveRenderer(ctx: Context?):GLSurfaceView.Renderer {
         val vertexShaderStr = ResReadUtils.readResource(R.raw.vertex_wave_texture_shader)
         val vertexShaderId = ShaderUtils.compileVertexShader(vertexShaderStr)
         //编译片段着色程序
-        val fragmentShaderStr = ResReadUtils.readResource(R.raw.fragment_wave_texture_shader)
+        // 1-- 左右波动
+//        val fragmentShaderStr = ResReadUtils.readResource(R.raw.fragment_wave_texture_shader)
+        // 2-- 中间圆心点击水波纹波动
+        val fragmentShaderStr = ResReadUtils.readResource(R.raw.fragment_point_wave_texture_shader)
         val fragmentShaderId = ShaderUtils.compileFragmentShader(fragmentShaderStr)
         //连接程序
         mProgram = ShaderUtils.linkProgram(vertexShaderId, fragmentShaderId)
@@ -104,7 +107,7 @@ class WaveRenderer(ctx: Context?):GLSurfaceView.Renderer {
     }
 
     override fun onDrawFrame(gl: GL10?) {
-        Log.e(TAG, "onDrawFrame: dj------- mTime="+mTime)
+//        Log.e(TAG, "onDrawFrame: dj------- mTime="+mTime)
         //左乘矩阵
         val uMaxtrixLocation = GLES30.glGetUniformLocation(mProgram, "vMatrix")
         // 将前面计算得到的mMVPMatrix(frustumM setLookAtM 通过multiplyMM 相乘得到的矩阵) 传入vMatrix中，与顶点矩阵进行相乘
