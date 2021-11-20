@@ -13,6 +13,8 @@ import com.example.dj.appgl.util.ResReadUtils
 import com.example.dj.appgl.util.ShaderUtils
 import com.example.dj.appgl.util.TextureUtils
 import java.nio.FloatBuffer
+import java.nio.IntBuffer
+import java.nio.ShortBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -49,6 +51,14 @@ class WaveRenderer(ctx: Context?):GLSurfaceView.Renderer {
     //纹理id
     private var textureId = 0
 
+    // 波动相关参数
+    // 图片分辨率
+    private val mImgResolution = floatArrayOf(2048.0f,2048.0f)
+    // 时间-动态改变
+    private var mTime:Float = 0.0f
+    private var mResolutionBuffer: FloatBuffer? = null
+    private var mFrameIndex =0
+
     init {
         this.mContext = ctx
         Matrix.setIdentityM(mProjectMatrix, 0)
@@ -57,6 +67,7 @@ class WaveRenderer(ctx: Context?):GLSurfaceView.Renderer {
 
         mPosBuffer = GLDataUtil.createFloatBuffer(mPosCoordinate)
         mTexBuffer = GLDataUtil.createFloatBuffer(mTexCoordinate)
+        mResolutionBuffer = GLDataUtil.createFloatBuffer(mImgResolution)
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
@@ -93,6 +104,7 @@ class WaveRenderer(ctx: Context?):GLSurfaceView.Renderer {
     }
 
     override fun onDrawFrame(gl: GL10?) {
+        Log.e(TAG, "onDrawFrame: dj------- mTime="+mTime)
         //左乘矩阵
         val uMaxtrixLocation = GLES30.glGetUniformLocation(mProgram, "vMatrix")
         // 将前面计算得到的mMVPMatrix(frustumM setLookAtM 通过multiplyMM 相乘得到的矩阵) 传入vMatrix中，与顶点矩阵进行相乘
@@ -109,6 +121,14 @@ class WaveRenderer(ctx: Context?):GLSurfaceView.Renderer {
         GLES30.glVertexAttribPointer(aTextureLocation, 2, GLES30.GL_FLOAT, false, 0, mTexBuffer)
         //启用顶点颜色句柄
         GLES30.glEnableVertexAttribArray(aTextureLocation)
+
+        //波浪相关
+        val aResolutionLocation = GLES30.glGetUniformLocation(mProgram,"u_resolution")
+        val aTimeLocation = GLES30.glGetUniformLocation(mProgram,"u_time")
+//        GLES30.glUniformMatrix2fv(aResolutionLocation, 2, false, mImgResolution, 0)
+        GLES20.glUniform2f(aResolutionLocation, 2048.0f, 2048.0f)
+        GLES30.glUniform1f(aTimeLocation,mTime)
+
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         //绑定纹理
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureId)
@@ -116,6 +136,9 @@ class WaveRenderer(ctx: Context?):GLSurfaceView.Renderer {
         //禁止顶点数组的句柄
         GLES30.glDisableVertexAttribArray(aPositionLocation)
         GLES30.glDisableVertexAttribArray(aTextureLocation)
+//        mTime++
+        mTime = (mFrameIndex % 150) /120.0f
+        mFrameIndex++
     }
 
     companion object {
