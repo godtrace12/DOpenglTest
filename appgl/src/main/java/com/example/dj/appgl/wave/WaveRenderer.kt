@@ -93,9 +93,12 @@ class WaveRenderer(ctx: Context?):GLSurfaceView.Renderer {
         GLES30.glViewport(0, 0, width, height)
         val ratio = width.toFloat() / height
         //设置透视投影
+        // 1-- 正交投影
+//        Matrix.orthoM(mProjectMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 7f)
+        // 2-- 透视投影
         Matrix.frustumM(mProjectMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 7f)
         //设置相机位置
-        Matrix.setLookAtM(mViewMatrix, 0, 0f, 0f, 3.6f,  //摄像机坐标
+        Matrix.setLookAtM(mViewMatrix, 0, 0f, 0f, 6.0f,  //摄像机坐标
                 0f, 0f, 0f,  //目标物的中心坐标
                 0f, 1.0f, 0.0f) //相机方向
 

@@ -14,8 +14,10 @@ void main() {
      //设定固定常量
      float u_Boundary = 0.1;
      vec2 u_TouchXY = vec2(0.5, 0.5);
-     vec2 textCoord = vTexCoord;
-     vec2 touchXY = u_TouchXY;
+     float ratio = u_resolution.y/u_resolution.x;
+     ratio = 1.0;
+     vec2 textCoord = vTexCoord * vec2(1.0,ratio);
+     vec2 touchXY = u_TouchXY * vec2(1.0,ratio);
      float distance = distance(vTexCoord,touchXY);
      if((u_time - u_Boundary >0.0) && (distance <=(u_time + u_Boundary))
      && (distance >= (u_time - u_Boundary))){
@@ -26,7 +28,7 @@ void main() {
           textCoord = textCoord + moveDis;
 
      }
-
+     textCoord = textCoord / vec2(1.0, ratio);
      vFragColor = texture(uTextureUnit,textCoord);
 
 }
