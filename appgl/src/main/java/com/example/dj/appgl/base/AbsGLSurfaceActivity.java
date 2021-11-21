@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
  */
 public abstract class AbsGLSurfaceActivity extends AppCompatActivity {
 
-    protected GLSurfaceView mGLSurfaceView;
+    protected DBaseGLSurfaceView mGLSurfaceView;
 
     protected abstract GLSurfaceView.Renderer bindRenderer();
     protected GLSurfaceView.Renderer renderer;
@@ -23,7 +23,14 @@ public abstract class AbsGLSurfaceActivity extends AppCompatActivity {
     }
 
     private void setupViews() {
-        mGLSurfaceView = new GLSurfaceView(this);
+        mGLSurfaceView = new DBaseGLSurfaceView(this, new DBaseGLSurfaceView.GestureListener() {
+            @Override
+            public void onClick(float x, float y) {
+                if(renderer instanceof IRenderGesture){
+                    ((IRenderGesture)renderer).setTouchLocation(x,y);
+                }
+            }
+        });
         setContentView(mGLSurfaceView);
         //设置版本
         mGLSurfaceView.setEGLContextClientVersion(3);

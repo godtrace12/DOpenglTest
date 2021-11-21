@@ -6,6 +6,7 @@ out vec4 vFragColor;
 uniform vec2 u_resolution; //画布分辨率
 uniform float u_time; //默认的时间，动态改变
 //uniform int axis; //旋转轴如：X轴 Y轴 Z轴
+uniform vec2 u_TouchXY;
 
 void main() {
 //     vFragColor = texture(uTextureUnit,vTexCoord);
@@ -13,7 +14,7 @@ void main() {
      // ratio 先乘，最后结果再除
      //设定固定常量
      float u_Boundary = 0.1;
-     vec2 u_TouchXY = vec2(0.5, 0.5);
+//     vec2 u_TouchXY = vec2(0.5, 0.5);
      float ratio = u_resolution.y/u_resolution.x;
      ratio = 1.0;
      vec2 textCoord = vTexCoord * vec2(1.0,ratio);

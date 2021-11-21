@@ -8,6 +8,7 @@ import android.opengl.Matrix
 import android.util.Log
 import com.example.dj.appgl.R
 import com.example.dj.appgl.base.AppCore
+import com.example.dj.appgl.base.IRenderGesture
 import com.example.dj.appgl.util.GLDataUtil
 import com.example.dj.appgl.util.ResReadUtils
 import com.example.dj.appgl.util.ShaderUtils
@@ -24,7 +25,7 @@ import javax.microedition.khronos.opengles.GL10
  * @version 1.0
  * @des：
  */
-class WaveRenderer(ctx: Context?):GLSurfaceView.Renderer {
+class WaveRenderer(ctx: Context?, override var touchX: Float, override var touchY: Float):GLSurfaceView.Renderer,IRenderGesture {
     private var mContext: Context? = null
     //透视矩阵、相机矩阵定义放在基类中，方便传给其他绘制对象
     private val mMVPMatrix = FloatArray(16)
@@ -58,6 +59,8 @@ class WaveRenderer(ctx: Context?):GLSurfaceView.Renderer {
     private var mTime:Float = 0.0f
     private var mResolutionBuffer: FloatBuffer? = null
     private var mFrameIndex =0
+    private var mWidth:Int? = 1
+    private var mHeight:Int? = 1
 
     init {
         this.mContext = ctx
@@ -91,6 +94,10 @@ class WaveRenderer(ctx: Context?):GLSurfaceView.Renderer {
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         GLES30.glViewport(0, 0, width, height)
+        mWidth = width
+        mHeight = height
+        touchX = mWidth!! /2.0f
+        touchY = mHeight!! /2.0f
         val ratio = width.toFloat() / height
         //设置透视投影
         // 1-- 正交投影
@@ -135,6 +142,12 @@ class WaveRenderer(ctx: Context?):GLSurfaceView.Renderer {
         GLES20.glUniform2f(aResolutionLocation, 2048.0f, 2048.0f)
         GLES30.glUniform1f(aTimeLocation,mTime)
 
+        // 点击坐标传入水波纹点击
+        val aTouchLocation = GLES30.glGetUniformLocation(mProgram,"u_TouchXY")
+        if (aTouchLocation !=0){
+            GLES30.glUniform2f(aTouchLocation,touchX/mWidth!!,touchY/mHeight!!)
+        }
+
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         //绑定纹理
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureId)
@@ -149,6 +162,24 @@ class WaveRenderer(ctx: Context?):GLSurfaceView.Renderer {
 
     companion object {
         private const val TAG = "WaveRenderer"
+    }
+
+//    override var touchX: Float
+//        get() = touchX
+//        set(value) {
+////            touchX = value
+//        }
+//    override var touchY: Float
+//        get() = touchY
+//        set(value) {
+////            touchY = value
+//        }
+
+    override fun setTouchLocation(x: Float, y: Float) {
+        touchX = x
+        touchY = y
+        super.setTouchLocation(x, y)
+
     }
 
 }
