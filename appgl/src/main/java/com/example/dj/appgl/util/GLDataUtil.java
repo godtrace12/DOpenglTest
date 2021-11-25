@@ -7,9 +7,9 @@ import java.nio.ShortBuffer;
 import java.util.ArrayList;
 
 public class GLDataUtil {
-    private static final int SIZEOF_FLOAT = 4;
-    private static final int SIZEOF_INT = 4;
-    private static final int SIZEOF_SHORT = 2;
+    public static final int SIZEOF_FLOAT = 4;
+    public static final int SIZEOF_INT = 4;
+    public static final int SIZEOF_SHORT = 2;
 
     public static FloatBuffer createFloatBuffer(ArrayList<Float> data) {
         float[] aar = new float[data.size()];

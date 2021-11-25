@@ -5,7 +5,6 @@ import android.opengl.GLES20
 import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
-import android.util.Log
 import com.example.dj.appgl.R
 import com.example.dj.appgl.base.AppCore
 import com.example.dj.appgl.base.IRenderGesture
@@ -14,8 +13,6 @@ import com.example.dj.appgl.util.ResReadUtils
 import com.example.dj.appgl.util.ShaderUtils
 import com.example.dj.appgl.util.TextureUtils
 import java.nio.FloatBuffer
-import java.nio.IntBuffer
-import java.nio.ShortBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -61,6 +58,20 @@ class WaveRenderer(ctx: Context?, override var touchX: Float, override var touch
     private var mFrameIndex =0
     private var mWidth:Int? = 1
     private var mHeight:Int? = 1
+
+    // vbo(顶点缓冲区对象)使用
+    //vbo id
+    private var vboPosId: Int = 0
+    private var vboTextId: Int = 0
+
+
+    //每一次取点的时候取几个点
+    val COORDS_PER_VERTEX = 3
+    val COORDS_PER_FRAGMENT =2
+
+    //每一次取的总的点 大小
+    private val vertexStride = COORDS_PER_VERTEX * GLDataUtil.SIZEOF_FLOAT // 4 bytes per vertex
+    private val fragmentStride = COORDS_PER_FRAGMENT * GLDataUtil.SIZEOF_FLOAT
 
     init {
         this.mContext = ctx
@@ -113,6 +124,7 @@ class WaveRenderer(ctx: Context?, override var touchX: Float, override var touch
         //例如设置up方向为y轴正方向，upx = 0,upy = 1,upz = 0。这是相机正对着目标图像
         //计算变换矩阵
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0)
+        createVBO()
 
     }
 
@@ -126,14 +138,18 @@ class WaveRenderer(ctx: Context?, override var touchX: Float, override var touch
         val aPositionLocation = GLES30.glGetAttribLocation(mProgram, "vPosition")
         GLES30.glEnableVertexAttribArray(aPositionLocation)
         //x y z 所以数据size 是3
-        GLES30.glVertexAttribPointer(aPositionLocation, 3, GLES30.GL_FLOAT, false, 0, mPosBuffer)
+//        GLES30.glVertexAttribPointer(aPositionLocation, 3, GLES30.GL_FLOAT, false, 0, mPosBuffer)
 
         val aTextureLocation = GLES20.glGetAttribLocation(mProgram, "aTextureCoord")
-//        Log.e(Companion.TAG, "onDrawFrame: textureLocation=$aTextureLocation")
         //纹理坐标数据 x、y，所以数据size是 2
-        GLES30.glVertexAttribPointer(aTextureLocation, 2, GLES30.GL_FLOAT, false, 0, mTexBuffer)
+//        GLES30.glVertexAttribPointer(aTextureLocation, 2, GLES30.GL_FLOAT, false, 0, mTexBuffer)
         //启用顶点颜色句柄
         GLES30.glEnableVertexAttribArray(aTextureLocation)
+
+//        useVBO(aPositionLocation,aTextureLocation)
+        useDetailVBO(vboPosId,aPositionLocation,vertexStride,COORDS_PER_VERTEX)
+        // 片元着色器，每个顶点(x,y,z)对应于一个纹理坐标(x,y)，所以片元，每次绘制2个坐标数据
+        useDetailVBO(vboTextId,aTextureLocation,fragmentStride,COORDS_PER_FRAGMENT)
 
         //波浪相关
         val aResolutionLocation = GLES30.glGetUniformLocation(mProgram,"u_resolution")
@@ -164,16 +180,40 @@ class WaveRenderer(ctx: Context?, override var touchX: Float, override var touch
         private const val TAG = "WaveRenderer"
     }
 
-//    override var touchX: Float
-//        get() = touchX
-//        set(value) {
-////            touchX = value
-//        }
-//    override var touchY: Float
-//        get() = touchY
-//        set(value) {
-////            touchY = value
-//        }
+
+    fun createVBO(){
+        //1. 创建VBO
+        var vbos = IntArray(2)
+        GLES30.glGenBuffers(vbos.size,vbos,0)
+        vboPosId = vbos[0]
+        vboTextId = vbos[1]
+        createDetailVBO(vboPosId,mPosCoordinate.size,mPosBuffer)
+        createDetailVBO(vboTextId,mTexCoordinate.size,mTexBuffer)
+    }
+
+    //创建vbo
+    fun createDetailVBO(voId:Int,dataCount:Int,dataBuffer: FloatBuffer?){
+        //2、绑定vbo
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER,voId)
+        //3、分配VBO需要的缓存大小
+        GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER,dataCount* GLDataUtil.SIZEOF_FLOAT,
+                null,GLES30.GL_STATIC_DRAW)
+        //4、为VBO设置顶点数据的值
+        GLES30.glBufferSubData(GLES30.GL_ARRAY_BUFFER,0,dataCount * GLDataUtil.SIZEOF_FLOAT,dataBuffer)
+        //5、解绑VBO
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER,0)
+    }
+
+    //使用vbo
+    fun useDetailVBO(voId:Int,posHandle:Int,vtStride:Int,coordPerVer:Int){
+        //1. 绑定VBO
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, voId)
+        //2. 设置顶点数据
+        GLES30.glVertexAttribPointer(posHandle, coordPerVer, GLES30.GL_FLOAT, false, vtStride, 0)
+        //3. 解绑VBO
+        GLES30.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0)
+    }
+
 
     override fun setTouchLocation(x: Float, y: Float) {
         touchX = x
