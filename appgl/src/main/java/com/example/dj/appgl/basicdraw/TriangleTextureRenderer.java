@@ -32,6 +32,11 @@ public class TriangleTextureRenderer implements GLSurfaceView.Renderer{
 
     //3个定点，等腰直角
     static float triangleCoords[] ={
+            // 矩形全部点位
+//            0.5f,0.5f,0.0f,
+//            -0.5f, -0.5f, 0.0f,
+//            -0.5f,0.5f,0.0f,
+
             0.5f,  0.5f, 0.0f, // top
             -0.5f, -0.5f, 0.0f, // bottom left
             0.5f, -0.5f, 0.0f  // bottom right
@@ -47,6 +52,12 @@ public class TriangleTextureRenderer implements GLSurfaceView.Renderer{
     //纹理坐标2
     // 三角形3个定点对应在纹理坐标系中的坐标
     private float textureVertex[] = {
+            // 矩形全部点位
+//            1.0f,0.0f,
+//            0.0f, 1.0f,
+//            0.0f,0.0f,
+
+
             1.0f, 0.0f,
             0.0f, 1.0f,
             1.0f, 1.0f,
@@ -140,7 +151,10 @@ public class TriangleTextureRenderer implements GLSurfaceView.Renderer{
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0);
         //绑定纹理
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,textureId);
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 3);
+        //三角形
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, triangleCoords.length/3);
+        //矩形
+//        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 6);
 
         //禁止顶点数组的句柄
         GLES30.glDisableVertexAttribArray(aPositionLocation);
