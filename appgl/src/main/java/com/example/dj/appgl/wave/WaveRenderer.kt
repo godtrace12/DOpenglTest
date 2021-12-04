@@ -13,6 +13,7 @@ import com.example.dj.appgl.util.ResReadUtils
 import com.example.dj.appgl.util.ShaderUtils
 import com.example.dj.appgl.util.TextureUtils
 import java.nio.FloatBuffer
+import java.nio.IntBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -20,7 +21,9 @@ import javax.microedition.khronos.opengles.GL10
  * 创建日期：11/14/21 10:02 PM
  * @author daijun
  * @version 1.0
- * @des：
+ * @des：VBO（Vertex Buffer Object）是指顶点缓冲区对象，而 EBO（Element Buffer Object）是指图元索引缓冲区对象
+ * VAO（Vertex Array Object）是指顶点数组对象，主要用于管理 VBO 或 EBO ，减少 glBindBuffer 、glEnableVertexAttribArray、
+ * glVertexAttribPointer 这些调用操作，高效地实现在顶点数组配置之间切换。
  */
 class WaveRenderer(ctx: Context?, override var touchX: Float, override var touchY: Float):GLSurfaceView.Renderer,IRenderGesture {
     private var mContext: Context? = null
@@ -63,7 +66,10 @@ class WaveRenderer(ctx: Context?, override var touchX: Float, override var touch
     //vbo id
     private var vboPosId: Int = 0
     private var vboTextId: Int = 0
-
+    //vao id
+    private var vaoId:Int = 0
+    // 是否使用vao
+    private var isUseVao:Boolean = true
 
     //每一次取点的时候取几个点
     val COORDS_PER_VERTEX = 3
@@ -125,7 +131,11 @@ class WaveRenderer(ctx: Context?, override var touchX: Float, override var touch
         //计算变换矩阵
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0)
         createVBO()
-
+        if(isUseVao){
+            val aPositionLocation = GLES30.glGetAttribLocation(mProgram, "vPosition")
+            val aTextureLocation = GLES20.glGetAttribLocation(mProgram, "aTextureCoord")
+            createVAO(aPositionLocation,aTextureLocation)
+        }
     }
 
     override fun onDrawFrame(gl: GL10?) {
@@ -146,10 +156,14 @@ class WaveRenderer(ctx: Context?, override var touchX: Float, override var touch
         //启用顶点颜色句柄
         GLES30.glEnableVertexAttribArray(aTextureLocation)
 
-//        useVBO(aPositionLocation,aTextureLocation)
-        useDetailVBO(vboPosId,aPositionLocation,vertexStride,COORDS_PER_VERTEX)
-        // 片元着色器，每个顶点(x,y,z)对应于一个纹理坐标(x,y)，所以片元，每次绘制2个坐标数据
-        useDetailVBO(vboTextId,aTextureLocation,fragmentStride,COORDS_PER_FRAGMENT)
+        //只使用VBO
+        if(!isUseVao){
+            useDetailVBO(vboPosId,aPositionLocation,vertexStride,COORDS_PER_VERTEX)
+            // 片元着色器，每个顶点(x,y,z)对应于一个纹理坐标(x,y)，所以片元，每次绘制2个坐标数据
+            useDetailVBO(vboTextId,aTextureLocation,fragmentStride,COORDS_PER_FRAGMENT)
+        }else{  //使用vao管理vbo
+            GLES30.glBindVertexArray(vaoId)
+        }
 
         //波浪相关
         val aResolutionLocation = GLES30.glGetUniformLocation(mProgram,"u_resolution")
@@ -169,9 +183,12 @@ class WaveRenderer(ctx: Context?, override var touchX: Float, override var touch
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureId)
         GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 6)
         //禁止顶点数组的句柄
-        GLES30.glDisableVertexAttribArray(aPositionLocation)
-        GLES30.glDisableVertexAttribArray(aTextureLocation)
+//        GLES30.glDisableVertexAttribArray(aPositionLocation)
+//        GLES30.glDisableVertexAttribArray(aTextureLocation)
 //        mTime++
+        if(isUseVao){
+            GLES30.glDisableVertexAttribArray(vaoId)
+        }
         mTime = (mFrameIndex % 150) /120.0f
         mFrameIndex++
     }
@@ -189,6 +206,25 @@ class WaveRenderer(ctx: Context?, override var touchX: Float, override var touch
         vboTextId = vbos[1]
         createDetailVBO(vboPosId,mPosCoordinate.size,mPosBuffer)
         createDetailVBO(vboTextId,mTexCoordinate.size,mTexBuffer)
+    }
+
+    fun createVAO(posHandle: Int,textHandle:Int){
+        var vaos = IntArray(1)
+        GLES30.glGenVertexArrays(1,vaos,0)
+        vaoId = vaos[0]
+        GLES30.glBindVertexArray(vaos[0])
+        // 管理顶点vbo
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER,vboPosId)
+        GLES30.glEnableVertexAttribArray(posHandle)
+        //把使用vbo中的这段代码放到vao中。
+        GLES30.glVertexAttribPointer(posHandle, COORDS_PER_VERTEX, GLES30.GL_FLOAT, false, vertexStride, 0)
+
+        // 管理片纹理vbo
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER,vboTextId)
+        GLES30.glEnableVertexAttribArray(textHandle)
+        //把使用vbo中的这段代码放到vao中。
+        GLES30.glVertexAttribPointer(textHandle, COORDS_PER_FRAGMENT, GLES30.GL_FLOAT, false, fragmentStride, 0)
+
     }
 
     //创建vbo
