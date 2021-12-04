@@ -15,6 +15,7 @@ import com.example.dj.appgl.basicdraw.CubicSampleActivity;
 import com.example.dj.appgl.basicdraw.TriangleSampleActivity;
 import com.example.dj.appgl.camera.CameraActivity;
 import com.example.dj.appgl.camera.CameraRecordActivity;
+import com.example.dj.appgl.camera.quardraw.CameraDrawActivity;
 import com.example.dj.appgl.camera3d.Camera3DActivity;
 import com.example.dj.appgl.fbo.TriangleFboActivity;
 import com.example.dj.appgl.fbo.RectFboTestActivity;
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnNativeCrash;
     private Button btnOpenCV;
     private Button btnWave;
+    private Button btnCameraDraw;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,6 +146,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnOpenCV.setOnClickListener(this);
         btnWave = findViewById(R.id.btnWave);
         btnWave.setOnClickListener(this);
+        btnCameraDraw = findViewById(R.id.btnCameraDraw);
+        btnCameraDraw.setOnClickListener(this);
     }
 
     @Override
@@ -202,6 +206,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivity(intent);
         }else if(viewId == R.id.btnWave){
             Intent  intent = new Intent(MainActivity.this, WaveSampleActivity.class);
+            startActivity(intent);
+        }else if(viewId == R.id.btnCameraDraw){
+            Intent  intent = new Intent(MainActivity.this, CameraDrawActivity.class);
             startActivity(intent);
         }
     }

@@ -15,3 +15,5 @@
 /face-detection/build
 /sdk/build
 /appgl/bugly
+.idea/jarRepositories.xml
+.idea/misc.xml
