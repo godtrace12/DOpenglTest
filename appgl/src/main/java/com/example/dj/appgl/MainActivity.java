@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.dj.appgl.ball.EarthTextureActivity;
 import com.example.dj.appgl.basicdraw.CubicSampleActivity;
 import com.example.dj.appgl.basicdraw.TriangleSampleActivity;
 import com.example.dj.appgl.camera.CameraActivity;
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnOpenCV;
     private Button btnWave;
     private Button btnCameraDraw;
+    private Button btnEarthBall;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,6 +150,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnWave.setOnClickListener(this);
         btnCameraDraw = findViewById(R.id.btnCameraDraw);
         btnCameraDraw.setOnClickListener(this);
+        btnEarthBall = findViewById(R.id.btnEarthBall);
+        btnEarthBall.setOnClickListener(this);
     }
 
     @Override
@@ -209,6 +213,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivity(intent);
         }else if(viewId == R.id.btnCameraDraw){
             Intent  intent = new Intent(MainActivity.this, CameraDrawActivity.class);
+            startActivity(intent);
+        }else if(viewId == R.id.btnEarthBall){
+            Intent  intent = new Intent(MainActivity.this, EarthTextureActivity.class);
             startActivity(intent);
         }
     }
