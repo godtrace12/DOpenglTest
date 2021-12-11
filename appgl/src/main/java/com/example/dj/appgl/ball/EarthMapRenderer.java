@@ -199,7 +199,7 @@ public class EarthMapRenderer implements GLSurfaceView.Renderer{
         Matrix.perspectiveM(mProjectMatrix,0,60,ratio,1f,300f);
 //        Matrix.frustumM(mProjectMatrix,0,-ratio,ratio,-1,1,3,100);
         //设置相机位置
-        Matrix.setLookAtM(mViewMatrix, 0, 0f, 0f,8f, 0.0f, 0.0f,0f, 0f,1f, 0f);
+        Matrix.setLookAtM(mViewMatrix, 0, 0f, 4f,1f, 0.0f, 0.0f,0f, 0f,1f, 0f);
         //模型矩阵
         Matrix.setIdentityM(mModelMatrix,0);
 
@@ -209,8 +209,8 @@ public class EarthMapRenderer implements GLSurfaceView.Renderer{
     @Override
     public void onDrawFrame(GL10 gl) {
         //把颜色缓冲区设置为我们预设的颜色
-        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT);
-//        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT | GLES30.GL_DEPTH_BUFFER_BIT);
+        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
 
 
         GLES30.glUniformMatrix4fv(mHProjMatrix,1,false,mProjectMatrix,0);
