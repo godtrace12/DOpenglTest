@@ -45,6 +45,7 @@
         <activity android:name=".light.TextureLightActivity" />
         <activity android:name=".nativegl.NativeGLActivity" />
         <activity android:name=".playercam.MediaPlayerCamActivity" />
+        <activity android:name=".basicdraw.axissample.CubixAxisSampleActivity"/>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

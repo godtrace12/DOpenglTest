@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.example.dj.appgl.ball.EarthTextureActivity;
 import com.example.dj.appgl.basicdraw.CubicSampleActivity;
 import com.example.dj.appgl.basicdraw.TriangleSampleActivity;
+import com.example.dj.appgl.basicdraw.axissample.CubixAxisSampleActivity;
 import com.example.dj.appgl.camera.CameraActivity;
 import com.example.dj.appgl.camera.CameraRecordActivity;
 import com.example.dj.appgl.camera.quardraw.CameraDrawActivity;
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnWave;
     private Button btnCameraDraw;
     private Button btnEarthBall;
+    private Button btnBasicPerspec;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,6 +154,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnCameraDraw.setOnClickListener(this);
         btnEarthBall = findViewById(R.id.btnEarthBall);
         btnEarthBall.setOnClickListener(this);
+        btnBasicPerspec = findViewById(R.id.btnBasicPerspec);
+        btnBasicPerspec.setOnClickListener(this);
     }
 
     @Override
@@ -162,6 +166,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivity(intent);
         }else if (viewId == R.id.btnBasic){
             Intent intent = new Intent(MainActivity.this, TriangleSampleActivity.class);
+            startActivity(intent);
+        }else if(viewId == R.id.btnBasicPerspec){
+            Intent  intent = new Intent(MainActivity.this, CubixAxisSampleActivity.class);
             startActivity(intent);
         }else if (viewId == R.id.btnCamera){
             Intent intent = new Intent(MainActivity.this, CameraActivity.class);

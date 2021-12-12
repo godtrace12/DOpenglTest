@@ -235,11 +235,11 @@ class EarthMapRenderer() : GLSurfaceView.Renderer,IRenderGesture {
 
         var rotateYMatrix = FloatArray(16)
         Matrix.setIdentityM(rotateYMatrix, 0)
-        Matrix.rotateM(rotateYMatrix,0,yAngle,0.0F,1.0F,0.0F)
+        Matrix.rotateM(rotateYMatrix,0,yAngle%360,0.0F,1.0F,0.0F)
 
         var rotateXMatrix = FloatArray(16)
         Matrix.setIdentityM(rotateXMatrix, 0)
-        Matrix.rotateM(rotateXMatrix,0,xAngle,1.0F,0.0F,0.0F)
+        Matrix.rotateM(rotateXMatrix,0,xAngle%360,1.0F,0.0F,0.0F)
 
         Matrix.multiplyMM(mModelMatrix,0,mModelMatrix,0,rotateYMatrix,0)
         Matrix.multiplyMM(mModelMatrix,0,mModelMatrix,0,rotateXMatrix,0)

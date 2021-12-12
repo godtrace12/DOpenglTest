@@ -132,6 +132,12 @@
                 android:layout_height="wrap_content"
                 android:text="球"/>
 
+            <Button
+                android:id="@+id/btnBasicPerspec"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="透视原理及相关参数用途展示"/>
+
         </LinearLayout>
 
 
