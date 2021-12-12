@@ -20,6 +20,15 @@ class DBaseGLSurfaceView(context:Context,gestureListener: GestureListener): GLSu
     private var mPreScale:Float = 1.0F
     // 当前缩放比例
     private var mCurScale:Float = 1.0F
+    // 上一次单点触摸坐标
+    private var mPreviousY:Float = 0.0F
+    private var mPreviousX:Float = 0.0F
+    private var mLastMultiTouchTime = 0.0F
+    private val TOUCH_SCALE_FACTOR = 180.0f / 320
+    // 旋转角度
+    private var mYAngle:Float = 0.0F
+    private var mXAngle:Float = 0.0F
+
     init {
         mContext = context
         mGestureListener = gestureListener
@@ -28,14 +37,32 @@ class DBaseGLSurfaceView(context:Context,gestureListener: GestureListener): GLSu
 
     interface GestureListener{
         fun onClick(x:Float,y:Float)
-        fun onUpdateScale(xAngle:Float,yAngle:Float,scale:Float)
+        fun onUpdateTransformMatrix(xAngle:Float,yAngle:Float,scale:Float)
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         // 单点触控
         if (event!!.pointerCount == 1){
             dealClickEvent(event)
-        }else{
+            var curTime = System.currentTimeMillis()
+            if(curTime - mLastMultiTouchTime >200){
+//                Log.e(TAG, "onTouchEvent: lastMultiTouchTime= $mLastMultiTouchTime action=${event.action}")
+                var y = event.y
+                var x = event.x
+                when(event.action){
+                    MotionEvent.ACTION_MOVE ->{
+                        val dy = y - mPreviousY
+                        val dx = x - mPreviousX
+                        mYAngle += dx * TOUCH_SCALE_FACTOR
+                        mXAngle += dy * TOUCH_SCALE_FACTOR
+//                        Log.e(TAG, "onTouchEvent: $dx $dy $mYAngle $mXAngle")
+                    }
+                }
+                mPreviousY = y
+                mPreviousX = x
+                mGestureListener!!.onUpdateTransformMatrix(mXAngle,mYAngle,mCurScale)
+            }
+        }else{  // 多点触控
             mScaleGestureDetector!!.onTouchEvent(event)
         }
         return true
@@ -60,6 +87,8 @@ class DBaseGLSurfaceView(context:Context,gestureListener: GestureListener): GLSu
 
     override fun onScaleEnd(detector: ScaleGestureDetector?) {
         mPreScale = mCurScale
+        mLastMultiTouchTime = System.currentTimeMillis().toFloat()
+
     }
 
     override fun onScale(detector: ScaleGestureDetector?): Boolean {
@@ -74,7 +103,7 @@ class DBaseGLSurfaceView(context:Context,gestureListener: GestureListener): GLSu
 //        Log.e(TAG, "onScale: mPreScale=$mPreScale  mCurScale=$mCurScale")
         mCurScale = Math.max(0.05f, Math.min(mCurScale, 80.0f))
 
-        mGestureListener!!.onUpdateScale(0.0F,0.0F,mCurScale)
+        mGestureListener!!.onUpdateTransformMatrix(mXAngle,mYAngle,mCurScale)
         return false
     }
 

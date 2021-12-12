@@ -25,7 +25,7 @@ public abstract class AbsGLSurfaceActivity extends AppCompatActivity {
     private void setupViews() {
         mGLSurfaceView = new DBaseGLSurfaceView(this, new DBaseGLSurfaceView.GestureListener() {
             @Override
-            public void onUpdateScale(float xAngle, float yAngle, float scale) {
+            public void onUpdateTransformMatrix(float xAngle, float yAngle, float scale) {
                 if(renderer instanceof IRenderGesture){
                     ((IRenderGesture)renderer).updateModelTransformMatrix(xAngle,yAngle,scale);
                 }

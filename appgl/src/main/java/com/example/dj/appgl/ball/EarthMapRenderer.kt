@@ -223,20 +223,27 @@ class EarthMapRenderer() : GLSurfaceView.Renderer,IRenderGesture {
     }
 
     override fun updateModelTransformMatrix(xAngle: Float, yAngle: Float, curScale: Float) {
-        Log.e(TAG, "updateModelTransformMatrix: curScale= $curScale")
+//        Log.e(TAG, "updateModelTransformMatrix: curScale= $curScale")
         var modelOriMatrix = FloatArray(16)
         Matrix.setIdentityM(modelOriMatrix, 0)
         val scaleMatrix = FloatArray(16)
         Matrix.setIdentityM(scaleMatrix, 0)
         var calScale = curScale
-        if (curScale < 0.05){
-            calScale = 0.05F
-        }else if (curScale >10){
-            calScale = 10.0F
-        }
         //设置缩放比例
         Matrix.scaleM(scaleMatrix, 0, calScale, calScale, calScale)
         Matrix.multiplyMM(mModelMatrix,0,modelOriMatrix,0,scaleMatrix,0)
+
+        var rotateYMatrix = FloatArray(16)
+        Matrix.setIdentityM(rotateYMatrix, 0)
+        Matrix.rotateM(rotateYMatrix,0,yAngle,0.0F,1.0F,0.0F)
+
+        var rotateXMatrix = FloatArray(16)
+        Matrix.setIdentityM(rotateXMatrix, 0)
+        Matrix.rotateM(rotateXMatrix,0,xAngle,1.0F,0.0F,0.0F)
+
+        Matrix.multiplyMM(mModelMatrix,0,mModelMatrix,0,rotateYMatrix,0)
+        Matrix.multiplyMM(mModelMatrix,0,mModelMatrix,0,rotateXMatrix,0)
+
     }
 
 }
