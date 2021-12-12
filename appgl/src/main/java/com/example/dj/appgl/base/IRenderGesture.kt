@@ -14,4 +14,6 @@ interface IRenderGesture {
         this.touchX =x
         this.touchY =y
     }
+
+    fun updateModelTransformMatrix(xAngle:Float,yAngle:Float,curScale:Float)
 }

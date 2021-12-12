@@ -258,4 +258,8 @@ class WaveRenderer(ctx: Context?, override var touchX: Float, override var touch
 
     }
 
+    override fun updateModelTransformMatrix(xAngle: Float, yAngle: Float, curScale: Float) {
+
+    }
+
 }

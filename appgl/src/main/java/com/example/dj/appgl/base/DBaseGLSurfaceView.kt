@@ -2,6 +2,7 @@ package com.example.dj.appgl.base
 
 import android.content.Context
 import android.opengl.GLSurfaceView
+import android.util.Log
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 
@@ -14,10 +15,11 @@ import android.view.ScaleGestureDetector
 class DBaseGLSurfaceView(context:Context,gestureListener: GestureListener): GLSurfaceView(context),ScaleGestureDetector.OnScaleGestureListener {
     private var mContext: Context? = null
     private var mGestureListener:GestureListener? = null
-
+    private var mScaleGestureDetector:ScaleGestureDetector? = null
     init {
         mContext = context
         mGestureListener = gestureListener
+        mScaleGestureDetector = ScaleGestureDetector(mContext,this)
     }
 
     interface GestureListener{
@@ -25,11 +27,12 @@ class DBaseGLSurfaceView(context:Context,gestureListener: GestureListener): GLSu
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
+        Log.e(TAG, "onTouchEvent: " )
         // 单点触控
         if (event!!.pointerCount == 1){
             dealClickEvent(event)
         }else{
-
+            mScaleGestureDetector!!.onTouchEvent(event)
         }
         return true
     }
@@ -48,14 +51,19 @@ class DBaseGLSurfaceView(context:Context,gestureListener: GestureListener): GLSu
 
 
     override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
-        TODO("Not yet implemented")
+        return true
     }
 
     override fun onScaleEnd(detector: ScaleGestureDetector?) {
-        TODO("Not yet implemented")
+
     }
 
     override fun onScale(detector: ScaleGestureDetector?): Boolean {
-        TODO("Not yet implemented")
+        Log.e(Companion.TAG, "onScale:  scaleFactor=${detector!!.scaleFactor} preSpan=${detector!!.previousSpan} curSpan=${detector!!.currentSpan}")
+        return false
+    }
+
+    companion object {
+        private const val TAG = "DBaseGLSurfaceView"
     }
 }
