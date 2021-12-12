@@ -223,7 +223,7 @@ class EarthMapRenderer() : GLSurfaceView.Renderer,IRenderGesture {
     }
 
     override fun updateModelTransformMatrix(xAngle: Float, yAngle: Float, curScale: Float) {
-//        Log.e(TAG, "updateModelTransformMatrix: curScale= $curScale")
+//        Log.e(TAG, "updateModelTransformMatrix: curScale= $curScale xAngle=$xAngle yAngle=$yAngle")
         var modelOriMatrix = FloatArray(16)
         Matrix.setIdentityM(modelOriMatrix, 0)
         val scaleMatrix = FloatArray(16)
