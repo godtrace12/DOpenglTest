@@ -4,8 +4,10 @@ import android.graphics.Bitmap
 import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
+import android.util.Log
 import com.example.dj.appgl.R
 import com.example.dj.appgl.base.AppCore
+import com.example.dj.appgl.base.IRenderGesture
 import com.example.dj.appgl.util.ResReadUtils
 import com.example.dj.appgl.util.ShaderUtils
 import com.example.dj.appgl.util.TextureUtils
@@ -22,7 +24,7 @@ import javax.microedition.khronos.opengles.GL10
  * @version 1.0
  * @des：
  */
-class EarthMapRenderer: GLSurfaceView.Renderer {
+class EarthMapRenderer() : GLSurfaceView.Renderer,IRenderGesture {
     private val TAG = "EarthMapRenderer"
     private val BYTES_PER_FLOAT = 4
 
@@ -199,6 +201,7 @@ class EarthMapRenderer: GLSurfaceView.Renderer {
         //把颜色缓冲区设置为我们预设的颜色
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
         GLES30.glEnable(GLES30.GL_DEPTH_TEST)
+//        updateModelTransformMatrix(1.0F,1.0F,1.0F)
         GLES30.glUniformMatrix4fv(mHProjMatrix, 1, false, mProjectMatrix, 0)
         GLES30.glUniformMatrix4fv(mHViewMatrix, 1, false, mViewMatrix, 0)
         GLES30.glUniformMatrix4fv(mHModelMatrix, 1, false, mModelMatrix, 0)
@@ -212,4 +215,28 @@ class EarthMapRenderer: GLSurfaceView.Renderer {
         GLES30.glDisableVertexAttribArray(mHCoordinate)
         GLES30.glDisableVertexAttribArray(mHPosition)
     }
+
+
+    override fun setTouchLocation(x: Float, y: Float) {
+        super.setTouchLocation(x, y)
+
+    }
+
+    override fun updateModelTransformMatrix(xAngle: Float, yAngle: Float, curScale: Float) {
+        Log.e(TAG, "updateModelTransformMatrix: curScale= $curScale")
+        var modelOriMatrix = FloatArray(16)
+        Matrix.setIdentityM(modelOriMatrix, 0)
+        val scaleMatrix = FloatArray(16)
+        Matrix.setIdentityM(scaleMatrix, 0)
+        var calScale = curScale
+        if (curScale < 0.05){
+            calScale = 0.05F
+        }else if (curScale >10){
+            calScale = 10.0F
+        }
+        //设置缩放比例
+        Matrix.scaleM(scaleMatrix, 0, calScale, calScale, calScale)
+        Matrix.multiplyMM(mModelMatrix,0,modelOriMatrix,0,scaleMatrix,0)
+    }
+
 }

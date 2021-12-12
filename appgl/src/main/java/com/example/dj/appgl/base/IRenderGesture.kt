@@ -7,12 +7,10 @@ package com.example.dj.appgl.base
  * @des：
  */
 interface IRenderGesture {
-    var touchX:Float
-    var touchY:Float
+
 
     fun setTouchLocation(x:Float,y:Float){
-        this.touchX =x
-        this.touchY =y
+
     }
 
     fun updateModelTransformMatrix(xAngle:Float,yAngle:Float,curScale:Float)

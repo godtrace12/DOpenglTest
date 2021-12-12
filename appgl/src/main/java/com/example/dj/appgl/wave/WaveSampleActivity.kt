@@ -11,6 +11,6 @@ import com.example.dj.appgl.base.AbsGLSurfaceActivity
  */
 class WaveSampleActivity: AbsGLSurfaceActivity() {
     override fun bindRenderer(): GLSurfaceView.Renderer {
-        return WaveRenderer(this,1.0f,1.0f)
+        return WaveRenderer(this)
     }
 }

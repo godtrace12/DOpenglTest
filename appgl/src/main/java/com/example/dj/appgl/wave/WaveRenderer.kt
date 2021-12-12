@@ -25,7 +25,7 @@ import javax.microedition.khronos.opengles.GL10
  * VAO（Vertex Array Object）是指顶点数组对象，主要用于管理 VBO 或 EBO ，减少 glBindBuffer 、glEnableVertexAttribArray、
  * glVertexAttribPointer 这些调用操作，高效地实现在顶点数组配置之间切换。
  */
-class WaveRenderer(ctx: Context?, override var touchX: Float, override var touchY: Float):GLSurfaceView.Renderer,IRenderGesture {
+class WaveRenderer(ctx: Context?):GLSurfaceView.Renderer,IRenderGesture {
     private var mContext: Context? = null
     //透视矩阵、相机矩阵定义放在基类中，方便传给其他绘制对象
     private val mMVPMatrix = FloatArray(16)
@@ -78,6 +78,8 @@ class WaveRenderer(ctx: Context?, override var touchX: Float, override var touch
     //每一次取的总的点 大小
     private val vertexStride = COORDS_PER_VERTEX * GLDataUtil.SIZEOF_FLOAT // 4 bytes per vertex
     private val fragmentStride = COORDS_PER_FRAGMENT * GLDataUtil.SIZEOF_FLOAT
+    private var touchX:Float = 1.0F
+    private var touchY:Float = 1.0F
 
     init {
         this.mContext = ctx
