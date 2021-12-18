@@ -48,10 +48,10 @@ public class CameraQuarDrawRender extends BaseCameraRenderer {
             1, -1,
             1, 1};
     private float[] mTexCoordinate = {
-            0, 1,
             1, 1,
-            0, 0,
-            1, 0};
+            0, 1,
+            1, 0,
+            0, 0};
 
     private FloatBuffer mPosBuffer;
     private FloatBuffer mTexBuffer;
