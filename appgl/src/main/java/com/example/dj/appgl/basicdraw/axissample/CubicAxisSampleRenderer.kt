@@ -7,10 +7,10 @@ import android.opengl.Matrix
 import android.util.Log
 import com.example.dj.appgl.R
 import com.example.dj.appgl.base.AppCore
-import com.example.dj.appgl.util.GLDataUtil
 import com.example.dj.appgl.util.ResReadUtils
 import com.example.dj.appgl.util.ShaderUtils
 import com.example.dj.appgl.util.TextureUtils
+import org.opencv.core.Mat
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -119,6 +119,8 @@ class CubicAxisSampleRenderer:GLSurfaceView.Renderer {
             1.0f, 1.0f,
             0.0f, 1.0f)
 
+    //模型矩阵
+    private val mModelMatrix = FloatArray(16)
 
     //相机矩阵
     private val mViewMatrix = FloatArray(16)
@@ -129,6 +131,9 @@ class CubicAxisSampleRenderer:GLSurfaceView.Renderer {
     //最终变换矩阵
     private val mMVPMatrix = FloatArray(16)
 
+    //临时矩阵
+    private val mTempMatrix = FloatArray(16)
+
     //旋转矩阵  [20200623]  进行物体旋转 要与其他矩阵相乘，最终保存到mMVPMatrix中
     private val rotationMatrix = FloatArray(16)
 
@@ -136,15 +141,7 @@ class CubicAxisSampleRenderer:GLSurfaceView.Renderer {
     private var mProgram = 0
 
     //累计旋转过的角度
-    private var angle = 0f
-
-    //缩放比例
-    @Volatile
-    private var scale = 1.0f
-
-    //是否处于持续放大状态
-    @Volatile
-    private var isOnScaleSmall = false
+    private var mAngle = 0.0f
 
     private var mRatio:Float = 1.0f
     // 相机位置
@@ -243,6 +240,12 @@ class CubicAxisSampleRenderer:GLSurfaceView.Renderer {
     }
 
     private fun initTransformMatrix(){
+        // 设置模型矩阵
+//        Matrix.rotateM()
+        Matrix.setIdentityM(mModelMatrix,0)
+        Matrix.setIdentityM(mTempMatrix,0)
+        //旋转角度
+        Matrix.rotateM(mModelMatrix, 0, mAngle, 0f, 1.0f, 0.0f)
         //设置透视投影
         Matrix.frustumM(mProjectMatrix, 0, -mRatio, mRatio, -1f, 1f, 1f, 10f)
         //设置相机位置
@@ -252,7 +255,13 @@ class CubicAxisSampleRenderer:GLSurfaceView.Renderer {
         //接着是摄像机顶部的方向了，如下图，很显然相机旋转，up的方向就会改变，这样就会会影响到绘制图像的角度。
         //例如设置up方向为y轴正方向，upx = 0,upy = 1,upz = 0。这是相机正对着目标图像
         //计算变换矩阵
-        Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0)
+//        Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0)
+//        Matrix.multiplyMM(mMVPMatrix, 0, mModelMatrix, 0, mMVPMatrix, 0)
+
+        Matrix.multiplyMM(mTempMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0)
+        Matrix.multiplyMM(mMVPMatrix, 0, mTempMatrix, 0, mModelMatrix, 0)
+
+
     }
 
     fun updateCameraPosition(camX:Float,camY:Float,camZ:Float){
@@ -260,13 +269,16 @@ class CubicAxisSampleRenderer:GLSurfaceView.Renderer {
         eyeX = camX
         eyeY = camY
         eyeZ = camZ
-
     }
 
     fun updateCameraUpParams(upx:Float,upy:Float,upz:Float){
         mUpX = upx
         mUpY = upy
         mUpZ = upz
+    }
+
+    fun updateRotateAngle(angle:Float){
+        mAngle = angle
     }
 
 }

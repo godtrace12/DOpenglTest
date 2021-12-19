@@ -115,8 +115,13 @@
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_marginBottom="100dp"
             android:layout_height="wrap_content">
+
+            <TextView
+                android:text="  up参数"
+                android:textColor="@android:color/primary_text_light_nodisable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
 
             <EditText
                 android:id="@+id/et_camUpX"
@@ -144,8 +149,50 @@
 
             <Button
                 android:id="@+id/btn_SaveCamUp"
+                android:text="保存相机方向"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="100dp"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/btn_MinusDegree"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Y轴旋转"/>
+
+<!--            <EditText-->
+<!--                android:id="@+id/et_Degree"-->
+<!--                android:text="0"-->
+<!--                android:textColor="@android:color/holo_blue_bright"-->
+<!--                android:layout_width="100dp"-->
+<!--                android:layout_height="wrap_content"/>-->
+
+            <SeekBar
+                android:id="@+id/pb_RotateModel"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_centerHorizontal="true"
+                android:layout_height="20dp"
+                android:alpha="100"
+                android:min="0"
+                android:max="360"
+                android:progress="0" />
+
+            <Button
+                android:id="@+id/btn_PlusDegree"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="360"/>
 
         </LinearLayout>
 
