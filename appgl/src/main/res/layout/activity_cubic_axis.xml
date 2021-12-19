@@ -24,7 +24,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="100dp">
+            android:layout_marginBottom="0dp">
 
 <!--    相机X坐标       -->
             <LinearLayout
@@ -109,6 +109,43 @@
                     android:progress="1" />
 
             </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_marginBottom="100dp"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/et_camUpX"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="@android:color/holo_blue_bright"/>
+
+            <EditText
+                android:id="@+id/et_camUpY"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="1"
+                android:textColor="@android:color/holo_blue_bright"/>
+
+            <EditText
+                android:id="@+id/et_camUpZ"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="@android:color/holo_blue_bright"/>
+
+            <Button
+                android:id="@+id/btn_SaveCamUp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
 
         </LinearLayout>
 

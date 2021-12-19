@@ -7,6 +7,7 @@ import android.opengl.Matrix
 import android.util.Log
 import com.example.dj.appgl.R
 import com.example.dj.appgl.base.AppCore
+import com.example.dj.appgl.util.GLDataUtil
 import com.example.dj.appgl.util.ResReadUtils
 import com.example.dj.appgl.util.ShaderUtils
 import com.example.dj.appgl.util.TextureUtils
@@ -28,31 +29,6 @@ class CubicAxisSampleRenderer:GLSurfaceView.Renderer {
     private var textureBuffer: FloatBuffer? = null
     private var vertexBuffer: FloatBuffer? = null
     private var vertexIndexBuffer: ShortBuffer? = null
-
-    // 立方体8个顶点坐标
-    private val vertexPoints = floatArrayOf(
-            -1.0f, 1.0f, 1.0f,  //正面左上0
-            -1.0f, -1.0f, 1.0f,  //正面左下1
-            1.0f, -1.0f, 1.0f,  //正面右下2
-            1.0f, 1.0f, 1.0f,  //正面右上3
-            -1.0f, 1.0f, -1.0f,  //反面左上4
-            -1.0f, -1.0f, -1.0f,  //反面左下5
-            1.0f, -1.0f, -1.0f,  //反面右下6
-            1.0f, 1.0f, -1.0f)
-
-
-    /**
-     * 立方体每个面(2个三角形)的组成顶点的索引
-     * 需注意：每个面的第3个点和第5个点坐标一样，是为了和下方的纹理坐标进行一一对应，所采用的排列方式。
-     */
-    private val vertexIndexs = shortArrayOf(
-            0, 3, 2, 0, 2, 1,  //正面
-            0, 1, 5, 0, 5, 4,  //左面
-            0, 3, 7, 0, 7, 4,  //上面
-            6, 7, 4, 6, 4, 5,  //后面
-            6, 7, 3, 6, 3, 2,  //右面
-            6, 5, 1, 6, 1, 2 //下面
-    )
 
     //每个面6个点，3个点组成一个三角形
     private val vertexSixTotal = floatArrayOf( //正面
@@ -155,9 +131,6 @@ class CubicAxisSampleRenderer:GLSurfaceView.Renderer {
 
     //旋转矩阵  [20200623]  进行物体旋转 要与其他矩阵相乘，最终保存到mMVPMatrix中
     private val rotationMatrix = FloatArray(16)
-    private val scaleMatrix = FloatArray(16)
-    private val tempMatrix = FloatArray(16)
-    private val tempScaleMatrix = FloatArray(16)
 
     //渲染程序
     private var mProgram = 0
@@ -181,6 +154,13 @@ class CubicAxisSampleRenderer:GLSurfaceView.Renderer {
     private var eyeY:Float = 0.0f
     @Volatile
     private var eyeZ:Float = 2.0f
+    // 相机cam Up参数
+    @Volatile
+    private var mUpX:Float = 0.0f
+    @Volatile
+    private var mUpY:Float = 1.0f
+    @Volatile
+    private var mUpZ:Float = 0.0f
 
 
     //纹理id列表
@@ -192,20 +172,16 @@ class CubicAxisSampleRenderer:GLSurfaceView.Renderer {
                 .asFloatBuffer()
         textureBuffer!!.put(textureVertex)
         textureBuffer!!.position(0)
-
-        //分配内存空间,每个浮点型占4字节空间
-        vertexIndexBuffer = ByteBuffer.allocateDirect(vertexIndexs.size * 4)
-                .order(ByteOrder.nativeOrder())
-                .asShortBuffer()
-        //传入指定的数据
-        vertexIndexBuffer!!.put(vertexIndexs)
-        vertexIndexBuffer!!.position(0)
         vertexBuffer = ByteBuffer.allocateDirect(vertexSixTotal.size * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer()
         //要把所有6个面的数据都塞进去
         vertexBuffer!!.put(vertexSixTotal)
         vertexBuffer!!.position(0)
+        mUpX = 0.0f
+        mUpY = 1.0f
+        mUpZ = 0.0f
+
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
@@ -239,21 +215,6 @@ class CubicAxisSampleRenderer:GLSurfaceView.Renderer {
         GLES30.glEnable(GLES30.GL_DEPTH_TEST)
         GLES20.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
         initTransformMatrix()
-        //先初始化为单位正交矩阵
-        Matrix.setIdentityM(rotationMatrix, 0)
-        //旋转角度
-        Matrix.rotateM(rotationMatrix, 0, angle, 0f, 1f, 0f) //angle每次绘制完进行自增
-        //透视矩阵*相机矩阵*旋转矩阵  native层代码，估计数据放进去时做了拷贝，所以输出矩阵也可以使用mMVPMatrix保存运算后结果
-        //正解---如果要进行自动旋转、平移、缩放等操作。则每次mMVPMatrix矩阵要重新走一遍流程进行计算，而不是在上一次mMVPMatrix的基础上进行矩阵相乘
-        Matrix.multiplyMM(tempMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0)
-        Matrix.setIdentityM(scaleMatrix, 0)
-        //设置缩放比例
-        Matrix.scaleM(scaleMatrix, 0, scale, scale, scale)
-        //执行缩放
-        Matrix.multiplyMM(tempScaleMatrix, 0, tempMatrix, 0, scaleMatrix, 0)
-        //执行旋转
-        Matrix.multiplyMM(mMVPMatrix, 0, tempScaleMatrix, 0, rotationMatrix, 0)
-
 
         //左乘矩阵
         val uMaxtrixLocation = GLES30.glGetUniformLocation(mProgram, "vMatrix")
@@ -287,21 +248,11 @@ class CubicAxisSampleRenderer:GLSurfaceView.Renderer {
         //设置相机位置
         Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ,  //摄像机坐标
                 0f, 0f, 0f,  //目标物的中心坐标
-                0f, 1.0f, 0.0f) //相机方向
+                mUpX, mUpY, mUpZ) //相机方向
         //接着是摄像机顶部的方向了，如下图，很显然相机旋转，up的方向就会改变，这样就会会影响到绘制图像的角度。
         //例如设置up方向为y轴正方向，upx = 0,upy = 1,upz = 0。这是相机正对着目标图像
         //计算变换矩阵
-        Matrix.multiplyMM(tempMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0)
-        //先初始化为单位正交矩阵
-        Matrix.setIdentityM(rotationMatrix, 0)
-        //旋转角度
-        Matrix.rotateM(rotationMatrix, 0, 0f, 0f, 0f, 1f)
-        //透视矩阵*相机矩阵*旋转矩阵
-        Matrix.multiplyMM(mMVPMatrix, 0, tempMatrix, 0, rotationMatrix, 0)
-        //进行初始旋转操作
-        Matrix.setIdentityM(tempMatrix, 0)
-        Matrix.translateM(tempMatrix, 0, 0.25f, 0f, 0f)
-        Matrix.multiplyMM(mMVPMatrix, 0, mMVPMatrix, 0, tempMatrix, 0)
+        Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0)
     }
 
     fun updateCameraPosition(camX:Float,camY:Float,camZ:Float){
@@ -309,6 +260,13 @@ class CubicAxisSampleRenderer:GLSurfaceView.Renderer {
         eyeX = camX
         eyeY = camY
         eyeZ = camZ
+
+    }
+
+    fun updateCameraUpParams(upx:Float,upy:Float,upz:Float){
+        mUpX = upx
+        mUpY = upy
+        mUpZ = upz
     }
 
 }

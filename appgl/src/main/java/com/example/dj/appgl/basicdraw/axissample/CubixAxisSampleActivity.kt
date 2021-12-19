@@ -3,6 +3,7 @@ package com.example.dj.appgl.basicdraw.axissample
 import android.app.Activity
 import android.opengl.GLSurfaceView
 import android.os.Bundle
+import android.view.View
 import android.widget.SeekBar
 import com.example.dj.appgl.R
 import com.example.dj.appgl.base.DBaseGLSurfaceView
@@ -73,6 +74,10 @@ class CubixAxisSampleActivity:Activity(){
 
             }
 
+        })
+        // 保存camera up 参数
+        btn_SaveCamUp.setOnClickListener(View.OnClickListener {
+            renderer!!.updateCameraUpParams(et_camUpX.text.toString().toFloat(),et_camUpY.text.toString().toFloat(),et_camUpZ.text.toString().toFloat())
         })
 
     }
