@@ -203,7 +203,8 @@ class CubicAxisSampleRenderer:GLSurfaceView.Renderer {
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         GLES30.glViewport(0, 0, width, height)
-        val ratio = width.toFloat() / height
+        val ratio = width.toFloat() / height // 比例-1
+//        val ratio = height.toFloat()/width // 比例-2
         mRatio = ratio
         initTransformMatrix()
     }
@@ -246,7 +247,8 @@ class CubicAxisSampleRenderer:GLSurfaceView.Renderer {
         //旋转角度
         Matrix.rotateM(mModelMatrix, 0, mAngle, 0f, 1.0f, 0.0f)
         //设置透视投影
-        Matrix.frustumM(mProjectMatrix, 0, -mRatio, mRatio, -1f, 1f, 1f, 10f)
+        Matrix.frustumM(mProjectMatrix, 0, -mRatio, mRatio,-1.0f, 1.0f,  1.0f, 10f) // 比例-1
+//        Matrix.frustumM(mProjectMatrix, 0, -1.0f, 1.0f, -mRatio, mRatio, 1f, 10f) // 比例-2
         //设置相机位置
         Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ,  //摄像机坐标
                 0f, 0f, 0f,  //目标物的中心坐标

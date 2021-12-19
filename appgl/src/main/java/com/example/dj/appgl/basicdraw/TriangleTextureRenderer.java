@@ -37,7 +37,7 @@ public class TriangleTextureRenderer implements GLSurfaceView.Renderer{
 //            -0.5f, -0.5f, 0.0f,
 //            -0.5f,0.5f,0.0f,
 
-            0.5f,  0.5f, 0.0f, // top
+            0.5f,  0.5f, 0.0f, // top  0.5202312
             -0.5f, -0.5f, 0.0f, // bottom left
             0.5f, -0.5f, 0.0f  // bottom right
     };
@@ -116,10 +116,12 @@ public class TriangleTextureRenderer implements GLSurfaceView.Renderer{
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         GLES30.glViewport(0, 0, width, height);
         float ratio = (float) width/height;
+        Log.e(TAG, "onSurfaceChanged: ratio="+ratio);
         //设置透视投影
         Matrix.frustumM(mProjectMatrix,0,-ratio,ratio,-1,1,3,7);
+//        Matrix.orthoM(mProjectMatrix,0,-ratio,ratio,-1,1,3,7);
         //设置相机位置
-        Matrix.setLookAtM(mViewMatrix,0,0,0,3.6f,//摄像机坐标
+        Matrix.setLookAtM(mViewMatrix,0,0,0,3.0f,//摄像机坐标
                 0f,0f,0f,//目标物的中心坐标
                 0f,1.0f,0.0f);//相机方向
         //接着是摄像机顶部的方向了，如下图，很显然相机旋转，up的方向就会改变，这样就会会影响到绘制图像的角度。
