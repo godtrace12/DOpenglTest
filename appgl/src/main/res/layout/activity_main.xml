@@ -35,16 +35,17 @@
                 android:text="立方体"/>
 
             <Button
+                android:id="@+id/btnCameraDraw"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Camera四分屏乱画"/>
+
+            <Button
                 android:id="@+id/btnCamera"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Camera"/>
 
-            <Button
-                android:id="@+id/btnCameraDraw"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Camera四分屏乱画"/>
 
             <Button
                 android:id="@+id/btnRecordCamera"
