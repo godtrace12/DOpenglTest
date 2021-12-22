@@ -158,7 +158,10 @@ class CubicAxisSampleRenderer:GLSurfaceView.Renderer {
     private var mUpY:Float = 1.0f
     @Volatile
     private var mUpZ:Float = 0.0f
-
+    @Volatile
+    private var mNear:Float = 1.0f
+    @Volatile
+    private var mFar:Float = 10.0f
 
     //纹理id列表
     private lateinit var textureIds: IntArray
@@ -241,13 +244,15 @@ class CubicAxisSampleRenderer:GLSurfaceView.Renderer {
     }
 
     private fun initTransformMatrix(){
+//        Log.e("dj==", "initTransformMatrix: Near=$mNear Far=$mFar")
         // 设置模型矩阵
         Matrix.setIdentityM(mModelMatrix,0)
         Matrix.setIdentityM(mTempMatrix,0)
+        Matrix.setIdentityM(mProjectMatrix,0)
         //旋转角度
         Matrix.rotateM(mModelMatrix, 0, mAngle, 0f, 1.0f, 0.0f)
         //设置透视投影
-        Matrix.frustumM(mProjectMatrix, 0, -mRatio, mRatio,-1.0f, 1.0f,  1.0f, 10f) // 比例-1
+        Matrix.frustumM(mProjectMatrix, 0, -mRatio, mRatio,-1.0f, 1.0f,  mNear, mFar) // 比例-1
 //        Matrix.frustumM(mProjectMatrix, 0, -1.0f, 1.0f, -mRatio, mRatio, 1f, 10f) // 比例-2
         //设置相机位置
         Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ,  //摄像机坐标
@@ -275,6 +280,14 @@ class CubicAxisSampleRenderer:GLSurfaceView.Renderer {
 
     fun updateRotateAngle(angle:Float){
         mAngle = angle
+    }
+
+    fun updateNear(near:Float){
+        mNear = near
+    }
+
+    fun updateFar(far:Float){
+        mFar = far
     }
 
 }

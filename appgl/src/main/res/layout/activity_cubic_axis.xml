@@ -160,7 +160,6 @@
             android:layout_width="match_parent"
             android:layout_gravity="center_vertical"
             android:gravity="center_vertical"
-            android:layout_marginBottom="100dp"
             android:layout_height="wrap_content">
 
             <Button
@@ -193,6 +192,63 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="360"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tv_near"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:text="近平面:1"/>
+
+            <SeekBar
+                android:id="@+id/pb_Near"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_centerHorizontal="true"
+                android:layout_height="20dp"
+                android:alpha="100"
+                android:min="1"
+                android:max="8"
+                android:progress="1" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="100dp"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tv_far"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:text="远平面:10"/>
+
+            <SeekBar
+                android:id="@+id/pb_far"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_centerHorizontal="true"
+                android:layout_height="20dp"
+                android:alpha="100"
+                android:min="7"
+                android:max="16"
+                android:progress="10" />
 
         </LinearLayout>
 

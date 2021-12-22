@@ -95,20 +95,39 @@ class CubixAxisSampleActivity:Activity(){
 
         })
 
-//        btn_MinusDegree.setOnClickListener(View.OnClickListener {
-//            if(mCurDegree >=0 && mCurDegree <= 180){
-//                mCurDegree -= 1.0f
-//                et_Degree.setText("$mCurDegree")
-//                renderer!!.updateRotateAngle(mCurDegree)
-//            }
-//        })
-//        btn_PlusDegree.setOnClickListener(View.OnClickListener {
-//            if(mCurDegree >=0 && mCurDegree <= 180){
-//                mCurDegree += 1.0f
-//                et_Degree.setText("$mCurDegree")
-//                renderer!!.updateRotateAngle(mCurDegree)
-//            }
-//        })
+        pb_Near.setOnSeekBarChangeListener(object:SeekBar.OnSeekBarChangeListener{
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                tv_near.setText("近平面：$progress")
+                var near:Float = progress.toFloat()
+                renderer!!.updateNear(near)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+        })
+
+        pb_far.setOnSeekBarChangeListener(object:SeekBar.OnSeekBarChangeListener{
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                tv_far.setText("远平面：$progress")
+                var far:Float = progress.toFloat()
+                renderer!!.updateFar(far)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+        })
 
     }
 
