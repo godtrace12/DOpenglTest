@@ -42,13 +42,6 @@ public class TriangleTextureRenderer implements GLSurfaceView.Renderer{
             0.5f, -0.5f, 0.0f  // bottom right
     };
 
-    //纹理坐标1
-//    private float textureVertex[] = {
-//            0.75f, 0.25f,
-//            0.25f, 0.75f,
-//            0.75f, 0.75f,
-//    };
-
     //纹理坐标2
     // 三角形3个定点对应在纹理坐标系中的坐标
     private float textureVertex[] = {
@@ -81,7 +74,6 @@ public class TriangleTextureRenderer implements GLSurfaceView.Renderer{
         ByteBuffer byteBuffer = ByteBuffer.allocateDirect(triangleCoords.length*4);
         byteBuffer.order(ByteOrder.nativeOrder());
         vertexBuffer = byteBuffer.asFloatBuffer();
-        //把这门语法() 推送给GPU
         vertexBuffer.put(triangleCoords);
         vertexBuffer.position(0);
 
