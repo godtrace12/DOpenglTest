@@ -12,11 +12,6 @@ import android.util.Log;
 
 import javax.microedition.khronos.opengles.GL10;
 
-/**
- * @anchor: andy
- * @date: 18-11-10
- */
-
 public class TextureUtils {
 
     private static final String TAG = "TextureUtils";
