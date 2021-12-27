@@ -5,6 +5,5 @@ uniform mat4 vMatrix;
 out vec2 vTexCoord;
 void main() {
      gl_Position  = vMatrix * vPosition;
-     gl_PointSize = 10.0;
      vTexCoord = aTextureCoord;
 }
