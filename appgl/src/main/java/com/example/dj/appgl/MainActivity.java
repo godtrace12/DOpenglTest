@@ -25,6 +25,7 @@ import com.example.dj.appgl.light.FengLightActivity;
 import com.example.dj.appgl.light.TextureLightActivity;
 import com.example.dj.appgl.model.ModeBglLoadActivity;
 import com.example.dj.appgl.model.ModelLoadActivity;
+import com.example.dj.appgl.mrt.MrtRenderActivity;
 import com.example.dj.appgl.opencv.OpenCV2Activity;
 import com.example.dj.appgl.opencv.OpenCVActivity;
 import com.example.dj.appgl.player.MediaPlayerActivity;
@@ -65,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnCameraDraw;
     private Button btnEarthBall;
     private Button btnBasicPerspec;
+    private Button btnMRTRender;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,6 +158,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnEarthBall.setOnClickListener(this);
         btnBasicPerspec = findViewById(R.id.btnBasicPerspec);
         btnBasicPerspec.setOnClickListener(this);
+        btnMRTRender = findViewById(R.id.btnMRTRender);
+        btnMRTRender.setOnClickListener(this);
     }
 
     @Override
@@ -223,6 +227,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivity(intent);
         }else if(viewId == R.id.btnEarthBall){
             Intent  intent = new Intent(MainActivity.this, EarthTextureActivity.class);
+            startActivity(intent);
+        }else if(viewId == R.id.btnMRTRender){
+            Intent  intent = new Intent(MainActivity.this, MrtRenderActivity.class);
             startActivity(intent);
         }
     }
