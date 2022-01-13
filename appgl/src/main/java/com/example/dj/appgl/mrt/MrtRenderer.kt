@@ -92,6 +92,7 @@ class MrtRenderer() : GLSurfaceView.Renderer,IRenderGesture {
     }
 
     private fun createFBO(){
+        GLES30.glGenTextures(mAttachTextIds.size,mAttachTextIds,0)
         // 创建一个frame buffer用于绑定多个渲染目标
         frameBuffers = IntArray(1)
         GLES30.glGenFramebuffers(frameBuffers.size, frameBuffers, 0)
@@ -126,10 +127,10 @@ class MrtRenderer() : GLSurfaceView.Renderer,IRenderGesture {
         GLES30.glClearColor(0.5f, 0.5f, 0.5f, 1.0f)
 
         //编译MRT顶点着色程序
-        val vertexShaderStr = ResReadUtils.readResource(R.raw.vertex_base_mvp_shader)
+        val vertexShaderStr = ResReadUtils.readResource(R.raw.vertex_base_es30_mvp_shader)
         val vertexShaderId = ShaderUtils.compileVertexShader(vertexShaderStr)
         //编译MRT片段着色程序
-        val fragmentShaderStr = ResReadUtils.readResource(R.raw.fragment_mrt_render_shader)
+        val fragmentShaderStr = ResReadUtils.readResource(R.raw.fragment_mrt_es30_render_shader)
         val fragmentShaderId = ShaderUtils.compileFragmentShader(fragmentShaderStr)
         //连接程序
         mMrtProgram = ShaderUtils.linkProgram(vertexShaderId, fragmentShaderId)
@@ -137,10 +138,10 @@ class MrtRenderer() : GLSurfaceView.Renderer,IRenderGesture {
         //编译glprogram并获取控制句柄
         mHMrtMvpMatrix = GLES30.glGetUniformLocation(mMrtProgram, "vMatrix")
         mHMrtPosition = GLES30.glGetAttribLocation(mMrtProgram, "vPosition")
-        mHMrtTextCoordinate = GLES30.glGetUniformLocation(mMrtProgram, "vTextureCoord")
+        mHMrtTextCoordinate = GLES30.glGetAttribLocation(mMrtProgram, "vTextureCoord")
 
         //编译展示顶点着色程序
-        val vertexDisplayShaderStr = ResReadUtils.readResource(R.raw.vertex_base_mvp_shader)
+        val vertexDisplayShaderStr = ResReadUtils.readResource(R.raw.vertex_base_es30_mvp_shader)
         val vertexDisplayShaderId = ShaderUtils.compileVertexShader(vertexDisplayShaderStr)
         //编译片段着色程序
         val fragmentDisplayShaderStr = ResReadUtils.readResource(R.raw.fragment_mrt_display_shader)
@@ -151,7 +152,7 @@ class MrtRenderer() : GLSurfaceView.Renderer,IRenderGesture {
         GLES30.glUseProgram(mProgram)
         mDispMvpMatrix = GLES30.glGetUniformLocation(mProgram, "vMatrix")
         mDispPosition = GLES30.glGetAttribLocation(mProgram, "vPosition")
-        mDispTextCoordinate = GLES30.glGetUniformLocation(mProgram, "vTextureCoord")
+        mDispTextCoordinate = GLES30.glGetAttribLocation(mProgram, "vTextureCoord")
         //加载纹理
         textureId = TextureUtils.loadTexture(AppCore.getInstance().context, R.drawable.world_map)
     }
