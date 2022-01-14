@@ -3,6 +3,7 @@ package com.example.dj.appgl.mrt
 import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
+import android.util.Log
 import com.example.dj.appgl.R
 import com.example.dj.appgl.base.AppCore
 import com.example.dj.appgl.base.IRenderGesture
@@ -100,6 +101,7 @@ class MrtRenderer() : GLSurfaceView.Renderer,IRenderGesture {
         GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, frameBufferMTR)
         // 将4个渲染目标绑定到frame buffer上的4个attachment(附着)上
         for (i in mAttachTextIds.indices) {
+            Log.e(TAG, "createFBO: i=$i textId=${mAttachTextIds[i]}")
             GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, mAttachTextIds[i])
             GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR)
             GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR)
@@ -114,7 +116,7 @@ class MrtRenderer() : GLSurfaceView.Renderer,IRenderGesture {
             GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0)
         }
 
-        val attachments = intArrayOf(GLES30.GL_COLOR_ATTACHMENT0, GLES30.GL_COLOR_ATTACHMENT1, GLES30.GL_COLOR_ATTACHMENT2)
+        val attachments = intArrayOf(GLES30.GL_COLOR_ATTACHMENT0, GLES30.GL_COLOR_ATTACHMENT1, GLES30.GL_COLOR_ATTACHMENT2,GLES30.GL_COLOR_ATTACHMENT3)
         val attachmentBuffer = IntBuffer.allocate(attachments.size)
         attachmentBuffer.put(attachments)
         attachmentBuffer.position(0)
@@ -139,6 +141,7 @@ class MrtRenderer() : GLSurfaceView.Renderer,IRenderGesture {
         mHMrtMvpMatrix = GLES30.glGetUniformLocation(mMrtProgram, "vMatrix")
         mHMrtPosition = GLES30.glGetAttribLocation(mMrtProgram, "vPosition")
         mHMrtTextCoordinate = GLES30.glGetAttribLocation(mMrtProgram, "vTextureCoord")
+        textureId = TextureUtils.loadTexture(AppCore.getInstance().context, R.drawable.hzw2)
 
         //编译展示顶点着色程序
         val vertexDisplayShaderStr = ResReadUtils.readResource(R.raw.vertex_base_es30_mvp_shader)
@@ -153,8 +156,6 @@ class MrtRenderer() : GLSurfaceView.Renderer,IRenderGesture {
         mDispMvpMatrix = GLES30.glGetUniformLocation(mProgram, "vMatrix")
         mDispPosition = GLES30.glGetAttribLocation(mProgram, "vPosition")
         mDispTextCoordinate = GLES30.glGetAttribLocation(mProgram, "vTextureCoord")
-        //加载纹理
-        textureId = TextureUtils.loadTexture(AppCore.getInstance().context, R.drawable.world_map)
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
@@ -186,6 +187,7 @@ class MrtRenderer() : GLSurfaceView.Renderer,IRenderGesture {
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureId)
         GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, triangleCoords.size / 3)
         GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, 0)
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0)
 
 
         //2、渲染到屏幕上
@@ -198,6 +200,7 @@ class MrtRenderer() : GLSurfaceView.Renderer,IRenderGesture {
         GLES30.glVertexAttribPointer(mDispTextCoordinate, 2, GLES30.GL_FLOAT, false, 0, textureBuffer)
 
         for (i in 0 until MULTI_TARGET_NUM) {
+//            Log.e(TAG, "onDrawFrame: i=$i")
             GLES30.glActiveTexture(GLES30.GL_TEXTURE0 + i)
             GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, mAttachTextIds[i])
             //glUniform1i 使用解析 https://blog.csdn.net/mumuzi_1/article/details/62047112
