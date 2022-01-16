@@ -151,7 +151,7 @@ class MrtRenderer() : GLSurfaceView.Renderer,IRenderGesture {
         mHMrtMvpMatrix = GLES30.glGetUniformLocation(mMrtProgram, "vMatrix")
         mHMrtPosition = GLES30.glGetAttribLocation(mMrtProgram, "vPosition")
         mHMrtTextCoordinate = GLES30.glGetAttribLocation(mMrtProgram, "vTextureCoord")
-        textureId = TextureUtils.loadTexture(AppCore.getInstance().context, R.drawable.hzw2)
+        textureId = TextureUtils.loadTexture(AppCore.getInstance().context, R.drawable.ic_cube_maps_front)
 
         //编译展示顶点着色程序
         val vertexDisplayShaderStr = ResReadUtils.readResource(R.raw.vertex_base_es30_mvp_shader)
