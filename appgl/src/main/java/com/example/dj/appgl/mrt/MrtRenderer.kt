@@ -45,12 +45,12 @@ class MrtRenderer() : GLSurfaceView.Renderer,IRenderGesture {
     //纹理坐标2
     // 三角形3个定点对应在纹理坐标系中的坐标
     private val textureVertex = floatArrayOf( // 矩形全部点位
-            1.0f,0.0f,
-            0.0f, 1.0f,
-            0.0f,0.0f,
-            1.0f, 0.0f,
-            0.0f, 1.0f,
-            1.0f, 1.0f)
+            1.0f,1.0f,
+            0.0f, 0.0f,
+            0.0f,1.0f,
+            1.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f)
 
     //相机矩阵
     private val mViewMatrix = FloatArray(16)
@@ -81,6 +81,15 @@ class MrtRenderer() : GLSurfaceView.Renderer,IRenderGesture {
     private var mDispMvpMatrix = 0 //uniform
     private var mDispPosition = 0 // attribute
     private var mDispTextCoordinate = 0 // attribute
+    private val textureDisVertex = floatArrayOf( // 矩形全部点位
+            1.0f,0.0f,
+            0.0f, 1.0f,
+            0.0f,0.0f,
+            1.0f, 0.0f,
+            0.0f, 1.0f,
+            1.0f, 1.0f)
+    private var textureDisBuffer: FloatBuffer? = null
+
 
     init {
         initData()
@@ -89,6 +98,7 @@ class MrtRenderer() : GLSurfaceView.Renderer,IRenderGesture {
     private fun initData(){
         vertexBuffer = GLDataUtil.createFloatBuffer(triangleCoords)
         textureBuffer = GLDataUtil.createFloatBuffer(textureVertex)
+        textureDisBuffer = GLDataUtil.createFloatBuffer(textureDisVertex)
         mAttachTextIds = IntArray(MULTI_TARGET_NUM)
     }
 
@@ -197,7 +207,7 @@ class MrtRenderer() : GLSurfaceView.Renderer,IRenderGesture {
         GLES30.glEnableVertexAttribArray(mDispPosition)
         GLES30.glVertexAttribPointer(mDispPosition, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer)
         GLES30.glEnableVertexAttribArray(mDispTextCoordinate)
-        GLES30.glVertexAttribPointer(mDispTextCoordinate, 2, GLES30.GL_FLOAT, false, 0, textureBuffer)
+        GLES30.glVertexAttribPointer(mDispTextCoordinate, 2, GLES30.GL_FLOAT, false, 0, textureDisBuffer)
 
         for (i in 0 until MULTI_TARGET_NUM) {
 //            Log.e(TAG, "onDrawFrame: i=$i")
