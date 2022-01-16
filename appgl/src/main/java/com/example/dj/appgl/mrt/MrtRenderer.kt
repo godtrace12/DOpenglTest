@@ -43,7 +43,7 @@ class MrtRenderer() : GLSurfaceView.Renderer,IRenderGesture {
             1.0f, -1.0f, 0.0f // bottom right
     )
     //纹理坐标2
-    // 三角形3个定点对应在纹理坐标系中的坐标
+    // FBO纹理坐标系与纹理坐标系不一样，原点在左下角，(1,1)在右上角
     private val textureVertex = floatArrayOf( // 矩形全部点位
             1.0f,1.0f,
             0.0f, 0.0f,
@@ -182,7 +182,6 @@ class MrtRenderer() : GLSurfaceView.Renderer,IRenderGesture {
         //把颜色缓冲区设置为我们预设的颜色
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
         GLES30.glEnable(GLES30.GL_DEPTH_TEST)
-//        updateModelTransformMatrix(1.0F,1.0F,1.0F)
         //1、 多目标渲染，绘制到FBO绑定的颜色附着中
         GLES30.glUseProgram(mMrtProgram)
         //开启FBO
@@ -199,7 +198,6 @@ class MrtRenderer() : GLSurfaceView.Renderer,IRenderGesture {
         GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, 0)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0)
 
-
         //2、渲染到屏幕上
         GLES30.glUseProgram(mProgram)
         GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER,0)//关闭FBO
@@ -208,12 +206,10 @@ class MrtRenderer() : GLSurfaceView.Renderer,IRenderGesture {
         GLES30.glVertexAttribPointer(mDispPosition, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer)
         GLES30.glEnableVertexAttribArray(mDispTextCoordinate)
         GLES30.glVertexAttribPointer(mDispTextCoordinate, 2, GLES30.GL_FLOAT, false, 0, textureDisBuffer)
-
+        // 保证每个uniform采样器对应着正确的纹理单元。
         for (i in 0 until MULTI_TARGET_NUM) {
-//            Log.e(TAG, "onDrawFrame: i=$i")
             GLES30.glActiveTexture(GLES30.GL_TEXTURE0 + i)
             GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, mAttachTextIds[i])
-            //glUniform1i 使用解析 https://blog.csdn.net/mumuzi_1/article/details/62047112
             GLES30.glUniform1i(GLES30.glGetUniformLocation(mProgram, "vTexture$i"), i)
         }
         GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, triangleCoords.size / 3)
