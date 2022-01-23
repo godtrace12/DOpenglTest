@@ -25,9 +25,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".opencv.OpenCVActivity"></activity>
-        <activity android:name=".opencv.OpenCV2Activity"></activity>
-        <activity android:name=".wave.WaveSampleActivity"></activity>
+        <activity android:name=".opencv.OpenCvCameraActivity"></activity>
+        <activity android:name=".opencv.OpenCVActivity" />
+        <activity android:name=".wave.WaveSampleActivity" />
         <activity android:name=".player.MediaPlayerActivity" />
         <activity android:name=".camera.CameraActivity" />
         <activity android:name=".ball.EarthTextureActivity" />
@@ -45,7 +45,7 @@
         <activity android:name=".light.TextureLightActivity" />
         <activity android:name=".nativegl.NativeGLActivity" />
         <activity android:name=".playercam.MediaPlayerCamActivity" />
-        <activity android:name=".basicdraw.axissample.CubixAxisSampleActivity"/>
+        <activity android:name=".basicdraw.axissample.CubixAxisSampleActivity" />
         <activity android:name=".mrt.MrtRenderActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>

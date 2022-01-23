@@ -125,7 +125,13 @@
                 android:id="@+id/btnOpenCV"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="OpenCV Camera"/>
+                android:text="OpenCV 人脸识别基础测试"/>
+
+            <Button
+                android:id="@+id/btnOpenCVCamera"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="OpenCV+摄像头人脸识别"/>
 
             <Button
                 android:id="@+id/btnWave"

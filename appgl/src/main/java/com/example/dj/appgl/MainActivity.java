@@ -3,7 +3,6 @@ package com.example.dj.appgl;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
-import android.app.NativeActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,8 +25,8 @@ import com.example.dj.appgl.light.TextureLightActivity;
 import com.example.dj.appgl.model.ModeBglLoadActivity;
 import com.example.dj.appgl.model.ModelLoadActivity;
 import com.example.dj.appgl.mrt.MrtRenderActivity;
-import com.example.dj.appgl.opencv.OpenCV2Activity;
 import com.example.dj.appgl.opencv.OpenCVActivity;
+import com.example.dj.appgl.opencv.OpenCvCameraActivity;
 import com.example.dj.appgl.player.MediaPlayerActivity;
 import com.example.dj.appgl.playercam.MediaPlayerCamActivity;
 import com.example.dj.appgl.skybox.SkyboxActivity;
@@ -35,9 +34,6 @@ import com.example.dj.appgl.wave.WaveSampleActivity;
 import com.example.dj.media.DPlayer;
 import com.example.dj.appgl.nativegl.NativeGLActivity;
 import com.tbruyelle.rxpermissions2.RxPermissions;
-import com.tencent.bugly.crashreport.CrashReport;
-
-import org.opencv.samples.facedetect.FdActivity;
 
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;
@@ -67,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnEarthBall;
     private Button btnBasicPerspec;
     private Button btnMRTRender;
+    private Button btnOpenCVCamera;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,6 +157,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnBasicPerspec.setOnClickListener(this);
         btnMRTRender = findViewById(R.id.btnMRTRender);
         btnMRTRender.setOnClickListener(this);
+        btnOpenCVCamera = findViewById(R.id.btnOpenCVCamera);
+        btnOpenCVCamera.setOnClickListener(this);
     }
 
     @Override
@@ -218,6 +217,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             DPlayer.nativeStringInit();
         }else if(viewId == R.id.btnOpenCV){
             Intent  intent = new Intent(MainActivity.this, OpenCVActivity.class);
+            startActivity(intent);
+        }else if(viewId == R.id.btnOpenCVCamera){
+            Intent  intent = new Intent(MainActivity.this, OpenCvCameraActivity.class);
             startActivity(intent);
         }else if(viewId == R.id.btnWave){
             Intent  intent = new Intent(MainActivity.this, WaveSampleActivity.class);

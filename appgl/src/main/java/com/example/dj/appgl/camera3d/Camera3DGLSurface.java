@@ -9,6 +9,7 @@ import com.example.dj.appgl.camera.CameraQuarRender;
 import com.example.dj.appgl.camera.base.AbsObjectRender;
 import com.example.dj.appgl.camera.base.BaseCameraRenderer;
 import com.example.dj.appgl.camera.object.TrianCamColorRender;
+import com.example.dj.appgl.camera3d.obj.CubicIntancingRender;
 import com.example.dj.appgl.camera3d.obj.CubicRender;
 
 public class Camera3DGLSurface extends GLSurfaceView implements SurfaceTexture.OnFrameAvailableListener {
@@ -25,7 +26,10 @@ public class Camera3DGLSurface extends GLSurfaceView implements SurfaceTexture.O
         render = new Camera3DRender(context,this);
         setRenderer(render);
         setRenderMode(RENDERMODE_WHEN_DIRTY);
-        render.setObjectRender(new CubicRender());
+//        render.setObjectRender(new CubicRender());
+        // 实例化
+        render.setObjectRender(new CubicIntancingRender());
+
     }
 
     public void setObjectRender(AbsObjectRender absObjectRender){
