@@ -3,28 +3,15 @@
 uniform mat4 uMVPMatrix;
 in vec3 aPosition;
 in vec2 aTexCoords;
+layout (location = 3) in mat4 aInstanceMatrix;//实例化数组
+
 out vec2 TexCoord;
-uniform vec2 offsets[100];
+uniform vec2 offsets[2];
 
 
 void main() {
-
-//    vec3 posOffset = aPosition + vec3(offsets[gl_InstanceID],0);
-    vec4 glPosTmp = vec4(aPosition, 1.0);
-//    vec4 glPosTmp = vec4(posOffset, 1.0);
-
-//    glPosTmp.x = aPosition.x + offsets[gl_InstanceID].x;
-//    glPosTmp.y = aPosition.y + offsets[gl_InstanceID].y;
-
-
-    gl_Position = uMVPMatrix * glPosTmp;
+    // 法3 实例化数组
+    gl_Position = uMVPMatrix * aInstanceMatrix * vec4(aPosition,1.0);
+//    gl_Position = uMVPMatrix * vec4(aPosition,1.0);
     TexCoord = aTexCoords;
-
-
-    // 发2
-//    vec2 offset = offsets[gl_InstanceID];
-//    vec3 posOffset = aPosition + vec3(offset,0);
-//    vec4 glPosTmp = vec4(posOffset, 1.0);
-//    gl_Position = uMVPMatrix * glPosTmp;
-//    TexCoord = aTexCoords;
 }
