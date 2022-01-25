@@ -151,6 +151,12 @@
                 android:layout_height="wrap_content"
                 android:text="MRT多目标渲染"/>
 
+            <Button
+                android:id="@+id/btnInstancing"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Instancing"/>
+
         </LinearLayout>
 
 
