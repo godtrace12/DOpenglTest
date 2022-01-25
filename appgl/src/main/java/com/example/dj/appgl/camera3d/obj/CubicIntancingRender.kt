@@ -109,6 +109,7 @@ class CubicIntancingRender: AbsObjectRender() {
 
     private fun drawTexture() {
         initProjectViewMatrix(mWidth,mHeight)
+        textureRenderer!!.initInstanceMatrixArray()
         textureRenderer!!.start()
         val vertexBuffer: FloatBuffer = GLDataUtil.createFloatBuffer(cubeVertices)
         GLES30.glVertexAttribPointer(textureRenderer!!.positionHandle, 3, GLES30.GL_FLOAT,
@@ -149,14 +150,14 @@ class CubicIntancingRender: AbsObjectRender() {
 
 //        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
         GLES30.glDrawArraysInstanced(GLES30.GL_TRIANGLES, 0, 36,instanceCount)
-//        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0)
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0)
 //        GLES30.glDrawArraysInstanced(GLES20.GL_TRIANGLES, 0, 6, 100)
 
         textureRenderer!!.end()
-//        angle +=2
-//        if(angle >= 360){
-//            angle = 0F
-//        }
+        angle +=2
+        if(angle >= 360){
+            angle = 0F
+        }
     }
 
 
@@ -179,6 +180,10 @@ class CubicIntancingRender: AbsObjectRender() {
             instanceMatrixHandle = GLES30.glGetAttribLocation(shaderProgram, "aInstanceMatrix")
             Log.e(TAG, "instanceMatrixHandle=$instanceMatrixHandle posHandle=$positionHandle textCoordHandle=$texturePosHandle")
 
+            initInstanceMatrixArray()
+        }
+
+        fun initInstanceMatrixArray(){
             var modelMatrices = createMatrices()
             mInstanceModelMtxArray = FloatArray(instanceCount*16)//存储了2个矩阵数据，每个矩阵16个点
             for (index in 0..(instanceCount-1)){
@@ -194,8 +199,10 @@ class CubicIntancingRender: AbsObjectRender() {
                 Matrix.setIdentityM(modelMatrix,0)
                 if(index == 0){
                     Matrix.translateM(modelMatrix,0,0.8f,0.8f,0.0f)
+                    Matrix.rotateM(modelMatrix,0,angle,0.0f,1.0f,0.0f)
                 }else{
                     Matrix.translateM(modelMatrix,0,0.0f,-0.8f,0.0f)
+                    Matrix.rotateM(modelMatrix,0,angle,0.0f,1.0f,0.0f)
                 }
                 modelMatrices[index] = modelMatrix
             }
