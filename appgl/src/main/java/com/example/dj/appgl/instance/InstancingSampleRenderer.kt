@@ -206,7 +206,6 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
 //        GLES30.glUseProgram(mProgram)
         GLES30.glEnable(GLES30.GL_DEPTH_TEST)
         GLES20.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
-//        initTransformMatrix()
 
         //左乘矩阵
         val uMaxtrixLocation = GLES30.glGetUniformLocation(mProgram, "vMatrix")
@@ -238,8 +237,9 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
         GLES30.glEnableVertexAttribArray(instanceMatrixHandle + 3)
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         // !! 重复使用的buffer，一定要重新定位到0
-//        mInstanceModelMtxBuffer!!.position(0)
-        for (i in 0..(instanceCount-1)){
+        mInstanceModelMtxBuffer!!.position(0)
+        for (i in 0..(instanceCount-1)){ //是否循环画出效果一样
+//            Log.e("dj==", "onDrawFrame instance: i=$i")
             mInstanceModelMtxBuffer!!.position(0)
             GLES30.glVertexAttribPointer(instanceMatrixHandle, 4, GLES20.GL_FLOAT,
                     false, 16 * 4, mInstanceModelMtxBuffer)
@@ -260,17 +260,6 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
             GLES30.glDrawArraysInstanced(GLES30.GL_TRIANGLES, 0, 36,instanceCount)
 
         }
-
-
-        //启用纹理
-//        GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
-        //每个面6个顶点数据，使用不同的纹理贴图
-//        for (i in textureIds.indices) {
-////            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureIds[i])
-//            GLES30.glDrawArrays(GLES30.GL_TRIANGLES, i * 6, 6)
-//        }
-
-//        GLES30.glDrawArraysInstanced(GLES30.GL_TRIANGLES, 0, 36/3,2)
 
 
         //禁止顶点数组的句柄
