@@ -11,11 +11,7 @@ import com.example.dj.appgl.util.GLDataUtil
 import com.example.dj.appgl.util.ResReadUtils
 import com.example.dj.appgl.util.ShaderUtils
 import com.example.dj.appgl.util.TextureUtils
-import org.opencv.core.Mat
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 import java.nio.FloatBuffer
-import java.nio.ShortBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -158,6 +154,7 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
     var mInstanceModelMtxArray:FloatArray? = null
     var mInstanceModelMtxBuffer:FloatBuffer? = null
     var instanceMatrixHandle:Int =2
+    var instanceCount:Int = 1
 
     init {
         vertexBuffer = GLDataUtil.createFloatBuffer(vertexSixTotal)
@@ -167,8 +164,9 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
         mUpZ = 0.0f
         // 生成实例数组
         var modelMatrices = createMatrices()
-        mInstanceModelMtxArray = FloatArray(2*16)//存储了2个矩阵数据，每个矩阵16个点
-        for (index in 0..1){
+        mInstanceModelMtxArray = FloatArray(instanceCount*16)//存储了2个矩阵数据，每个矩阵16个点
+        for (index in 0..(instanceCount-1)){
+            Log.e("dj==", "copy index=$index ")
             System.arraycopy(modelMatrices[index],0,mInstanceModelMtxArray,index*16,16)
         }
         mInstanceModelMtxBuffer = GLDataUtil.createFloatBuffer(mInstanceModelMtxArray)
@@ -206,7 +204,7 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
     override fun onDrawFrame(gl: GL10?) {
         GLES30.glEnable(GLES30.GL_DEPTH_TEST)
         GLES20.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
-        initTransformMatrix()
+//        initTransformMatrix()
 
         //左乘矩阵
         val uMaxtrixLocation = GLES30.glGetUniformLocation(mProgram, "vMatrix")
@@ -224,12 +222,14 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
 
         // 实例化相关
 //        instanceMatrixHandle = GLES30.glGetAttribLocation(mProgram, "aInstanceMatrix")
-        Log.e("dj==", "instanceMatrixHandle=$instanceMatrixHandle posHandle=$aPositionLocation textCoordHandle=$aTextureLocation")
+//        Log.e("dj==", "instanceMatrixHandle=$instanceMatrixHandle posHandle=$aPositionLocation textCoordHandle=$aTextureLocation")
         GLES30.glEnableVertexAttribArray(instanceMatrixHandle)
         GLES30.glEnableVertexAttribArray(instanceMatrixHandle + 1)
         GLES30.glEnableVertexAttribArray(instanceMatrixHandle + 2)
         GLES30.glEnableVertexAttribArray(instanceMatrixHandle + 3)
-        for (i in 0..1){
+        GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
+
+        for (i in 0..(instanceCount-1)){
             GLES30.glVertexAttribPointer(instanceMatrixHandle, 4, GLES20.GL_FLOAT,
                     false, 16 * 4, mInstanceModelMtxBuffer)
             mInstanceModelMtxBuffer!!.position(4)
@@ -246,18 +246,20 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
             GLES30.glVertexAttribDivisor(instanceMatrixHandle + 1, 1)
             GLES30.glVertexAttribDivisor(instanceMatrixHandle + 2, 1)
             GLES30.glVertexAttribDivisor(instanceMatrixHandle + 3, 1)
+            GLES30.glDrawArraysInstanced(GLES30.GL_TRIANGLES, 0, 36,instanceCount)
+
         }
 
 
         //启用纹理
-        GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
+//        GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         //每个面6个顶点数据，使用不同的纹理贴图
-        for (i in textureIds.indices) {
-//            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureIds[i])
-            GLES30.glDrawArrays(GLES30.GL_TRIANGLES, i * 6, 6)
-        }
+//        for (i in textureIds.indices) {
+////            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureIds[i])
+//            GLES30.glDrawArrays(GLES30.GL_TRIANGLES, i * 6, 6)
+//        }
 
-//        GLES30.glDrawArraysInstanced(GLES30.GL_TRIANGLES, 0, 36,2)
+//        GLES30.glDrawArraysInstanced(GLES30.GL_TRIANGLES, 0, 36/3,2)
 
 
         //禁止顶点数组的句柄
@@ -287,12 +289,18 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
     }
 
     private fun createMatrices(): Array<FloatArray> {
-        var modelMatrices = Array(2) { FloatArray(2) }
+//        val modelMatrices = Array(amount) { FloatArray(16) }
+
+        var modelMatrices = Array(instanceCount) { FloatArray(16) }
         for (index in modelMatrices.indices){
+            Log.e("dj==", "createMatrices: $index")
             var modelMatrix = FloatArray(16)
             Matrix.setIdentityM(modelMatrix,0)
             if(index == 0){
-                Matrix.translateM(modelMatrix,0,0.2f,0.2f,0.0f)
+                Log.e("dj==", "createMatrices: rotate index=$index")
+//                Matrix.translateM(modelMatrix,0,0.2f,0.2f,0.0f)
+                Matrix.translateM(modelMatrix,0,0.2f,0.0f,0.0f)
+                Matrix.rotateM(modelMatrix,0,90.0f,0.0f,1.0f,0.0f)
             }else{
                 Matrix.translateM(modelMatrix,0,-0.2f,-0.2f,0.0f)
             }
