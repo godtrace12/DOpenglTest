@@ -154,7 +154,8 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
     var mInstanceModelMtxArray:FloatArray? = null
     var mInstanceModelMtxBuffer:FloatBuffer? = null
     var instanceMatrixHandle:Int =2
-    var instanceCount:Int = 1
+    var instanceCount:Int = 2
+    var isFirst:Boolean = true
 
     init {
         vertexBuffer = GLDataUtil.createFloatBuffer(vertexSixTotal)
@@ -202,6 +203,7 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
     }
 
     override fun onDrawFrame(gl: GL10?) {
+//        GLES30.glUseProgram(mProgram)
         GLES30.glEnable(GLES30.GL_DEPTH_TEST)
         GLES20.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
 //        initTransformMatrix()
@@ -210,6 +212,7 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
         val uMaxtrixLocation = GLES30.glGetUniformLocation(mProgram, "vMatrix")
         // 将前面计算得到的mMVPMatrix(frustumM setLookAtM 通过multiplyMM 相乘得到的矩阵) 传入vMatrix中，与顶点矩阵进行相乘
         GLES30.glUniformMatrix4fv(uMaxtrixLocation, 1, false, mMVPMatrix, 0)
+
         val aPositionLocation = GLES30.glGetAttribLocation(mProgram, "vPosition")
         GLES30.glEnableVertexAttribArray(aPositionLocation)
         //x y z 所以数据size 是3
@@ -223,13 +226,21 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
         // 实例化相关
 //        instanceMatrixHandle = GLES30.glGetAttribLocation(mProgram, "aInstanceMatrix")
 //        Log.e("dj==", "instanceMatrixHandle=$instanceMatrixHandle posHandle=$aPositionLocation textCoordHandle=$aTextureLocation")
+
+        if(isFirst){
+//            Log.e("dj==", "onDrawFrame: viewLoc=$vMaxtrixLocation proLoc=$pMaxtrixLocation mvpLoc=$uMaxtrixLocation")
+            Log.e("dj==", "instanceMatrixHandle=$instanceMatrixHandle posHandle=$aPositionLocation textCoordHandle=$aTextureLocation")
+        }
+
         GLES30.glEnableVertexAttribArray(instanceMatrixHandle)
         GLES30.glEnableVertexAttribArray(instanceMatrixHandle + 1)
         GLES30.glEnableVertexAttribArray(instanceMatrixHandle + 2)
         GLES30.glEnableVertexAttribArray(instanceMatrixHandle + 3)
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
-
+        // !! 重复使用的buffer，一定要重新定位到0
+//        mInstanceModelMtxBuffer!!.position(0)
         for (i in 0..(instanceCount-1)){
+            mInstanceModelMtxBuffer!!.position(0)
             GLES30.glVertexAttribPointer(instanceMatrixHandle, 4, GLES20.GL_FLOAT,
                     false, 16 * 4, mInstanceModelMtxBuffer)
             mInstanceModelMtxBuffer!!.position(4)
@@ -271,10 +282,11 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
         GLES30.glDisableVertexAttribArray(instanceMatrixHandle + 1)
         GLES30.glDisableVertexAttribArray(instanceMatrixHandle + 2)
         GLES30.glDisableVertexAttribArray(instanceMatrixHandle + 3)
+//        GLES30.glUseProgram(0)
+        isFirst = false
     }
 
     private fun initTransformMatrix(){
-//        Log.e("dj==", "initTransformMatrix: Near=$mNear Far=$mFar")
         // 设置模型矩阵
         Matrix.setIdentityM(mProjectMatrix,0)
         //设置透视投影
@@ -289,20 +301,16 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
     }
 
     private fun createMatrices(): Array<FloatArray> {
-//        val modelMatrices = Array(amount) { FloatArray(16) }
-
         var modelMatrices = Array(instanceCount) { FloatArray(16) }
         for (index in modelMatrices.indices){
-            Log.e("dj==", "createMatrices: $index")
             var modelMatrix = FloatArray(16)
             Matrix.setIdentityM(modelMatrix,0)
             if(index == 0){
-                Log.e("dj==", "createMatrices: rotate index=$index")
-//                Matrix.translateM(modelMatrix,0,0.2f,0.2f,0.0f)
-                Matrix.translateM(modelMatrix,0,0.2f,0.0f,0.0f)
-                Matrix.rotateM(modelMatrix,0,90.0f,0.0f,1.0f,0.0f)
+                Matrix.translateM(modelMatrix,0,1f,1f,0.0f)
+                Matrix.rotateM(modelMatrix,0,45.0f,0.0f,1.0f,0.0f)
             }else{
-                Matrix.translateM(modelMatrix,0,-0.2f,-0.2f,0.0f)
+                Matrix.translateM(modelMatrix,0,-1f,-1f,0.0f)
+                Matrix.rotateM(modelMatrix,0,-45.0f,0.0f,1.0f,0.0f)
             }
             modelMatrices[index] = modelMatrix
         }
