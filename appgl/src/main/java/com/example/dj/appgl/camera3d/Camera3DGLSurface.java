@@ -26,8 +26,9 @@ public class Camera3DGLSurface extends GLSurfaceView implements SurfaceTexture.O
         render = new Camera3DRender(context,this);
         setRenderer(render);
         setRenderMode(RENDERMODE_WHEN_DIRTY);
+        //1-- 叠加单个立方体
 //        render.setObjectRender(new CubicRender());
-        // 实例化
+        //2-- 实例化多个立方体
         render.setObjectRender(new CubicIntancingRender());
 
     }
