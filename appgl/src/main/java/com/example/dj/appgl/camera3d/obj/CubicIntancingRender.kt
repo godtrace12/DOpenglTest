@@ -13,6 +13,11 @@ import com.example.dj.appgl.util.ShaderUtils
 import com.example.dj.appgl.util.TextureUtils
 import java.nio.FloatBuffer
 
+/***
+ *  立方体实例化(旋转)，叠加camera预览。
+ *
+ * */
+
 class CubicIntancingRender: AbsObjectRender() {
     private val TAG = "CubicIntancingRender"
 
@@ -70,7 +75,7 @@ class CubicIntancingRender: AbsObjectRender() {
     // 使用二维数组的方式,4个
     var mInstanceModelMtxArray:FloatArray? = null
     var mInstanceModelMtxBuffer:FloatBuffer? = null
-    var instanceCount:Int = 2
+    var instanceCount:Int = 27
     //累计旋转过的角度
     private var angle = 0f
 
@@ -151,10 +156,9 @@ class CubicIntancingRender: AbsObjectRender() {
 //        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
         GLES30.glDrawArraysInstanced(GLES30.GL_TRIANGLES, 0, 36,instanceCount)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0)
-//        GLES30.glDrawArraysInstanced(GLES20.GL_TRIANGLES, 0, 6, 100)
 
         textureRenderer!!.end()
-        angle +=2
+        angle +=4
         if(angle >= 360){
             angle = 0F
         }
@@ -192,20 +196,47 @@ class CubicIntancingRender: AbsObjectRender() {
             mInstanceModelMtxBuffer = GLDataUtil.createFloatBuffer(mInstanceModelMtxArray)
         }
 
+        // 测试instanceCount = 2的情形
+//        private fun createMatrices(): Array<FloatArray> {
+//            var modelMatrices = Array(instanceCount) { FloatArray(16) }
+//            for (index in modelMatrices.indices){
+//                var modelMatrix = FloatArray(16)
+//                Matrix.setIdentityM(modelMatrix,0)
+//                if(index == 0){
+//                    Matrix.translateM(modelMatrix,0,0.8f,0.8f,0.0f)
+//                    Matrix.rotateM(modelMatrix,0,angle,0.0f,1.0f,0.0f)
+//                }else{
+//                    Matrix.translateM(modelMatrix,0,0.0f,-0.8f,0.0f)
+//                    Matrix.rotateM(modelMatrix,0,angle,0.0f,1.0f,0.0f)
+//                }
+//                modelMatrices[index] = modelMatrix
+//            }
+//            return modelMatrices
+//        }
+
         private fun createMatrices(): Array<FloatArray> {
             var modelMatrices = Array(instanceCount) { FloatArray(16) }
-            for (index in modelMatrices.indices){
-                var modelMatrix = FloatArray(16)
-                Matrix.setIdentityM(modelMatrix,0)
-                if(index == 0){
-                    Matrix.translateM(modelMatrix,0,0.8f,0.8f,0.0f)
-                    Matrix.rotateM(modelMatrix,0,angle,0.0f,1.0f,0.0f)
-                }else{
-                    Matrix.translateM(modelMatrix,0,0.0f,-0.8f,0.0f)
-                    Matrix.rotateM(modelMatrix,0,angle,0.0f,1.0f,0.0f)
+                var index =0;
+                for (i in -1..1){
+                    for (j in -1..1){
+                        for(k in -1..1){
+                            var modelMatrix = FloatArray(16)
+                            var disUnit = 0.8f
+                            var disX = i * disUnit
+                            var disY = j * disUnit
+                            var disZ = k * disUnit
+                            Matrix.setIdentityM(modelMatrix,0)
+                            Matrix.translateM(modelMatrix,0,disX,disY,disZ)
+                            Matrix.rotateM(modelMatrix,0,angle,0.0f,1.0f,0.0f)
+                            Matrix.scaleM(modelMatrix,0,0.3f,0.3f,0.3f)
+                            if (index >= instanceCount){
+                                break
+                            }
+                            modelMatrices[index] = modelMatrix
+                            index++
+                        }
+                    }
                 }
-                modelMatrices[index] = modelMatrix
-            }
             return modelMatrices
         }
 
