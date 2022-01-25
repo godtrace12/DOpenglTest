@@ -157,7 +157,7 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
     var translationArray = Array(2) { FloatArray(2) }
     var mInstanceModelMtxArray:FloatArray? = null
     var mInstanceModelMtxBuffer:FloatBuffer? = null
-    var instanceMatrixHandle:Int =0
+    var instanceMatrixHandle:Int =2
 
     init {
         vertexBuffer = GLDataUtil.createFloatBuffer(vertexSixTotal)
@@ -223,30 +223,30 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
         GLES30.glEnableVertexAttribArray(aTextureLocation)
 
         // 实例化相关
-        instanceMatrixHandle = GLES30.glGetAttribLocation(mProgram, "aInstanceMatrix")
+//        instanceMatrixHandle = GLES30.glGetAttribLocation(mProgram, "aInstanceMatrix")
         Log.e("dj==", "instanceMatrixHandle=$instanceMatrixHandle posHandle=$aPositionLocation textCoordHandle=$aTextureLocation")
-//        GLES30.glEnableVertexAttribArray(instanceMatrixHandle)
-//        GLES30.glEnableVertexAttribArray(instanceMatrixHandle + 1)
-//        GLES30.glEnableVertexAttribArray(instanceMatrixHandle + 2)
-//        GLES30.glEnableVertexAttribArray(instanceMatrixHandle + 3)
-//        for (i in 0..1){
-//            GLES30.glVertexAttribPointer(instanceMatrixHandle, 4, GLES20.GL_FLOAT,
-//                    false, 16 * 4, mInstanceModelMtxBuffer)
-//            mInstanceModelMtxBuffer!!.position(4)
-//            GLES30.glVertexAttribPointer(instanceMatrixHandle + 1, 4, GLES20.GL_FLOAT,
-//                    false, 16 * 4, mInstanceModelMtxBuffer)
-//            mInstanceModelMtxBuffer!!.position(8)
-//            GLES30.glVertexAttribPointer(instanceMatrixHandle + 2, 4, GLES20.GL_FLOAT,
-//                    false, 16 * 4, mInstanceModelMtxBuffer)
-//            mInstanceModelMtxBuffer!!.position(12)
-//            GLES30.glVertexAttribPointer(instanceMatrixHandle + 3, 4, GLES20.GL_FLOAT,
-//                    false, 16 * 4, mInstanceModelMtxBuffer)
-//
-//            GLES30.glVertexAttribDivisor(instanceMatrixHandle, 1)
-//            GLES30.glVertexAttribDivisor(instanceMatrixHandle + 1, 1)
-//            GLES30.glVertexAttribDivisor(instanceMatrixHandle + 2, 1)
-//            GLES30.glVertexAttribDivisor(instanceMatrixHandle + 3, 1)
-//        }
+        GLES30.glEnableVertexAttribArray(instanceMatrixHandle)
+        GLES30.glEnableVertexAttribArray(instanceMatrixHandle + 1)
+        GLES30.glEnableVertexAttribArray(instanceMatrixHandle + 2)
+        GLES30.glEnableVertexAttribArray(instanceMatrixHandle + 3)
+        for (i in 0..1){
+            GLES30.glVertexAttribPointer(instanceMatrixHandle, 4, GLES20.GL_FLOAT,
+                    false, 16 * 4, mInstanceModelMtxBuffer)
+            mInstanceModelMtxBuffer!!.position(4)
+            GLES30.glVertexAttribPointer(instanceMatrixHandle + 1, 4, GLES20.GL_FLOAT,
+                    false, 16 * 4, mInstanceModelMtxBuffer)
+            mInstanceModelMtxBuffer!!.position(8)
+            GLES30.glVertexAttribPointer(instanceMatrixHandle + 2, 4, GLES20.GL_FLOAT,
+                    false, 16 * 4, mInstanceModelMtxBuffer)
+            mInstanceModelMtxBuffer!!.position(12)
+            GLES30.glVertexAttribPointer(instanceMatrixHandle + 3, 4, GLES20.GL_FLOAT,
+                    false, 16 * 4, mInstanceModelMtxBuffer)
+
+            GLES30.glVertexAttribDivisor(instanceMatrixHandle, 1)
+            GLES30.glVertexAttribDivisor(instanceMatrixHandle + 1, 1)
+            GLES30.glVertexAttribDivisor(instanceMatrixHandle + 2, 1)
+            GLES30.glVertexAttribDivisor(instanceMatrixHandle + 3, 1)
+        }
 
 
         //启用纹理
@@ -257,15 +257,18 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
             GLES30.glDrawArrays(GLES30.GL_TRIANGLES, i * 6, 6)
         }
 
+//        GLES30.glDrawArraysInstanced(GLES30.GL_TRIANGLES, 0, 36,2)
+
+
         //禁止顶点数组的句柄
         GLES30.glDisableVertexAttribArray(aPositionLocation)
         GLES30.glDisableVertexAttribArray(aTextureLocation)
 
         // 禁止实例化具柄
-//        GLES30.glDisableVertexAttribArray(instanceMatrixHandle)
-//        GLES30.glDisableVertexAttribArray(instanceMatrixHandle + 1)
-//        GLES30.glDisableVertexAttribArray(instanceMatrixHandle + 2)
-//        GLES30.glDisableVertexAttribArray(instanceMatrixHandle + 3)
+        GLES30.glDisableVertexAttribArray(instanceMatrixHandle)
+        GLES30.glDisableVertexAttribArray(instanceMatrixHandle + 1)
+        GLES30.glDisableVertexAttribArray(instanceMatrixHandle + 2)
+        GLES30.glDisableVertexAttribArray(instanceMatrixHandle + 3)
     }
 
     private fun initTransformMatrix(){
