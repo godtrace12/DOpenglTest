@@ -20,6 +20,7 @@ import com.example.dj.appgl.camera.quardraw.CameraDrawActivity;
 import com.example.dj.appgl.camera3d.Camera3DActivity;
 import com.example.dj.appgl.fbo.TriangleFboActivity;
 import com.example.dj.appgl.fbo.RectFboTestActivity;
+import com.example.dj.appgl.geometryshader.GeometryShaderActivity;
 import com.example.dj.appgl.instance.InstancingSampleActivity;
 import com.example.dj.appgl.light.FengLightActivity;
 import com.example.dj.appgl.light.TextureLightActivity;
@@ -66,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnMRTRender;
     private Button btnOpenCVCamera;
     private Button btnInstancing;
+    private Button btnGeometry;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,6 +165,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnOpenCVCamera.setOnClickListener(this);
         btnInstancing = findViewById(R.id.btnInstancing);
         btnInstancing.setOnClickListener(this);
+        btnGeometry = findViewById(R.id.btnGeometry);
+        btnGeometry.setOnClickListener(this);
     }
 
     @Override
@@ -239,6 +243,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivity(intent);
         }else if(viewId == R.id.btnInstancing){
             Intent  intent = new Intent(MainActivity.this, InstancingSampleActivity.class);
+            startActivity(intent);
+        }else if(viewId == R.id.btnGeometry){
+            Intent  intent = new Intent(MainActivity.this, GeometryShaderActivity.class);
             startActivity(intent);
         }
     }
