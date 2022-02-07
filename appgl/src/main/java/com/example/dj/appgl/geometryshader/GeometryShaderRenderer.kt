@@ -100,13 +100,13 @@ class GeometryShaderRenderer:GLSurfaceView.Renderer {
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         GLES30.glClearColor(0.5f, 0.5f, 0.5f, 1.0f)
         //编译顶点着色程序
-        val vertexShaderStr = ResReadUtils.readResource(R.raw.vertex_geometry_line_shader)
+        val vertexShaderStr = ResReadUtils.readResource(R.raw.vertex_geometry_billboard_shader)
         val vertexShaderId = ShaderUtils.compileVertexShader(vertexShaderStr)
         //编译片段着色程序
-        val fragmentShaderStr = ResReadUtils.readResource(R.raw.fragment_geometry_line_shader)
+        val fragmentShaderStr = ResReadUtils.readResource(R.raw.fragment_geometry_billboard_shader)
         val fragmentShaderId = ShaderUtils.compileFragmentShader(fragmentShaderStr)
         //编译几何着色程序
-        val geometryShaderStr = ResReadUtils.readResource(R.raw.geometry_line_geometry_shader)
+        val geometryShaderStr = ResReadUtils.readResource(R.raw.geometry_line_billboard_shader)
         val geometryShaderId = ShaderUtils.compileGeometryShader(geometryShaderStr)
         //连接程序
         mProgram = ShaderUtils.linkProgram(vertexShaderId,geometryShaderId, fragmentShaderId)
