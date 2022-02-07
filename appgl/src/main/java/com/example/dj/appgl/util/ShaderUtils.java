@@ -1,6 +1,7 @@
 package com.example.dj.appgl.util;
 
 import android.opengl.GLES30;
+import android.opengl.GLES32;
 
 /**
  * @anchor: andy
@@ -29,6 +30,16 @@ public class ShaderUtils {
      */
     public static int compileFragmentShader(String shaderCode) {
         return compileShader(GLES30.GL_FRAGMENT_SHADER, shaderCode);
+    }
+
+    /**
+     * 编译几何着色器,需要OpenGL ES3.2以上版本
+     *
+     * @param shaderCode
+     * @return
+     */
+    public static int compileGeometryShader(String shaderCode) {
+        return compileShader(GLES32.GL_GEOMETRY_SHADER, shaderCode);
     }
 
     /**
@@ -74,6 +85,41 @@ public class ShaderUtils {
         if (programId != 0) {
             //将顶点着色器加入到程序
             GLES30.glAttachShader(programId, vertexShaderId);
+            //将片元着色器加入到程序中
+            GLES30.glAttachShader(programId, fragmentShaderId);
+            //链接着色器程序
+            GLES30.glLinkProgram(programId);
+            final int[] linkStatus = new int[1];
+
+            GLES30.glGetProgramiv(programId, GLES30.GL_LINK_STATUS, linkStatus, 0);
+            if (linkStatus[0] == 0) {
+                String logInfo = GLES30.glGetProgramInfoLog(programId);
+                System.err.println(logInfo);
+                GLES30.glDeleteProgram(programId);
+                return 0;
+            }
+            return programId;
+        } else {
+            //创建失败
+            return 0;
+        }
+    }
+
+    /**
+     * 链接程序
+     *
+     * @param vertexShaderId   顶点着色器
+     * @param fragmentShaderId 片段着色器
+     * @param geometryShaderId 片段着色器
+     * @return
+     */
+    public static int linkProgram(int vertexShaderId, int fragmentShaderId,int geometryShaderId) {
+        final int programId = GLES30.glCreateProgram();
+        if (programId != 0) {
+            //将顶点着色器加入到程序
+            GLES30.glAttachShader(programId, vertexShaderId);
+            //将几何着色器加入到程序中
+            GLES30.glAttachShader(programId, geometryShaderId);
             //将片元着色器加入到程序中
             GLES30.glAttachShader(programId, fragmentShaderId);
             //链接着色器程序
