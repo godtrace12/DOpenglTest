@@ -1,6 +1,5 @@
 package com.example.dj.appgl.geometryshader
 
-import android.opengl.GLES20
 import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
@@ -44,29 +43,18 @@ class GeometryShaderRenderer:GLSurfaceView.Renderer {
             -0.5f, -0.5f, 0.0f
     )
 
-    //纹理坐标2
-    // 三角形3个定点对应在纹理坐标系中的坐标
-//    private val textureVertex = floatArrayOf( // 矩形全部点位
-//            //            1.0f,0.0f,
-//            //            0.0f, 1.0f,
-//            //            0.0f,0.0f,
-//            1.0f, 0.0f,
-//            0.0f, 1.0f,
-//            1.0f, 1.0f)
+    private var camYAxis = 0
+    private var camZAxis = 6
 
-    // 颜色数据
-    private val textureVertex = floatArrayOf( // 矩形全部点位
-            //            1.0f,0.0f,
-            //            0.0f, 1.0f,
-            //            0.0f,0.0f,
-            1.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 1.0f,
-            1.0f, 1.0f, 0.0f)
+    private var minYAxis = -3
+    private var maxYAxis = 3
+    private var minZAxis = 3
+    private var maxZAxis = 6
+    private var count =0
 
-    // camera坐标
+    // camera坐标  (0 0 4)  (0 3 4) (3 3 4)
     private val camPos = floatArrayOf( // 矩形全部点位
-            0.0f, 0.0f, 6.0f
+            3.0f, 3.0f, 4.0f
     )
 
     //相机矩阵
@@ -81,12 +69,7 @@ class GeometryShaderRenderer:GLSurfaceView.Renderer {
 
     //纹理id
     private var textureId = 0
-
-//    //变换矩阵
-//    private int uMatrixLocation;
-
-    //    //变换矩阵
-    //    private int uMatrixLocation;
+    private var mRatio = 0.5f
 
     init {
         val byteBuffer = ByteBuffer.allocateDirect(triangleCoords.size * 4)
@@ -94,12 +77,6 @@ class GeometryShaderRenderer:GLSurfaceView.Renderer {
         vertexBuffer = byteBuffer.asFloatBuffer()
         vertexBuffer!!.put(triangleCoords)
         vertexBuffer!!.position(0)
-        textureBuffer = ByteBuffer.allocateDirect(textureVertex.size * 4)
-                .order(ByteOrder.nativeOrder())
-                .asFloatBuffer()
-        //传入指定的数据
-        textureBuffer!!.put(textureVertex)
-        textureBuffer!!.position(0)
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
@@ -118,15 +95,15 @@ class GeometryShaderRenderer:GLSurfaceView.Renderer {
         //在OpenGLES环境中使用程序
         GLES30.glUseProgram(mProgram)
         //加载纹理
-        textureId = TextureUtils.loadTexture(AppCore.getInstance().context, R.drawable.monster)
+        textureId = TextureUtils.loadTexture(AppCore.getInstance().context, R.drawable.monster_2)
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         GLES30.glViewport(0, 0, width, height)
         val ratio = width.toFloat() / height
-        Log.e(TAG, "onSurfaceChanged: ratio=$ratio")
+        mRatio = ratio
         //设置透视投影
-        Matrix.frustumM(mProjectMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 7f)
+        Matrix.frustumM(mProjectMatrix, 0, -ratio, ratio, -1f, 1f, 2f, 7f)
         //        Matrix.orthoM(mProjectMatrix,0,-ratio,ratio,-1,1,3,7);
         //设置相机位置
         Matrix.setLookAtM(mViewMatrix, 0, camPos[0], camPos[1], camPos[2],  //摄像机坐标
@@ -136,7 +113,10 @@ class GeometryShaderRenderer:GLSurfaceView.Renderer {
     }
 
     override fun onDrawFrame(gl: GL10?) {
-
+        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
+        GLES30.glClearColor(0f,0f,0f,1.0f)
+        Log.e(TAG, "onDrawFrame: ")
+//        calculateDynamicCamPos()
         //左乘矩阵
         val uMaxtrixLocation = GLES30.glGetUniformLocation(mProgram, "vMatrix")
         // 将前面计算得到的mMVPMatrix(frustumM setLookAtM 通过multiplyMM 相乘得到的矩阵) 传入vMatrix中，与顶点矩阵进行相乘
@@ -145,14 +125,8 @@ class GeometryShaderRenderer:GLSurfaceView.Renderer {
         GLES30.glEnableVertexAttribArray(aPositionLocation)
         //x y z 所以数据size 是3
         GLES30.glVertexAttribPointer(aPositionLocation, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer)
-        val aTextureLocation = GLES20.glGetAttribLocation(mProgram, "aTextureCoord")
-        //纹理坐标数据 x、y，所以数据size是 2
-        GLES30.glVertexAttribPointer(aTextureLocation, 3, GLES30.GL_FLOAT, false, 0, textureBuffer)
-        //启用顶点颜色句柄
-        GLES30.glEnableVertexAttribArray(aTextureLocation)
-
-
         val camPosLocation = GLES30.glGetUniformLocation(mProgram, "gCameraPos")
+
         GLES30.glUniform3f(camPosLocation,camPos[0], camPos[1], camPos[2])
 
 
@@ -167,6 +141,46 @@ class GeometryShaderRenderer:GLSurfaceView.Renderer {
 
         //禁止顶点数组的句柄
         GLES30.glDisableVertexAttribArray(aPositionLocation)
-        GLES30.glDisableVertexAttribArray(aTextureLocation)
+    }
+
+    fun calculateDynamicCamPos(){
+        //动态修改cam摄像机的位置
+        count++
+        if(count %30 ==0){
+
+//            if(camYAxis > maxYAxis){
+//                camYAxis = minYAxis
+//            }else if(camYAxis < minYAxis){
+//                camYAxis = maxYAxis
+//            }else{
+//                camYAxis +=1
+//            }
+
+            if(camZAxis > maxZAxis){
+                camZAxis = minZAxis
+            }else if(camZAxis < minZAxis){
+                camZAxis = maxZAxis
+            }else{
+                camZAxis +=1
+//                if(camZAxis > maxZAxis){
+//                    camZAxis = maxZAxis
+//                }
+            }
+            Log.e(TAG, "onDrawFrame: camZAxis=$camZAxis")
+        }
+
+        camPos[1] = camYAxis+0.0f
+        camPos[2] = camZAxis+0.0f
+
+
+        Matrix.frustumM(mProjectMatrix, 0, -mRatio, mRatio, -1f, 1f, 2f, 7f)
+        //        Matrix.orthoM(mProjectMatrix,0,-ratio,ratio,-1,1,3,7);
+        //设置相机位置
+        Matrix.setLookAtM(mViewMatrix, 0, camPos[0], camPos[1], camPos[2],  //摄像机坐标
+                0f, 0f, 0f,  //目标物的中心坐标
+                0f, 1.0f, 0.0f) //相机方向
+        Matrix.setIdentityM(mMVPMatrix,0)
+        Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0)
+
     }
 }
