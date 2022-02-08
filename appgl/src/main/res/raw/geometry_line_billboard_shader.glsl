@@ -15,22 +15,22 @@ void main() {
 
     //billboard
     mat4 gVP = vMatrix;
-    Pos -= (right * 0.5);
-    gl_Position = gVP * vec4(Pos, 1.0); //gVP未定义
-    TexCoord = vec2(0.0, 0.0);
-    EmitVertex();
-    Pos.y += 1.0;
+    Pos -= (right * 0.5);//左下角
     gl_Position = gVP * vec4(Pos, 1.0);
     TexCoord = vec2(0.0, 1.0);
     EmitVertex();
-    Pos.y -= 1.0;
-    Pos += right;
+    Pos.y += 1.0;//左上角
     gl_Position = gVP * vec4(Pos, 1.0);
-    TexCoord = vec2(1.0, 0.0);
+    TexCoord = vec2(0.0, 0.0);
     EmitVertex();
-    Pos.y += 1.0;
+    Pos.y -= 1.0;
+    Pos += right;//右下角
     gl_Position = gVP * vec4(Pos, 1.0);
     TexCoord = vec2(1.0, 1.0);
+    EmitVertex();
+    Pos.y += 1.0;//右上角
+    gl_Position = gVP * vec4(Pos, 1.0);
+    TexCoord = vec2(1.0, 0.0);
     EmitVertex();
     EndPrimitive();
 }
