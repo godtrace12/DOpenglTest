@@ -1,25 +1,37 @@
 #version 320 es
 layout (points) in;
-layout (line_strip, max_vertices = 2) out;
+layout (triangle_strip, max_vertices = 4) out;
+uniform mat4 vMatrix; //vp矩阵相乘结果
+uniform vec3 gCameraPos;
 
-
-in VS_OUT {
-    vec3 color;
-} gs_in[];
-
-out vec3 fColor;
-void build_line(vec4 position);
+out vec2 TexCoord;
 
 void main() {
-    build_line(gl_in[0].gl_Position);
-}
+    // 计算x乘结果矢量
+    vec3 Pos = gl_in[0].gl_Position.xyz;
+    vec3 toCamera = normalize(gCameraPos - Pos);
+    vec3 up = vec3(0.0, 1.0, 0.0);
+    vec3 right = cross(toCamera, up);
 
-void build_line(vec4 position){
-    fColor = gs_in[0].color;
-    gl_Position = gl_in[0].gl_Position + vec4(-0.4, 0.0, 0.0, 0.0); // 左顶点
+    //billboard
+    mat4 gVP = vMatrix;
+    Pos -= (right * 0.5);
+    gl_Position = gVP * vec4(Pos, 1.0); //gVP未定义
+    TexCoord = vec2(0.0, 0.0);
     EmitVertex();
-
-    gl_Position = gl_in[0].gl_Position + vec4( 0.4, 0.0, 0.0, 0.0); // 右顶点
+    Pos.y += 1.0;
+    gl_Position = gVP * vec4(Pos, 1.0);
+    TexCoord = vec2(0.0, 1.0);
+    EmitVertex();
+    Pos.y -= 1.0;
+    Pos += right;
+    gl_Position = gVP * vec4(Pos, 1.0);
+    TexCoord = vec2(1.0, 0.0);
+    EmitVertex();
+    Pos.y += 1.0;
+    gl_Position = gVP * vec4(Pos, 1.0);
+    TexCoord = vec2(1.0, 1.0);
     EmitVertex();
     EndPrimitive();
 }
+

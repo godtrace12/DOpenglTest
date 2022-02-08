@@ -1,10 +1,10 @@
 #version 320 es
 precision mediump float;
 
+uniform sampler2D gColorMap;
+in vec2 TexCoord;
 out vec4 FragColor;
 
-in vec3 fColor;
-
 void main(){
-    FragColor = vec4(fColor, 1.0);
+    FragColor = texture(gColorMap, TexCoord);
 }

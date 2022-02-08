@@ -64,6 +64,11 @@ class GeometryShaderRenderer:GLSurfaceView.Renderer {
             0.0f, 0.0f, 1.0f,
             1.0f, 1.0f, 0.0f)
 
+    // camera坐标
+    private val camPos = floatArrayOf( // 矩形全部点位
+            0.0f, 0.0f, 6.0f
+    )
+
     //相机矩阵
     private val mViewMatrix = FloatArray(16)
 
@@ -113,7 +118,7 @@ class GeometryShaderRenderer:GLSurfaceView.Renderer {
         //在OpenGLES环境中使用程序
         GLES30.glUseProgram(mProgram)
         //加载纹理
-        textureId = TextureUtils.loadTexture(AppCore.getInstance().context, R.drawable.world_map)
+        textureId = TextureUtils.loadTexture(AppCore.getInstance().context, R.drawable.monster)
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
@@ -124,7 +129,7 @@ class GeometryShaderRenderer:GLSurfaceView.Renderer {
         Matrix.frustumM(mProjectMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 7f)
         //        Matrix.orthoM(mProjectMatrix,0,-ratio,ratio,-1,1,3,7);
         //设置相机位置
-        Matrix.setLookAtM(mViewMatrix, 0, 0f, 0f, 6.0f,  //摄像机坐标
+        Matrix.setLookAtM(mViewMatrix, 0, camPos[0], camPos[1], camPos[2],  //摄像机坐标
                 0f, 0f, 0f,  //目标物的中心坐标
                 0f, 1.0f, 0.0f) //相机方向
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0)
@@ -145,6 +150,12 @@ class GeometryShaderRenderer:GLSurfaceView.Renderer {
         GLES30.glVertexAttribPointer(aTextureLocation, 3, GLES30.GL_FLOAT, false, 0, textureBuffer)
         //启用顶点颜色句柄
         GLES30.glEnableVertexAttribArray(aTextureLocation)
+
+
+        val camPosLocation = GLES30.glGetUniformLocation(mProgram, "gCameraPos")
+        GLES30.glUniform3f(camPosLocation,camPos[0], camPos[1], camPos[2])
+
+
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         //绑定纹理
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureId)
