@@ -24,16 +24,12 @@ import javax.microedition.khronos.opengles.GL10
 class GeometryShaderRenderer:GLSurfaceView.Renderer {
     private val TAG = "GeometryShaderRenderer"
     private var vertexBuffer: FloatBuffer? = null
-    private var textureBuffer: FloatBuffer? = null
 
     //渲染程序
     private var mProgram = 0
 
     //3个定点，等腰直角
     var triangleCoords = floatArrayOf( // 矩形全部点位
-            //            0.5f,0.5f,0.0f,
-            //            -0.5f, -0.5f, 0.0f,
-            //            -0.5f,0.5f,0.0f,
             -0.5f, 0.5f, 0.0f,  // top  0.5202312
             // 左上
             0.5f, 0.5f, 0.0f,  // bottom left
@@ -41,20 +37,13 @@ class GeometryShaderRenderer:GLSurfaceView.Renderer {
             0.5f, -0.5f, 0.0f, // bottom right
             // 右下
             -0.5f, -0.5f, 0.0f
+//            0.0f,0.0f,0.0f
     )
 
-    private var camYAxis = 0
-    private var camZAxis = 6
-
-    private var minYAxis = -3
-    private var maxYAxis = 3
-    private var minZAxis = 3
-    private var maxZAxis = 6
-    private var count =0
 
     // camera坐标  (0 0 4)  (0 3 4) (3 3 4)
     private val camPos = floatArrayOf( // 矩形全部点位
-            3.0f, 3.0f, 4.0f
+            0.0f, 0.0f, 4.0f
     )
 
     //相机矩阵
@@ -115,8 +104,6 @@ class GeometryShaderRenderer:GLSurfaceView.Renderer {
     override fun onDrawFrame(gl: GL10?) {
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
         GLES30.glClearColor(0f,0f,0f,1.0f)
-        Log.e(TAG, "onDrawFrame: ")
-//        calculateDynamicCamPos()
         //左乘矩阵
         val uMaxtrixLocation = GLES30.glGetUniformLocation(mProgram, "vMatrix")
         // 将前面计算得到的mMVPMatrix(frustumM setLookAtM 通过multiplyMM 相乘得到的矩阵) 传入vMatrix中，与顶点矩阵进行相乘
@@ -143,44 +130,4 @@ class GeometryShaderRenderer:GLSurfaceView.Renderer {
         GLES30.glDisableVertexAttribArray(aPositionLocation)
     }
 
-    fun calculateDynamicCamPos(){
-        //动态修改cam摄像机的位置
-        count++
-        if(count %30 ==0){
-
-//            if(camYAxis > maxYAxis){
-//                camYAxis = minYAxis
-//            }else if(camYAxis < minYAxis){
-//                camYAxis = maxYAxis
-//            }else{
-//                camYAxis +=1
-//            }
-
-            if(camZAxis > maxZAxis){
-                camZAxis = minZAxis
-            }else if(camZAxis < minZAxis){
-                camZAxis = maxZAxis
-            }else{
-                camZAxis +=1
-//                if(camZAxis > maxZAxis){
-//                    camZAxis = maxZAxis
-//                }
-            }
-            Log.e(TAG, "onDrawFrame: camZAxis=$camZAxis")
-        }
-
-        camPos[1] = camYAxis+0.0f
-        camPos[2] = camZAxis+0.0f
-
-
-        Matrix.frustumM(mProjectMatrix, 0, -mRatio, mRatio, -1f, 1f, 2f, 7f)
-        //        Matrix.orthoM(mProjectMatrix,0,-ratio,ratio,-1,1,3,7);
-        //设置相机位置
-        Matrix.setLookAtM(mViewMatrix, 0, camPos[0], camPos[1], camPos[2],  //摄像机坐标
-                0f, 0f, 0f,  //目标物的中心坐标
-                0f, 1.0f, 0.0f) //相机方向
-        Matrix.setIdentityM(mMVPMatrix,0)
-        Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mViewMatrix, 0)
-
-    }
 }
