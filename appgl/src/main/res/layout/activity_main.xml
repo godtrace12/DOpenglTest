@@ -163,6 +163,12 @@
                 android:layout_height="wrap_content"
                 android:text="几何着色器"/>
 
+            <Button
+                android:id="@+id/btnTransformFeedback"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TransformFeedback"/>
+
         </LinearLayout>
 
 

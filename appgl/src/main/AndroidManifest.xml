@@ -49,6 +49,7 @@
         <activity android:name=".mrt.MrtRenderActivity" />
         <activity android:name=".instance.InstancingSampleActivity"/>
         <activity android:name=".geometryshader.GeometryShaderActivity"/>
+        <activity android:name=".particles.transformfeedback.TransformfeedbackActivity"/>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
