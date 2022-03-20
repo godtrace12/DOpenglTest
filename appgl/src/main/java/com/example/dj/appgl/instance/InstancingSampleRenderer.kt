@@ -22,7 +22,7 @@ import javax.microedition.khronos.opengles.GL10
  * @version 1.0
  * @des：只保留VP矩阵，model矩阵由shader进行相乘
  */
-class InstancingSampleRenderer:GLSurfaceView.Renderer {
+class InstancingSampleRenderer : GLSurfaceView.Renderer {
     private var textureBuffer: FloatBuffer? = null
     private var vertexBuffer: FloatBuffer? = null
 
@@ -117,45 +117,57 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
 
     //相机矩阵
     private val mViewMatrix = FloatArray(16)
+
     //投影矩阵
     private val mProjectMatrix = FloatArray(16)
+
     //最终变换矩阵
     private val mMVPMatrix = FloatArray(16)
+
     //渲染程序
     private var mProgram = 0
+
     //累计旋转过的角度
     private var mAngle = 0.0f
 
-    private var mRatio:Float = 1.0f
+    private var mRatio: Float = 1.0f
+
     // 相机位置
     @Volatile
-    private var eyeX:Float = 0.0f
+    private var eyeX: Float = 0.0f
+
     @Volatile
-    private var eyeY:Float = 0.0f
+    private var eyeY: Float = 0.0f
+
     @Volatile
-    private var eyeZ:Float = 8.0f
+    private var eyeZ: Float = 8.0f
+
     // 相机cam Up参数
     @Volatile
-    private var mUpX:Float = 0.0f
+    private var mUpX: Float = 0.0f
+
     @Volatile
-    private var mUpY:Float = 1.0f
+    private var mUpY: Float = 1.0f
+
     @Volatile
-    private var mUpZ:Float = 0.0f
+    private var mUpZ: Float = 0.0f
+
     @Volatile
-    private var mNear:Float = 1.0f
+    private var mNear: Float = 1.0f
+
     @Volatile
-    private var mFar:Float = 10.0f
+    private var mFar: Float = 10.0f
 
     //纹理id列表
     private lateinit var textureIds: IntArray
 
     // 使用二维数组的方式,4个
     var translationArray = Array(2) { FloatArray(2) }
-    var mInstanceModelMtxArray:FloatArray? = null
-    var mInstanceModelMtxBuffer:FloatBuffer? = null
-    var instanceMatrixHandle:Int =2
-    var instanceCount:Int = 2
-    var isFirst:Boolean = true
+    var mInstanceModelMtxArray: FloatArray? = null
+    var mInstanceModelMtxBuffer: FloatBuffer? = null
+    var instanceMatrixHandle: Int = 2
+    var instanceCount: Int = 2
+    var isFirst: Boolean = true
 
     init {
         vertexBuffer = GLDataUtil.createFloatBuffer(vertexSixTotal)
@@ -165,10 +177,10 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
         mUpZ = 0.0f
         // 生成实例数组
         var modelMatrices = createMatrices()
-        mInstanceModelMtxArray = FloatArray(instanceCount*16)//存储了2个矩阵数据，每个矩阵16个点
-        for (index in 0..(instanceCount-1)){
+        mInstanceModelMtxArray = FloatArray(instanceCount * 16)//存储了2个矩阵数据，每个矩阵16个点
+        for (index in 0..(instanceCount - 1)) {
             Log.e("dj==", "copy index=$index ")
-            System.arraycopy(modelMatrices[index],0,mInstanceModelMtxArray,index*16,16)
+            System.arraycopy(modelMatrices[index], 0, mInstanceModelMtxArray, index * 16, 16)
         }
         mInstanceModelMtxBuffer = GLDataUtil.createFloatBuffer(mInstanceModelMtxArray)
 
@@ -226,7 +238,7 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
 //        instanceMatrixHandle = GLES30.glGetAttribLocation(mProgram, "aInstanceMatrix")
 //        Log.e("dj==", "instanceMatrixHandle=$instanceMatrixHandle posHandle=$aPositionLocation textCoordHandle=$aTextureLocation")
 
-        if(isFirst){
+        if (isFirst) {
 //            Log.e("dj==", "onDrawFrame: viewLoc=$vMaxtrixLocation proLoc=$pMaxtrixLocation mvpLoc=$uMaxtrixLocation")
             Log.e("dj==", "instanceMatrixHandle=$instanceMatrixHandle posHandle=$aPositionLocation textCoordHandle=$aTextureLocation")
         }
@@ -238,29 +250,24 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         // !! 重复使用的buffer，一定要重新定位到0
         mInstanceModelMtxBuffer!!.position(0)
-        for (i in 0..(instanceCount-1)){ //是否循环画出效果一样
-//            Log.e("dj==", "onDrawFrame instance: i=$i")
-            mInstanceModelMtxBuffer!!.position(0)
-            GLES30.glVertexAttribPointer(instanceMatrixHandle, 4, GLES20.GL_FLOAT,
-                    false, 16 * 4, mInstanceModelMtxBuffer)
-            mInstanceModelMtxBuffer!!.position(4)
-            GLES30.glVertexAttribPointer(instanceMatrixHandle + 1, 4, GLES20.GL_FLOAT,
-                    false, 16 * 4, mInstanceModelMtxBuffer)
-            mInstanceModelMtxBuffer!!.position(8)
-            GLES30.glVertexAttribPointer(instanceMatrixHandle + 2, 4, GLES20.GL_FLOAT,
-                    false, 16 * 4, mInstanceModelMtxBuffer)
-            mInstanceModelMtxBuffer!!.position(12)
-            GLES30.glVertexAttribPointer(instanceMatrixHandle + 3, 4, GLES20.GL_FLOAT,
-                    false, 16 * 4, mInstanceModelMtxBuffer)
+        GLES30.glVertexAttribPointer(instanceMatrixHandle, 4, GLES20.GL_FLOAT,
+                false, 16 * 4, mInstanceModelMtxBuffer)
+        mInstanceModelMtxBuffer!!.position(4)
+        GLES30.glVertexAttribPointer(instanceMatrixHandle + 1, 4, GLES20.GL_FLOAT,
+                false, 16 * 4, mInstanceModelMtxBuffer)
+        mInstanceModelMtxBuffer!!.position(8)
+        GLES30.glVertexAttribPointer(instanceMatrixHandle + 2, 4, GLES20.GL_FLOAT,
+                false, 16 * 4, mInstanceModelMtxBuffer)
+        mInstanceModelMtxBuffer!!.position(12)
+        GLES30.glVertexAttribPointer(instanceMatrixHandle + 3, 4, GLES20.GL_FLOAT,
+                false, 16 * 4, mInstanceModelMtxBuffer)
 
-            GLES30.glVertexAttribDivisor(instanceMatrixHandle, 1)
-            GLES30.glVertexAttribDivisor(instanceMatrixHandle + 1, 1)
-            GLES30.glVertexAttribDivisor(instanceMatrixHandle + 2, 1)
-            GLES30.glVertexAttribDivisor(instanceMatrixHandle + 3, 1)
-            GLES30.glDrawArraysInstanced(GLES30.GL_TRIANGLES, 0, 36,instanceCount)
-
-        }
-
+        GLES30.glVertexAttribDivisor(instanceMatrixHandle, 1)
+        GLES30.glVertexAttribDivisor(instanceMatrixHandle + 1, 1)
+        GLES30.glVertexAttribDivisor(instanceMatrixHandle + 2, 1)
+        GLES30.glVertexAttribDivisor(instanceMatrixHandle + 3, 1)
+        GLES30.glDrawArraysInstanced(GLES30.GL_TRIANGLES, 0, 36, instanceCount)
+        
 
         //禁止顶点数组的句柄
         GLES30.glDisableVertexAttribArray(aPositionLocation)
@@ -275,11 +282,11 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
         isFirst = false
     }
 
-    private fun initTransformMatrix(){
+    private fun initTransformMatrix() {
         // 设置模型矩阵
-        Matrix.setIdentityM(mProjectMatrix,0)
+        Matrix.setIdentityM(mProjectMatrix, 0)
         //设置透视投影
-        Matrix.frustumM(mProjectMatrix, 0, -mRatio, mRatio,-1.0f, 1.0f,  mNear, mFar) // 比例-1
+        Matrix.frustumM(mProjectMatrix, 0, -mRatio, mRatio, -1.0f, 1.0f, mNear, mFar) // 比例-1
         //设置相机位置
         Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ,  //摄像机坐标
                 0f, 0f, 0f,  //目标物的中心坐标
@@ -291,15 +298,15 @@ class InstancingSampleRenderer:GLSurfaceView.Renderer {
 
     private fun createMatrices(): Array<FloatArray> {
         var modelMatrices = Array(instanceCount) { FloatArray(16) }
-        for (index in modelMatrices.indices){
+        for (index in modelMatrices.indices) {
             var modelMatrix = FloatArray(16)
-            Matrix.setIdentityM(modelMatrix,0)
-            if(index == 0){
-                Matrix.translateM(modelMatrix,0,1f,1f,0.0f)
-                Matrix.rotateM(modelMatrix,0,45.0f,0.0f,1.0f,0.0f)
-            }else{
-                Matrix.translateM(modelMatrix,0,-1f,-1f,0.0f)
-                Matrix.rotateM(modelMatrix,0,-45.0f,0.0f,1.0f,0.0f)
+            Matrix.setIdentityM(modelMatrix, 0)
+            if (index == 0) {
+                Matrix.translateM(modelMatrix, 0, 1f, 1f, 0.0f)
+                Matrix.rotateM(modelMatrix, 0, 45.0f, 0.0f, 1.0f, 0.0f)
+            } else {
+                Matrix.translateM(modelMatrix, 0, -1f, -1f, 0.0f)
+                Matrix.rotateM(modelMatrix, 0, -45.0f, 0.0f, 1.0f, 0.0f)
             }
             modelMatrices[index] = modelMatrix
         }
