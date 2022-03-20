@@ -267,7 +267,7 @@ class InstancingSampleRenderer : GLSurfaceView.Renderer {
         GLES30.glVertexAttribDivisor(instanceMatrixHandle + 2, 1)
         GLES30.glVertexAttribDivisor(instanceMatrixHandle + 3, 1)
         GLES30.glDrawArraysInstanced(GLES30.GL_TRIANGLES, 0, 36, instanceCount)
-        
+
 
         //禁止顶点数组的句柄
         GLES30.glDisableVertexAttribArray(aPositionLocation)

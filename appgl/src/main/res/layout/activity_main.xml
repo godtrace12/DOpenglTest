@@ -169,6 +169,12 @@
                 android:layout_height="wrap_content"
                 android:text="TransformFeedback"/>
 
+            <Button
+                android:id="@+id/btnCubicParticles"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="立方体粒子系统"/>
+
         </LinearLayout>
 
 
