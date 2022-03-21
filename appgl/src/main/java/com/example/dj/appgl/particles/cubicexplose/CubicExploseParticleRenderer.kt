@@ -25,42 +25,42 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
 
     var cubicVertexTextCoords = floatArrayOf(
             //position            //texture coord
-            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-            0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-            0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-            0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-            0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-            -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
-            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-            -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-            -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-            -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-            0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-            0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-            0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-            -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
-            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
+            -0.05f, -0.05f, -0.05f, 0.0f, 0.0f,
+            0.05f, -0.05f, -0.05f, 1.0f, 0.0f,
+            0.05f, 0.05f, -0.05f, 1.0f, 1.0f,
+            0.05f, 0.05f, -0.05f, 1.0f, 1.0f,
+            -0.05f, 0.05f, -0.05f, 0.0f, 1.0f,
+            -0.05f, -0.05f, -0.05f, 0.0f, 0.0f,
+            -0.05f, -0.05f, 0.05f, 0.0f, 0.0f,
+            0.05f, -0.05f, 0.05f, 1.0f, 0.0f,
+            0.05f, 0.05f, 0.05f, 1.0f, 1.0f,
+            0.05f, 0.05f, 0.05f, 1.0f, 1.0f,
+            -0.05f, 0.05f, 0.05f, 0.0f, 1.0f,
+            -0.05f, -0.05f, 0.05f, 0.0f, 0.0f,
+            -0.05f, 0.05f, 0.05f, 1.0f, 0.0f,
+            -0.05f, 0.05f, -0.05f, 1.0f, 1.0f,
+            -0.05f, -0.05f, -0.05f, 0.0f, 1.0f,
+            -0.05f, -0.05f, -0.05f, 0.0f, 1.0f,
+            -0.05f, -0.05f, 0.05f, 0.0f, 0.0f,
+            -0.05f, 0.05f, 0.05f, 1.0f, 0.0f,
+            0.05f, 0.05f, 0.05f, 1.0f, 0.0f,
+            0.05f, 0.05f, -0.05f, 1.0f, 1.0f,
+            0.05f, -0.05f, -0.05f, 0.0f, 1.0f,
+            0.05f, -0.05f, -0.05f, 0.0f, 1.0f,
+            0.05f, -0.05f, 0.05f, 0.0f, 0.0f,
+            0.05f, 0.05f, 0.05f, 1.0f, 0.0f,
+            -0.05f, -0.05f, -0.05f, 0.0f, 1.0f,
+            0.05f, -0.05f, -0.05f, 1.0f, 1.0f,
+            0.05f, -0.05f, 0.05f, 1.0f, 0.0f,
+            0.05f, -0.05f, 0.05f, 1.0f, 0.0f,
+            -0.05f, -0.05f, 0.05f, 0.0f, 0.0f,
+            -0.05f, -0.05f, -0.05f, 0.0f, 1.0f,
+            -0.05f, 0.05f, -0.05f, 0.0f, 1.0f,
+            0.05f, 0.05f, -0.05f, 1.0f, 1.0f,
+            0.05f, 0.05f, 0.05f, 1.0f, 0.0f,
+            0.05f, 0.05f, 0.05f, 1.0f, 0.0f,
+            -0.05f, 0.05f, 0.05f, 0.0f, 0.0f,
+            -0.05f, 0.05f, -0.05f, 0.0f, 1.0f
     )
     protected var vertexShaderCode: String? = null
     protected var fragmentShaderCode: String? = null
@@ -99,7 +99,6 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
     init {
         vertexShaderCode = ResReadUtils.readResource(R.raw.fragment_cubic_particle_vertex)
         fragmentShaderCode = ResReadUtils.readResource(R.raw.texture_es30_fragment)
-//        vertexBuffer = GLDataUtil.createFloatBuffer(cubicVertexTextCoords)
 
     }
 
@@ -136,37 +135,11 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, cubeTexture)
         GLES30.glUniform1i(texturePosHandle, 0)
 
-        var posRecOri = 0
-//        mInstanceModelMtxBuffer!!.position(posRecOri)
-//        GLES30.glVertexAttribPointer(instanceMatrixHandle, 4, GLES20.GL_FLOAT,
-//                false, 16 * 4, mInstanceModelMtxBuffer)
-//        mInstanceModelMtxBuffer!!.position(posRecOri + 4)
-//        GLES30.glVertexAttribPointer(instanceMatrixHandle + 1, 4, GLES20.GL_FLOAT,
-//                false, 16 * 4, mInstanceModelMtxBuffer)
-//        mInstanceModelMtxBuffer!!.position(posRecOri + 8)
-//        GLES30.glVertexAttribPointer(instanceMatrixHandle + 2, 4, GLES20.GL_FLOAT,
-//                false, 16 * 4, mInstanceModelMtxBuffer)
-//        mInstanceModelMtxBuffer!!.position(posRecOri + 12)
-//        GLES30.glVertexAttribPointer(instanceMatrixHandle + 3, 4, GLES20.GL_FLOAT,
-//                false, 16 * 4, mInstanceModelMtxBuffer)
-//        // 1、这个函数告诉了OpenGL该什么时候更新顶点属性的内容至新一组数据。它的第一个参数是需要的顶点属性，第二个参数是属性除数(Attribute Divisor)。
-//        // 默认情况下，属性除数是0，告诉OpenGL我们需要在顶点着色器的每次迭代时更新顶点属性。将它设置为1时，我们告诉OpenGL我们希望在渲染一个新实例的时候更新顶点属性。
-//        // 2、mat4的顶点属性，让我们能够存储一个实例化数组的变换矩阵。然而，当我们顶点属性的类型大于vec4时，就要多进行一步处理了。
-//        // 顶点属性最大允许的数据大小等于一个vec4。因为一个mat4本质上是4个vec4
-//        GLES30.glVertexAttribDivisor(instanceMatrixHandle, 1)
-//        GLES30.glVertexAttribDivisor(instanceMatrixHandle + 1, 1)
-//        GLES30.glVertexAttribDivisor(instanceMatrixHandle + 2, 1)
-//        GLES30.glVertexAttribDivisor(instanceMatrixHandle + 3, 1)
-
-
-
         mParticlesPosBuffer!!.position(0)
         GLES30.glVertexAttribPointer(particlePosHandle, 3, GLES20.GL_FLOAT,
                 false, 0, mParticlesPosBuffer)
         GLES30.glVertexAttribDivisor(particlePosHandle, 1)
 
-
-//        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
         GLES30.glDrawArraysInstanced(GLES30.GL_TRIANGLES, 0, 36, instanceCount)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0)
         // 关闭相关handle
