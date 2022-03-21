@@ -94,7 +94,10 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
     // 位置偏移
     private var mParticlesPos: FloatArray = FloatArray(instanceCount*3)
     private var mParticlesPosBuffer: FloatBuffer? = null
+    private var mLastUsedParticle:Int = 0
 
+    // 粒子
+    private var mParticlesContainer = arrayOfNulls<CubicParticle>(instanceCount)
 
     init {
         vertexShaderCode = ResReadUtils.readResource(R.raw.fragment_cubic_particle_vertex)
@@ -112,6 +115,8 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         mWidth = width
         mHeight = height
+        // 粒子初始化
+        generateNewParticle()
     }
 
     override fun onDrawFrame(gl: GL10?) {
@@ -134,6 +139,8 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, cubeTexture)
         GLES30.glUniform1i(texturePosHandle, 0)
+
+        updateParticles()
 
         mParticlesPosBuffer!!.position(0)
         GLES30.glVertexAttribPointer(particlePosHandle, 3, GLES20.GL_FLOAT,
@@ -220,9 +227,9 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
             var posDy:Float = ((Math.random()*2000-1000)/1000).toFloat()
             var posDz:Float = ((Math.random()*2000-1000)/1000).toFloat()
             Log.e("dj===", "i= $i createDeamonPos: "+posDx+" dy="+posDy+" dz="+posDz)
-            mParticlesPos[i*3+0] = i*0.1f
-            mParticlesPos[i*3+1] = i*0.2f
-            mParticlesPos[i*3+2] = 0.0f
+//            mParticlesPos[i*3+0] = i*0.1f
+//            mParticlesPos[i*3+1] = i*0.2f
+//            mParticlesPos[i*3+2] = 0.0f
             mParticlesPos[i*3+0] = posDx
             mParticlesPos[i*3+1] = posDy
             mParticlesPos[i*3+2] = posDz
@@ -251,6 +258,126 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
 //        GLES30.glDisableVertexAttribArray(instanceMatrixHandle + 3)
         GLES30.glDisableVertexAttribArray(particlePosHandle)
         GLES30.glUseProgram(0)
+    }
+
+    // 产生新的particles
+    private fun generateNewParticle(){
+        for (i in 0 until instanceCount){
+            // 主方向
+            var mainDir = arrayOf(0.0f,2.0f,0.0f)
+            var spread = 1.5f
+            var randomDirX = ((Math.random()*2000-1000)/1000).toFloat()*spread
+            var randomDirY = ((Math.random()*2000-1000)/1000).toFloat()*spread
+            var randomDirZ = ((Math.random()*2000-1000)/1000).toFloat()*spread
+
+            var speed = arrayOf(0.0f,0.0f,0.0f)
+            speed[0] = mainDir[0]+randomDirX
+            speed[1] = mainDir[0]+randomDirY
+            speed[2] = mainDir[0]+randomDirZ
+            if(mParticlesContainer[i]==null){
+                var particleTmp = CubicParticle()
+                particleTmp.life = 5.0f
+                particleTmp.dx = ((Math.random()*2000-1000)/3000).toFloat()
+                particleTmp.dy = ((Math.random()*2000-1000)/3000).toFloat()
+                particleTmp.dz = ((Math.random()*2000-1000)/3000).toFloat()
+
+                particleTmp.dxSpeed = speed[0]
+                particleTmp.dySpeed = speed[1]
+                particleTmp.dzSpeed = speed[2]
+                mParticlesContainer[i] = particleTmp
+            }else{
+                mParticlesContainer[i]!!.life = 5.0f
+                mParticlesContainer[i]!!.life = 5.0f
+                mParticlesContainer[i]!!.dx = ((Math.random()*2000-1000)/3000).toFloat()
+                mParticlesContainer[i]!!.dy = ((Math.random()*2000-1000)/3000).toFloat()
+                mParticlesContainer[i]!!.dz = ((Math.random()*2000-1000)/3000).toFloat()
+
+                mParticlesContainer[i]!!.dxSpeed = speed[0]
+                mParticlesContainer[i]!!.dySpeed = speed[1]
+                mParticlesContainer[i]!!.dzSpeed = speed[2]
+            }
+        }
+    }
+
+    //产生单个粒子
+    private fun generateNewSingleParticle(i:Int){
+        // 主方向
+        var mainDir = arrayOf(0.0f,2.0f,0.0f)
+        var spread = 1.5f
+        var randomDirX = ((Math.random()*2000-1000)/1000).toFloat()*spread
+        var randomDirY = ((Math.random()*2000-1000)/1000).toFloat()*spread
+        var randomDirZ = ((Math.random()*2000-1000)/1000).toFloat()*spread
+
+        var speed = arrayOf(0.0f,0.0f,0.0f)
+        speed[0] = mainDir[0]+randomDirX
+        speed[1] = mainDir[0]+randomDirY
+        speed[2] = mainDir[0]+randomDirZ
+        mParticlesContainer[i]!!.life = 5.0f
+        mParticlesContainer[i]!!.life = 5.0f
+        mParticlesContainer[i]!!.dx = ((Math.random()*2000-1000)/3000).toFloat()
+        mParticlesContainer[i]!!.dy = ((Math.random()*2000-1000)/3000).toFloat()
+        mParticlesContainer[i]!!.dz = ((Math.random()*2000-1000)/3000).toFloat()
+
+        mParticlesContainer[i]!!.dxSpeed = speed[0]
+        mParticlesContainer[i]!!.dySpeed = speed[1]
+        mParticlesContainer[i]!!.dzSpeed = speed[2]
+    }
+
+
+    // 更新
+    private fun updateParticles(){
+        for (i in 0 until instanceCount){
+            var particleIndex = findExpiredParticle()
+            if(particleIndex >=0){
+                generateNewSingleParticle(i)
+            }
+        }
+        var particlesCount = 0
+        var lifeDis = 0.1f
+        var delta = 0.1f
+        for (i in 0 until instanceCount){
+            var cubicParticle = mParticlesContainer[i]
+            if(cubicParticle!!.life >0.0f){
+                cubicParticle.life -= lifeDis
+                if(cubicParticle.life >0.0f){
+                    // 位置计算
+                    var disSpeed = (delta*0.5).toFloat()
+                    var speedYTmp = cubicParticle.dySpeed + disSpeed
+
+                    var posXNow = cubicParticle.dx + cubicParticle.dxSpeed * delta
+                    var posYNow = cubicParticle.dy + speedYTmp * delta
+                    var posZNow = cubicParticle.dz + cubicParticle.dzSpeed * delta
+
+                    mParticlesContainer[i]!!.dySpeed = speedYTmp //只更新y方向上的速度
+                    mParticlesContainer[i]!!.dx = posXNow
+                    mParticlesContainer[i]!!.dy = posYNow
+                    mParticlesContainer[i]!!.dz = posZNow
+
+                }
+            }
+            mParticlesPos[i*3+0] = mParticlesContainer[i]!!.dx
+            mParticlesPos[i*3+1] = mParticlesContainer[i]!!.dy
+            mParticlesPos[i*3+2] = mParticlesContainer[i]!!.dz
+        }
+        //数据更新后，重新放到buffer里边
+        mParticlesPosBuffer = GLDataUtil.createFloatBuffer(mParticlesPos)
+
+    }
+
+    private fun findExpiredParticle():Int{
+        for (i in mLastUsedParticle..instanceCount-1){
+            if (mParticlesContainer[i]!!.life <=0){
+                mLastUsedParticle = i
+                return i
+            }
+        }
+        for (i in 0..mLastUsedParticle){
+            if (mParticlesContainer[i]!!.life <=0){
+                mLastUsedParticle = i
+                return i
+            }
+        }
+        return 0
     }
 
 
