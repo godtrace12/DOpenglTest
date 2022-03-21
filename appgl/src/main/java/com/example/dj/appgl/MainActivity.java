@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -29,6 +30,7 @@ import com.example.dj.appgl.model.ModelLoadActivity;
 import com.example.dj.appgl.mrt.MrtRenderActivity;
 import com.example.dj.appgl.opencv.OpenCVActivity;
 import com.example.dj.appgl.opencv.OpenCvCameraActivity;
+import com.example.dj.appgl.particles.cubicexplose.CubicExploseParticlesActivity;
 import com.example.dj.appgl.particles.transformfeedback.TransformfeedbackActivity;
 import com.example.dj.appgl.player.MediaPlayerActivity;
 import com.example.dj.appgl.playercam.MediaPlayerCamActivity;
@@ -70,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnInstancing;
     private Button btnGeometry;
     private Button btnTransformFeedback;
+    private Button btnCubicParticles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -171,6 +174,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnGeometry.setOnClickListener(this);
         btnTransformFeedback = findViewById(R.id.btnTransformFeedback);
         btnTransformFeedback.setOnClickListener(this);
+        btnCubicParticles = findViewById(R.id.btnCubicParticles);
+        btnCubicParticles.setOnClickListener(this);
     }
 
     @Override
@@ -253,6 +258,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivity(intent);
         }else if(viewId == R.id.btnTransformFeedback){
             Intent  intent = new Intent(MainActivity.this, TransformfeedbackActivity.class);
+            startActivity(intent);
+            Handler handler = new Handler();
+        }else if(viewId == R.id.btnCubicParticles){
+            Intent  intent = new Intent(MainActivity.this, CubicExploseParticlesActivity.class);
             startActivity(intent);
         }
     }

@@ -7,5 +7,12 @@ package com.example.dj.appgl.particles.cubicexplose
  * @des：
  */
 class CubicParticle {
-    var x:Float = 0.0f
+    var dx:Float = 0.0f
+    var dy:Float = 0.0f
+    var dz:Float = 0.0f
+    var dxSpeed:Float = 0.0f
+    var dySpeed:Float = 0.0f
+    var dzSpeed:Float = 0.0f
+    var life:Float = 20.0f
+
 }

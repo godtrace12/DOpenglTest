@@ -4,6 +4,7 @@ import android.opengl.GLES20
 import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
+import android.util.Log
 import com.example.dj.appgl.R
 import com.example.dj.appgl.base.AppCore
 import com.example.dj.appgl.util.GLDataUtil
@@ -78,6 +79,7 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
     var mMVPMatrixHandle: Int = 0
     var texturePosHandle: Int = 0
     var instanceMatrixHandle: Int = 0
+    var particlePosHandle:Int=0 //位置偏移
 
     // 使用二维数组的方式,4个
     var mInstanceModelMtxArray: FloatArray? = null
@@ -89,8 +91,13 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
     private var mWidth:Int = 0
     private var mHeight:Int = 0
 
+    // 位置偏移
+    private var mParticlesPos: FloatArray = FloatArray(instanceCount*3)
+    private var mParticlesPosBuffer: FloatBuffer? = null
+
+
     init {
-        vertexShaderCode = ResReadUtils.readResource(R.raw.cam3d_cubic_intancing_vertext)
+        vertexShaderCode = ResReadUtils.readResource(R.raw.fragment_cubic_particle_vertex)
         fragmentShaderCode = ResReadUtils.readResource(R.raw.texture_es30_fragment)
 //        vertexBuffer = GLDataUtil.createFloatBuffer(cubicVertexTextCoords)
 
@@ -130,26 +137,33 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
         GLES30.glUniform1i(texturePosHandle, 0)
 
         var posRecOri = 0
-        mInstanceModelMtxBuffer!!.position(posRecOri)
-        GLES30.glVertexAttribPointer(instanceMatrixHandle, 4, GLES20.GL_FLOAT,
-                false, 16 * 4, mInstanceModelMtxBuffer)
-        mInstanceModelMtxBuffer!!.position(posRecOri + 4)
-        GLES30.glVertexAttribPointer(instanceMatrixHandle + 1, 4, GLES20.GL_FLOAT,
-                false, 16 * 4, mInstanceModelMtxBuffer)
-        mInstanceModelMtxBuffer!!.position(posRecOri + 8)
-        GLES30.glVertexAttribPointer(instanceMatrixHandle + 2, 4, GLES20.GL_FLOAT,
-                false, 16 * 4, mInstanceModelMtxBuffer)
-        mInstanceModelMtxBuffer!!.position(posRecOri + 12)
-        GLES30.glVertexAttribPointer(instanceMatrixHandle + 3, 4, GLES20.GL_FLOAT,
-                false, 16 * 4, mInstanceModelMtxBuffer)
-        // 1、这个函数告诉了OpenGL该什么时候更新顶点属性的内容至新一组数据。它的第一个参数是需要的顶点属性，第二个参数是属性除数(Attribute Divisor)。
-        // 默认情况下，属性除数是0，告诉OpenGL我们需要在顶点着色器的每次迭代时更新顶点属性。将它设置为1时，我们告诉OpenGL我们希望在渲染一个新实例的时候更新顶点属性。
-        // 2、mat4的顶点属性，让我们能够存储一个实例化数组的变换矩阵。然而，当我们顶点属性的类型大于vec4时，就要多进行一步处理了。
-        // 顶点属性最大允许的数据大小等于一个vec4。因为一个mat4本质上是4个vec4
-        GLES30.glVertexAttribDivisor(instanceMatrixHandle, 1)
-        GLES30.glVertexAttribDivisor(instanceMatrixHandle + 1, 1)
-        GLES30.glVertexAttribDivisor(instanceMatrixHandle + 2, 1)
-        GLES30.glVertexAttribDivisor(instanceMatrixHandle + 3, 1)
+//        mInstanceModelMtxBuffer!!.position(posRecOri)
+//        GLES30.glVertexAttribPointer(instanceMatrixHandle, 4, GLES20.GL_FLOAT,
+//                false, 16 * 4, mInstanceModelMtxBuffer)
+//        mInstanceModelMtxBuffer!!.position(posRecOri + 4)
+//        GLES30.glVertexAttribPointer(instanceMatrixHandle + 1, 4, GLES20.GL_FLOAT,
+//                false, 16 * 4, mInstanceModelMtxBuffer)
+//        mInstanceModelMtxBuffer!!.position(posRecOri + 8)
+//        GLES30.glVertexAttribPointer(instanceMatrixHandle + 2, 4, GLES20.GL_FLOAT,
+//                false, 16 * 4, mInstanceModelMtxBuffer)
+//        mInstanceModelMtxBuffer!!.position(posRecOri + 12)
+//        GLES30.glVertexAttribPointer(instanceMatrixHandle + 3, 4, GLES20.GL_FLOAT,
+//                false, 16 * 4, mInstanceModelMtxBuffer)
+//        // 1、这个函数告诉了OpenGL该什么时候更新顶点属性的内容至新一组数据。它的第一个参数是需要的顶点属性，第二个参数是属性除数(Attribute Divisor)。
+//        // 默认情况下，属性除数是0，告诉OpenGL我们需要在顶点着色器的每次迭代时更新顶点属性。将它设置为1时，我们告诉OpenGL我们希望在渲染一个新实例的时候更新顶点属性。
+//        // 2、mat4的顶点属性，让我们能够存储一个实例化数组的变换矩阵。然而，当我们顶点属性的类型大于vec4时，就要多进行一步处理了。
+//        // 顶点属性最大允许的数据大小等于一个vec4。因为一个mat4本质上是4个vec4
+//        GLES30.glVertexAttribDivisor(instanceMatrixHandle, 1)
+//        GLES30.glVertexAttribDivisor(instanceMatrixHandle + 1, 1)
+//        GLES30.glVertexAttribDivisor(instanceMatrixHandle + 2, 1)
+//        GLES30.glVertexAttribDivisor(instanceMatrixHandle + 3, 1)
+
+
+
+        mParticlesPosBuffer!!.position(0)
+        GLES30.glVertexAttribPointer(particlePosHandle, 3, GLES20.GL_FLOAT,
+                false, 0, mParticlesPosBuffer)
+        GLES30.glVertexAttribDivisor(particlePosHandle, 1)
 
 
 //        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
@@ -182,6 +196,8 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
         mMVPMatrixHandle = GLES30.glGetUniformLocation(shaderProgram, "uMVPMatrix")
         texturePosHandle = GLES30.glGetUniformLocation(shaderProgram, "texture")
         instanceMatrixHandle = GLES30.glGetAttribLocation(shaderProgram, "aInstanceMatrix")
+        particlePosHandle = GLES30.glGetAttribLocation(shaderProgram,"aOffset")
+        Log.e("dj==", "initInstance: posHandle="+particlePosHandle)
     }
 
 
@@ -192,6 +208,8 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
             System.arraycopy(modelMatrices[index], 0, mInstanceModelMtxArray, index * 16, 16)
         }
         mInstanceModelMtxBuffer = GLDataUtil.createFloatBuffer(mInstanceModelMtxArray)
+
+        createDeamonPos()
     }
 
     // 计算3*3*3个位置，分为前中后三排
@@ -221,23 +239,44 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
         return modelMatrices
     }
 
+    // 模拟粒子偏移量
+    private fun createDeamonPos(){
+        for (i in 0..(instanceCount-1)){
+            //创建3个偏移量   Math.random()产生0-1之内的浮点数,随机数转移到[-1，1]范围之内
+            var posDx:Float = ((Math.random()*2000-1000)/1000).toFloat()
+            var posDy:Float = ((Math.random()*2000-1000)/1000).toFloat()
+            var posDz:Float = ((Math.random()*2000-1000)/1000).toFloat()
+            Log.e("dj===", "i= $i createDeamonPos: "+posDx+" dy="+posDy+" dz="+posDz)
+            mParticlesPos[i*3+0] = i*0.1f
+            mParticlesPos[i*3+1] = i*0.2f
+            mParticlesPos[i*3+2] = 0.0f
+            mParticlesPos[i*3+0] = posDx
+            mParticlesPos[i*3+1] = posDy
+            mParticlesPos[i*3+2] = posDz
+
+        }
+        mParticlesPosBuffer = GLDataUtil.createFloatBuffer(mParticlesPos)
+    }
+
     private fun intanceStart(){
         GLES30.glUseProgram(shaderProgram)
         GLES30.glEnableVertexAttribArray(positionHandle)
         GLES30.glEnableVertexAttribArray(texturePosHandle)
-        GLES30.glEnableVertexAttribArray(instanceMatrixHandle)
-        GLES30.glEnableVertexAttribArray(instanceMatrixHandle + 1)
-        GLES30.glEnableVertexAttribArray(instanceMatrixHandle + 2)
-        GLES30.glEnableVertexAttribArray(instanceMatrixHandle + 3)
+//        GLES30.glEnableVertexAttribArray(instanceMatrixHandle)
+//        GLES30.glEnableVertexAttribArray(instanceMatrixHandle + 1)
+//        GLES30.glEnableVertexAttribArray(instanceMatrixHandle + 2)
+//        GLES30.glEnableVertexAttribArray(instanceMatrixHandle + 3)
+        GLES30.glEnableVertexAttribArray(particlePosHandle)
     }
 
     private fun intanceEnd(){
         GLES30.glDisableVertexAttribArray(positionHandle)
         GLES30.glDisableVertexAttribArray(texturePosHandle)
-        GLES30.glDisableVertexAttribArray(instanceMatrixHandle)
-        GLES30.glDisableVertexAttribArray(instanceMatrixHandle + 1)
-        GLES30.glDisableVertexAttribArray(instanceMatrixHandle + 2)
-        GLES30.glDisableVertexAttribArray(instanceMatrixHandle + 3)
+//        GLES30.glDisableVertexAttribArray(instanceMatrixHandle)
+//        GLES30.glDisableVertexAttribArray(instanceMatrixHandle + 1)
+//        GLES30.glDisableVertexAttribArray(instanceMatrixHandle + 2)
+//        GLES30.glDisableVertexAttribArray(instanceMatrixHandle + 3)
+        GLES30.glDisableVertexAttribArray(particlePosHandle)
         GLES30.glUseProgram(0)
     }
 
