@@ -14,7 +14,7 @@ void main() {
 //    gl_Position = uMVPMatrix * vec4(aPosition,1.0);
     // 法4 实例数组，偏移量
 //    gl_Position = uMVPMatrix * vec4(aPosition - vec3(0.0, 0.95, 0.0) + aOffset, 1.0);
-    gl_Position = uMVPMatrix * vec4(aPosition+aOffset, 1.0);
+    gl_Position = uMVPMatrix * vec4(aPosition-vec3(0.0, 0.95, 0.0)+aOffset, 1.0);
 
     TexCoord = aTexCoords;
 }

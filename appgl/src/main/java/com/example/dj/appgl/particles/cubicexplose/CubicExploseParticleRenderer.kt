@@ -84,7 +84,8 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
     // 使用二维数组的方式,4个
     var mInstanceModelMtxArray: FloatArray? = null
     var mInstanceModelMtxBuffer: FloatBuffer? = null
-    var instanceCount: Int = 27
+    var instanceCount: Int = 18
+    private val PARTICLE_LIFE_TIME = 5.0f //粒子生命周期
 
     //累计旋转过的角度
     private var angle = 0f
@@ -109,14 +110,14 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         cubeTexture = TextureUtils.loadTexture(AppCore.getInstance().context, R.drawable.hzw5)
         initInstance()
-        initInstanceMatrixArray()
+//        initInstanceMatrixArray()
+        // 粒子初始化
+        generateNewParticle()
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         mWidth = width
         mHeight = height
-        // 粒子初始化
-        generateNewParticle()
     }
 
     override fun onDrawFrame(gl: GL10?) {
@@ -182,12 +183,12 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
 
 
     private fun initInstanceMatrixArray(){
-        var modelMatrices = createMatrices()
-        mInstanceModelMtxArray = FloatArray(instanceCount * 16)//存储了2个矩阵数据，每个矩阵16个点
-        for (index in 0..(instanceCount - 1)) {
-            System.arraycopy(modelMatrices[index], 0, mInstanceModelMtxArray, index * 16, 16)
-        }
-        mInstanceModelMtxBuffer = GLDataUtil.createFloatBuffer(mInstanceModelMtxArray)
+//        var modelMatrices = createMatrices()
+//        mInstanceModelMtxArray = FloatArray(instanceCount * 16)//存储了2个矩阵数据，每个矩阵16个点
+//        for (index in 0..(instanceCount - 1)) {
+//            System.arraycopy(modelMatrices[index], 0, mInstanceModelMtxArray, index * 16, 16)
+//        }
+//        mInstanceModelMtxBuffer = GLDataUtil.createFloatBuffer(mInstanceModelMtxArray)
 
         createDeamonPos()
     }
@@ -272,11 +273,11 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
 
             var speed = arrayOf(0.0f,0.0f,0.0f)
             speed[0] = mainDir[0]+randomDirX
-            speed[1] = mainDir[0]+randomDirY
-            speed[2] = mainDir[0]+randomDirZ
+            speed[1] = mainDir[1]+randomDirY
+            speed[2] = mainDir[2]+randomDirZ
             if(mParticlesContainer[i]==null){
                 var particleTmp = CubicParticle()
-                particleTmp.life = 5.0f
+                particleTmp.life = PARTICLE_LIFE_TIME
                 particleTmp.dx = ((Math.random()*2000-1000)/3000).toFloat()
                 particleTmp.dy = ((Math.random()*2000-1000)/3000).toFloat()
                 particleTmp.dz = ((Math.random()*2000-1000)/3000).toFloat()
@@ -286,8 +287,7 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
                 particleTmp.dzSpeed = speed[2]
                 mParticlesContainer[i] = particleTmp
             }else{
-                mParticlesContainer[i]!!.life = 5.0f
-                mParticlesContainer[i]!!.life = 5.0f
+                mParticlesContainer[i]!!.life = PARTICLE_LIFE_TIME
                 mParticlesContainer[i]!!.dx = ((Math.random()*2000-1000)/3000).toFloat()
                 mParticlesContainer[i]!!.dy = ((Math.random()*2000-1000)/3000).toFloat()
                 mParticlesContainer[i]!!.dz = ((Math.random()*2000-1000)/3000).toFloat()
@@ -296,7 +296,12 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
                 mParticlesContainer[i]!!.dySpeed = speed[1]
                 mParticlesContainer[i]!!.dzSpeed = speed[2]
             }
+            mParticlesPos[i*3+0] = mParticlesContainer[i]!!.dx
+            mParticlesPos[i*3+1] = mParticlesContainer[i]!!.dy
+            mParticlesPos[i*3+2] = mParticlesContainer[i]!!.dz
         }
+        //数据更新后，重新放到buffer里边
+        mParticlesPosBuffer = GLDataUtil.createFloatBuffer(mParticlesPos)
     }
 
     //产生单个粒子
@@ -310,10 +315,9 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
 
         var speed = arrayOf(0.0f,0.0f,0.0f)
         speed[0] = mainDir[0]+randomDirX
-        speed[1] = mainDir[0]+randomDirY
+        speed[1] = mainDir[1]+randomDirY
         speed[2] = mainDir[0]+randomDirZ
-        mParticlesContainer[i]!!.life = 5.0f
-        mParticlesContainer[i]!!.life = 5.0f
+        mParticlesContainer[i]!!.life = PARTICLE_LIFE_TIME
         mParticlesContainer[i]!!.dx = ((Math.random()*2000-1000)/3000).toFloat()
         mParticlesContainer[i]!!.dy = ((Math.random()*2000-1000)/3000).toFloat()
         mParticlesContainer[i]!!.dz = ((Math.random()*2000-1000)/3000).toFloat()
@@ -337,8 +341,10 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
         var delta = 0.1f
         for (i in 0 until instanceCount){
             var cubicParticle = mParticlesContainer[i]
+            Log.e("dj===", "updateParticles: i="+cubicParticle!!.life)
             if(cubicParticle!!.life >0.0f){
                 cubicParticle.life -= lifeDis
+                Log.e("dj===", "updateParticles: after minus i="+cubicParticle.life)
                 if(cubicParticle.life >0.0f){
                     // 位置计算
                     var disSpeed = (delta*0.5).toFloat()
@@ -352,16 +358,19 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
                     mParticlesContainer[i]!!.dx = posXNow
                     mParticlesContainer[i]!!.dy = posYNow
                     mParticlesContainer[i]!!.dz = posZNow
-
+                    mParticlesContainer[i]!!.life = cubicParticle.life
+                }else{
+                    mParticlesContainer[i]!!.life = cubicParticle.life
                 }
             }
+            Log.e("dj===", "updateParticles: container i="+mParticlesContainer[i]!!.life)
+//            mParticlesContainer[i]!!.life = cubicParticle.life
             mParticlesPos[i*3+0] = mParticlesContainer[i]!!.dx
             mParticlesPos[i*3+1] = mParticlesContainer[i]!!.dy
             mParticlesPos[i*3+2] = mParticlesContainer[i]!!.dz
         }
         //数据更新后，重新放到buffer里边
         mParticlesPosBuffer = GLDataUtil.createFloatBuffer(mParticlesPos)
-
     }
 
     private fun findExpiredParticle():Int{
@@ -377,7 +386,12 @@ class CubicExploseParticleRenderer : GLSurfaceView.Renderer{
                 return i
             }
         }
-        return 0
+        if (mLastUsedParticle >=0){
+            Log.e("dj==", "findExpiredParticle: mLastUsedParticle="+mLastUsedParticle)
+        }else{
+            Log.e("dj==", "findExpiredParticle: mLastUsedParticle="+"-1")
+        }
+        return -1
     }
 
 
