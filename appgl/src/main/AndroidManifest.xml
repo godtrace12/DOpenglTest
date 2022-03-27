@@ -51,6 +51,7 @@
         <activity android:name=".geometryshader.GeometryShaderActivity"/>
         <activity android:name=".particles.transformfeedback.TransformfeedbackActivity"/>
         <activity android:name=".particles.cubicexplose.CubicExploseParticlesActivity"/>
+        <activity android:name=".particles.fountain.FountainParticlesActivity"/>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

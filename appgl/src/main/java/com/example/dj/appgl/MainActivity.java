@@ -31,6 +31,7 @@ import com.example.dj.appgl.mrt.MrtRenderActivity;
 import com.example.dj.appgl.opencv.OpenCVActivity;
 import com.example.dj.appgl.opencv.OpenCvCameraActivity;
 import com.example.dj.appgl.particles.cubicexplose.CubicExploseParticlesActivity;
+import com.example.dj.appgl.particles.fountain.FountainParticlesActivity;
 import com.example.dj.appgl.particles.transformfeedback.TransformfeedbackActivity;
 import com.example.dj.appgl.player.MediaPlayerActivity;
 import com.example.dj.appgl.playercam.MediaPlayerCamActivity;
@@ -73,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnGeometry;
     private Button btnTransformFeedback;
     private Button btnCubicParticles;
+    private Button btnFountainParticles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -176,6 +178,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnTransformFeedback.setOnClickListener(this);
         btnCubicParticles = findViewById(R.id.btnCubicParticles);
         btnCubicParticles.setOnClickListener(this);
+        btnFountainParticles = findViewById(R.id.btnFountainParticles);
+        btnFountainParticles.setOnClickListener(this);
     }
 
     @Override
@@ -262,6 +266,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Handler handler = new Handler();
         }else if(viewId == R.id.btnCubicParticles){
             Intent  intent = new Intent(MainActivity.this, CubicExploseParticlesActivity.class);
+            startActivity(intent);
+        }else if(viewId == R.id.btnFountainParticles){
+            Intent  intent = new Intent(MainActivity.this, FountainParticlesActivity.class);
             startActivity(intent);
         }
     }
