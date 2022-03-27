@@ -1,5 +1,8 @@
 package com.example.dj.appgl.particles.fountain
 
+import android.opengl.Matrix
+import java.util.*
+
 /**
  * 创建日期：3/27/22 6:42 AM
  * @author daijun
@@ -16,6 +19,10 @@ class FountainParticlesShooter(position: Geometry.Point?, color: Int, direction:
     //发射粒子的方法
     private var direction: Geometry.Vector? = null
 
+    private val rotationMatrix = FloatArray(16)
+    private val random: Random = Random()
+    val angleVarianceInDegrees = 20f
+
     init {
         this.position = position
         this.color = color
@@ -30,7 +37,18 @@ class FountainParticlesShooter(position: Geometry.Point?, color: Int, direction:
      * @param currentTime
      */
     fun addParticles(particleSystem: FountainParticleSystem, currentTime: Float) {
-        particleSystem.addParticle(position!!, color, direction!!, currentTime)
+        Matrix.setRotateEulerM(rotationMatrix, 0,
+                (random.nextFloat() - 0.5f) * angleVarianceInDegrees,
+                (random.nextFloat() - 0.5f) * angleVarianceInDegrees,
+                (random.nextFloat() - 0.5f) * angleVarianceInDegrees)
+
+        val tmpDirectionFloat = FloatArray(4)
+
+        Matrix.multiplyMV(tmpDirectionFloat, 0,
+                rotationMatrix, 0, floatArrayOf(direction!!.x, direction!!.y, direction!!.z, 1f), 0)
+
+        val newDirection = Geometry.Vector(tmpDirectionFloat[0], tmpDirectionFloat[1], tmpDirectionFloat[2])
+        particleSystem.addParticle(position!!, color, newDirection, currentTime)
     }
 
 }
