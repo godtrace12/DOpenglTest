@@ -37,18 +37,21 @@ class FountainParticlesShooter(position: Geometry.Point?, color: Int, direction:
      * @param currentTime
      */
     fun addParticles(particleSystem: FountainParticleSystem, currentTime: Float) {
-        Matrix.setRotateEulerM(rotationMatrix, 0,
-                (random.nextFloat() - 0.5f) * angleVarianceInDegrees,
-                (random.nextFloat() - 0.5f) * angleVarianceInDegrees,
-                (random.nextFloat() - 0.5f) * angleVarianceInDegrees)
+        // 循环主要是为了查看重复覆盖问题
+        for(i in 0..8){
+            Matrix.setRotateEulerM(rotationMatrix, 0,
+                    (random.nextFloat() - 0.5f) * angleVarianceInDegrees,
+                    (random.nextFloat() - 0.5f) * angleVarianceInDegrees,
+                    (random.nextFloat() - 0.5f) * angleVarianceInDegrees)
 
-        val tmpDirectionFloat = FloatArray(4)
+            val tmpDirectionFloat = FloatArray(4)
 
-        Matrix.multiplyMV(tmpDirectionFloat, 0,
-                rotationMatrix, 0, floatArrayOf(direction!!.x, direction!!.y, direction!!.z, 1f), 0)
+            Matrix.multiplyMV(tmpDirectionFloat, 0,
+                    rotationMatrix, 0, floatArrayOf(direction!!.x, direction!!.y, direction!!.z, 1f), 0)
 
-        val newDirection = Geometry.Vector(tmpDirectionFloat[0], tmpDirectionFloat[1], tmpDirectionFloat[2])
-        particleSystem.addParticle(position!!, color, newDirection, currentTime)
+            val newDirection = Geometry.Vector(tmpDirectionFloat[0], tmpDirectionFloat[1], tmpDirectionFloat[2])
+            particleSystem.addParticle(position!!, color, newDirection, currentTime)
+        }
     }
 
 }

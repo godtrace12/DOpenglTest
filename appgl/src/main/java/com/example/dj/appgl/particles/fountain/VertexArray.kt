@@ -33,7 +33,6 @@ class VertexArray(var particlesParam: FloatArray?) {
 
     fun updateBuffer(particles:FloatArray,particleOffset:Int,stride: Int){
 //        mParticlesPosBuffer!!.put(particles,particleOffset,stride)
-//        mParticlesPosBuffer.
         mParticlesPosBuffer = GLDataUtil.createFloatBuffer(particles)
 
     }
