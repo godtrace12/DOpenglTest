@@ -235,9 +235,11 @@ class WaveRenderer(ctx: Context?):GLSurfaceView.Renderer,IRenderGesture {
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER,voId)
         //3、分配VBO需要的缓存大小
         GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER,dataCount* GLDataUtil.SIZEOF_FLOAT,
-                null,GLES30.GL_STATIC_DRAW)
+                dataBuffer,GLES30.GL_STATIC_DRAW) // [mod 2022-04-05] 没有subData的情况，直接用glBufferData
+//        GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER,dataCount* GLDataUtil.SIZEOF_FLOAT,
+//                null,GLES30.GL_STATIC_DRAW)
         //4、为VBO设置顶点数据的值
-        GLES30.glBufferSubData(GLES30.GL_ARRAY_BUFFER,0,dataCount * GLDataUtil.SIZEOF_FLOAT,dataBuffer)
+//        GLES30.glBufferSubData(GLES30.GL_ARRAY_BUFFER,0,dataCount * GLDataUtil.SIZEOF_FLOAT,dataBuffer)
         //5、解绑VBO
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER,0)
     }
