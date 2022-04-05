@@ -58,6 +58,12 @@ class TransformfeedbackTenderer: GLSurfaceView.Renderer{
     private val mMVPMatrix = FloatArray(16)
     //纹理id
     private var textureId = 0
+    // vbo(顶点缓冲区对象)使用
+    //vbo id
+    private var vboPosId: Int = 0
+    private var vboTextId: Int = 0
+    //vao id
+    private var vaoId:Int = 0
 
     init {
         vertexBuffer = GLDataUtil.createFloatBuffer(triangleCoords)
@@ -74,13 +80,63 @@ class TransformfeedbackTenderer: GLSurfaceView.Renderer{
 //        val fragmentShaderStr = ResReadUtils.readResource(R.raw.fragment_transform_feedback_shader)
         val fragmentShaderStr = ResReadUtils.readResource(R.raw.fragment_triangle_texture_shader)
         val fragmentShaderId = ShaderUtils.compileFragmentShader(fragmentShaderStr)
+        val transformVaryings = arrayOf("outPos","outTex")
         //连接程序
+//        mProgram = ShaderUtils.linkProgram(vertexShaderId, fragmentShaderId,transformVaryings)
         mProgram = ShaderUtils.linkProgram(vertexShaderId, fragmentShaderId)
+
         Log.e(TAG, "onSurfaceCreated: mProgram=$mProgram")
         //在OpenGLES环境中使用程序
         GLES30.glUseProgram(mProgram)
         //加载纹理
         textureId = TextureUtils.loadTexture(AppCore.getInstance().context, R.drawable.world_map)
+        val aPositionLocation = GLES30.glGetAttribLocation(mProgram, "vPosition")
+        val aTextureLocation = GLES20.glGetAttribLocation(mProgram, "aTextureCoord")
+        Log.e(TAG, "onSurfaceCreated: aPosLoc=$aPositionLocation aTextLoc=$aTextureLocation")
+        createVBO()
+        createVAO(aPositionLocation,aTextureLocation,3,2)
+    }
+
+    // posHandle: 顶点属性在glsl着色器中的位置  textHandle:纹理坐标在glsl着色器中的位置
+    // COORDS_PER_VERTEX：每个顶点坐标占用几个数据  COORDS_PER_FRAGMENT：每个纹理坐标占用几个数据
+    private fun createVAO(posHandle: Int,textHandle:Int,COORDS_PER_VERTEX:Int,COORDS_PER_FRAGMENT:Int){
+        var vaos = IntArray(1)
+        GLES30.glGenVertexArrays(1,vaos,0)
+        vaoId = vaos[0]
+        GLES30.glBindVertexArray(vaos[0])
+        // 管理顶点vbo
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER,vboPosId)
+        GLES30.glEnableVertexAttribArray(posHandle)
+        //把使用vbo中的这段代码放到vao中。
+        GLES30.glVertexAttribPointer(posHandle, COORDS_PER_VERTEX, GLES30.GL_FLOAT, false, COORDS_PER_VERTEX * GLDataUtil.SIZEOF_FLOAT, 0)
+
+        // 管理片纹理vbo
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER,vboTextId)
+        GLES30.glEnableVertexAttribArray(textHandle)
+        //把使用vbo中的这段代码放到vao中。
+        GLES30.glVertexAttribPointer(textHandle, COORDS_PER_FRAGMENT, GLES30.GL_FLOAT, false, COORDS_PER_FRAGMENT * GLDataUtil.SIZEOF_FLOAT, 0)
+
+    }
+
+    private fun createVBO(){
+        //1. 创建VBO
+        var vbos = IntArray(2)
+        GLES30.glGenBuffers(vbos.size,vbos,0)
+        vboPosId = vbos[0]
+        vboTextId = vbos[1]
+        createDetailVBO(vboPosId,triangleCoords.size,vertexBuffer)
+        createDetailVBO(vboTextId,textureVertex.size,textureBuffer)
+    }
+
+    //创建vbo
+    private fun createDetailVBO(voId:Int,dataCount:Int,dataBuffer: FloatBuffer?){
+        //2、绑定vbo
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER,voId)
+        //3、分配VBO需要的缓存大小，设置顶点数据的值
+        GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER,dataCount* GLDataUtil.SIZEOF_FLOAT,
+                dataBuffer,GLES30.GL_STATIC_DRAW) // [mod 2022-04-05] 没有subData的情况，直接用glBufferData
+        //4、解绑VBO
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER,0)
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
@@ -108,29 +164,22 @@ class TransformfeedbackTenderer: GLSurfaceView.Renderer{
         // 将前面计算得到的mMVPMatrix(frustumM setLookAtM 通过multiplyMM 相乘得到的矩阵) 传入vMatrix中，与顶点矩阵进行相乘
         GLES30.glUniformMatrix4fv(uMaxtrixLocation, 1, false, mMVPMatrix, 0)
 
+        // 启用顶点坐标和纹理坐标属性
         val aPositionLocation = GLES30.glGetAttribLocation(mProgram, "vPosition")
         GLES30.glEnableVertexAttribArray(aPositionLocation)
-        //x y z 所以数据size 是3
-        GLES30.glVertexAttribPointer(aPositionLocation, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer)
-
-        val aTextureLocation = GLES20.glGetAttribLocation(mProgram, "aTextureCoord")
-//        Log.e(TAG, "onDrawFrame: textureLocation=$aTextureLocation")
         //启用顶点颜色句柄
+        val aTextureLocation = GLES20.glGetAttribLocation(mProgram, "aTextureCoord")
         GLES30.glEnableVertexAttribArray(aTextureLocation)
-//        Log.e(TAG, "onDrawFrame: aPostionLoc=$aPositionLocation aTextCoord=$aTextureLocation")
-        //纹理坐标数据 x、y，所以数据size是 2
-        GLES30.glVertexAttribPointer(aTextureLocation, 2, GLES30.GL_FLOAT, false, 0, textureBuffer)
+
+        // 使用VAO
+        GLES30.glBindVertexArray(vaoId)
+        //激活纹理
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         //绑定纹理
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureId)
-        //三角形
-//        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, triangleCoords.size / 3)
         //矩形
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 6);
-
-        //禁止顶点数组的句柄
-        //矩形
-//        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 6);
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, triangleCoords.size / 3)
+        GLES30.glDisableVertexAttribArray(vaoId)
 
         //禁止顶点数组的句柄
         GLES30.glDisableVertexAttribArray(aPositionLocation)
