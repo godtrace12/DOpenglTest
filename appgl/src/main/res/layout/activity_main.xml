@@ -175,6 +175,12 @@
                 android:layout_height="wrap_content"
                 android:text="立方体粒子系统"/>
 
+            <Button
+                android:id="@+id/btnFountainParticles"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="喷泉粒子系统"/>
+
         </LinearLayout>
 
 

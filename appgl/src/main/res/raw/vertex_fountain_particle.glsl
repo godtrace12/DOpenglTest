@@ -10,6 +10,8 @@ in float a_PatricleStartTime;
 out vec3 v_Color;
 out float v_ElapsedTime;
 
+//对于匀变速直线运动：
+//位移公式：s=v0*t+a*t*t/2
 void main(){
     v_Color = a_Color;
     //粒子已经持续时间  当前时间-开始时间

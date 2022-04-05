@@ -44,11 +44,11 @@ class TransformfeedbackTenderer: GLSurfaceView.Renderer{
     // 三角形3个定点对应在纹理坐标系中的坐标
     private val textureVertex = floatArrayOf( // 矩形全部点位
             1.0f,0.0f,
-            0.0f, 1.0f,
+            0.0f,1.0f,
             0.0f,0.0f,
-            1.0f, 0.0f,
-            0.0f, 1.0f,
-            1.0f, 1.0f)
+            1.0f,0.0f,
+            0.0f,1.0f,
+            1.0f,1.0f)
 
     //相机矩阵
     private val mViewMatrix = FloatArray(16)
@@ -67,13 +67,16 @@ class TransformfeedbackTenderer: GLSurfaceView.Renderer{
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         GLES30.glClearColor(0.5f, 0.5f, 0.5f, 1.0f)
         //编译顶点着色程序
-        val vertexShaderStr = ResReadUtils.readResource(R.raw.vertex_transform_feedback_shader)
+//        val vertexShaderStr = ResReadUtils.readResource(R.raw.vertex_transform_feedback_shader) //不使用transform_feedback不能有多个输出？
+        val vertexShaderStr = ResReadUtils.readResource(R.raw.vertex_triangle_texture_shader)
         val vertexShaderId = ShaderUtils.compileVertexShader(vertexShaderStr)
         //编译片段着色程序
+//        val fragmentShaderStr = ResReadUtils.readResource(R.raw.fragment_transform_feedback_shader)
         val fragmentShaderStr = ResReadUtils.readResource(R.raw.fragment_triangle_texture_shader)
         val fragmentShaderId = ShaderUtils.compileFragmentShader(fragmentShaderStr)
         //连接程序
         mProgram = ShaderUtils.linkProgram(vertexShaderId, fragmentShaderId)
+        Log.e(TAG, "onSurfaceCreated: mProgram=$mProgram")
         //在OpenGLES环境中使用程序
         GLES30.glUseProgram(mProgram)
         //加载纹理
@@ -98,6 +101,8 @@ class TransformfeedbackTenderer: GLSurfaceView.Renderer{
     }
 
     override fun onDrawFrame(gl: GL10?) {
+        GLES30.glEnable(GLES30.GL_DEPTH_TEST)
+        GLES20.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
         //左乘矩阵
         val uMaxtrixLocation = GLES30.glGetUniformLocation(mProgram, "vMatrix")
         // 将前面计算得到的mMVPMatrix(frustumM setLookAtM 通过multiplyMM 相乘得到的矩阵) 传入vMatrix中，与顶点矩阵进行相乘
@@ -109,18 +114,19 @@ class TransformfeedbackTenderer: GLSurfaceView.Renderer{
         GLES30.glVertexAttribPointer(aPositionLocation, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer)
 
         val aTextureLocation = GLES20.glGetAttribLocation(mProgram, "aTextureCoord")
-        Log.e(TAG, "onDrawFrame: textureLocation=$aTextureLocation")
-        //纹理坐标数据 x、y，所以数据size是 2
-        GLES30.glVertexAttribPointer(aTextureLocation, 2, GLES30.GL_FLOAT, false, 0, textureBuffer)
+//        Log.e(TAG, "onDrawFrame: textureLocation=$aTextureLocation")
         //启用顶点颜色句柄
         GLES30.glEnableVertexAttribArray(aTextureLocation)
+//        Log.e(TAG, "onDrawFrame: aPostionLoc=$aPositionLocation aTextCoord=$aTextureLocation")
+        //纹理坐标数据 x、y，所以数据size是 2
+        GLES30.glVertexAttribPointer(aTextureLocation, 2, GLES30.GL_FLOAT, false, 0, textureBuffer)
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         //绑定纹理
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureId)
         //三角形
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, triangleCoords.size / 3)
+//        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, triangleCoords.size / 3)
         //矩形
-//        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 6);
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 6);
 
         //禁止顶点数组的句柄
         //矩形
