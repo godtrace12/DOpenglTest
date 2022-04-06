@@ -3,6 +3,8 @@ package com.example.dj.appgl.util;
 import android.opengl.GLES30;
 import android.opengl.GLES32;
 
+import javax.microedition.khronos.opengles.GL;
+
 /**
  * @anchor: andy
  * @date: 2018-09-13
@@ -155,6 +157,8 @@ public class ShaderUtils {
             GLES30.glAttachShader(programId, vertexShaderId);
             //将片元着色器加入到程序中
             GLES30.glAttachShader(programId, fragmentShaderId);
+            // 设置transform feedback要缓存哪些属性
+            GLES30.glTransformFeedbackVaryings(programId,transformVarings, GLES30.GL_INTERLEAVED_ATTRIBS);
             //链接着色器程序
             GLES30.glLinkProgram(programId);
             final int[] linkStatus = new int[1];

@@ -64,6 +64,9 @@ class TransformfeedbackTenderer: GLSurfaceView.Renderer{
     private var vboTextId: Int = 0
     //vao id
     private var vaoId:Int = 0
+    // transform feedback相关 缓冲区和对象
+    var transBufIdArray = IntArray(1)
+    var feedbackObj = IntArray(1)
 
     init {
         vertexBuffer = GLDataUtil.createFloatBuffer(triangleCoords)
@@ -93,8 +96,33 @@ class TransformfeedbackTenderer: GLSurfaceView.Renderer{
         val aPositionLocation = GLES30.glGetAttribLocation(mProgram, "vPosition")
         val aTextureLocation = GLES20.glGetAttribLocation(mProgram, "aTextureCoord")
         Log.e(TAG, "onSurfaceCreated: aPosLoc=$aPositionLocation aTextLoc=$aTextureLocation")
+        // 创建vbo、vao
         createVBO()
         createVAO(aPositionLocation,aTextureLocation,3,2)
+//        createTransformBuffer()
+    }
+
+    //创建transform buffer
+    private fun createTransformBuffer(){
+//        var transBufIdArray = IntArray(1)
+        // ① 创建缓冲区
+        GLES30.glGenBuffers(transBufIdArray.size,transBufIdArray,0)
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER,transBufIdArray[0])
+        //3、分配VBO需要的缓存大小，设置顶点数据的值 注意最后一个参数GLES30.GL_STATIC_READ或者GL_STATIC_DRAW
+        // 设置缓存的大小，输出是一个 3 维向量和一个 2 维向量，一共 6 个顶点，大小为 (3 + 2) * 6 * sizeof(GLfloat)
+        GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER,(3+2)*6* GLDataUtil.SIZEOF_FLOAT,
+                null,GLES30.GL_STATIC_READ) // [mod 2022-04-05] 没有subData的情况，直接用glBufferData
+        //4、解绑VBO
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER,0)
+
+        // ② 创建tranform feedback对象
+//        var feedbackObj = IntArray(1)
+        GLES30.glGenTransformFeedbacks(1,feedbackObj,0)
+        GLES30.glBindTransformFeedback(GLES30.GL_TRANSFORM_FEEDBACK,feedbackObj[0])
+        GLES30.glBindBufferBase(GLES30.GL_TRANSFORM_FEEDBACK_BUFFER,0,transBufIdArray[0])
+        GLES30.glBindTransformFeedback(GLES30.GL_TRANSFORM_FEEDBACK,0)
+        GLES30.glBindBuffer(GLES30.GL_TRANSFORM_FEEDBACK_BUFFER,0)
+
     }
 
     // posHandle: 顶点属性在glsl着色器中的位置  textHandle:纹理坐标在glsl着色器中的位置
@@ -177,8 +205,20 @@ class TransformfeedbackTenderer: GLSurfaceView.Renderer{
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
         //绑定纹理
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureId)
+
+        // 使用transform feedback
+//        GLES30.glBindTransformFeedback(GLES30.GL_TRANSFORM_FEEDBACK,feedbackObj[0])
+//        GLES30.glBeginTransformFeedback(GLES30.GL_TRIANGLES)
+
+
         //矩形
         GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, triangleCoords.size / 3)
+
+
+        // 停止transform feedback
+//        GLES30.glEndTransformFeedback()
+//        GLES30.glBindTransformFeedback(GLES30.GL_TRANSFORM_FEEDBACK,0)
+
         GLES30.glDisableVertexAttribArray(vaoId)
 
         //禁止顶点数组的句柄
