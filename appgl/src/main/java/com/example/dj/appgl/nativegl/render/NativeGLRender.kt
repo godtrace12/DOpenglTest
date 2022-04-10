@@ -26,9 +26,9 @@ class NativeGLRender : GLSurfaceView.Renderer {
         mNativeRender.nativeOnDrawFrame()
     }
 
-    fun init(){
+    fun init(sampleIndex:Int){
         mNativeRender.nativeInit()
-        mNativeRender.nativeSetParamsInt(0,0,0)
+        mNativeRender.nativeSetParamsInt(sampleIndex,0,0)
     }
 
 

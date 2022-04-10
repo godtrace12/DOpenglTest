@@ -13,7 +13,7 @@ import com.example.dj.appgl.nativegl.render.NativeGLRender
 class NativeGLActivity : AbsGLSurfaceActivity() {
     override fun bindRenderer(): GLSurfaceView.Renderer {
         var render = NativeGLRender()
-        render.init()
+        render.init(nativeGLType)
         return render
     }
 }

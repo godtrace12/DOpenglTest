@@ -28,6 +28,7 @@ import com.example.dj.appgl.light.TextureLightActivity;
 import com.example.dj.appgl.model.ModeBglLoadActivity;
 import com.example.dj.appgl.model.ModelLoadActivity;
 import com.example.dj.appgl.mrt.MrtRenderActivity;
+import com.example.dj.appgl.nativegl.NativeMainActivity;
 import com.example.dj.appgl.opencv.OpenCVActivity;
 import com.example.dj.appgl.opencv.OpenCvCameraActivity;
 import com.example.dj.appgl.particles.cubicexplose.CubicExploseParticlesActivity;
@@ -225,7 +226,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Intent intent = new Intent(MainActivity.this, TextureLightActivity.class);
             startActivity(intent);
         }else if(viewId == R.id.btnNative){
-            Intent intent = new Intent(MainActivity.this, NativeGLActivity.class);
+            Intent intent = new Intent(MainActivity.this, NativeMainActivity.class);
             startActivity(intent);
         }else if(viewId == R.id.btnMediaPlayer){
             Intent intent = new Intent(MainActivity.this, MediaPlayerActivity.class);
