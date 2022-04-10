@@ -92,6 +92,11 @@ public class ShaderUtils {
             //链接着色器程序
             GLES30.glLinkProgram(programId);
             final int[] linkStatus = new int[1];
+//            GLES30.glDetachShader(programId,vertexShaderId);
+//            GLES30.glDeleteShader(vertexShaderId);
+//
+//            GLES30.glDetachShader(programId,fragmentShaderId);
+//            GLES30.glDeleteShader(fragmentShaderId);
 
             GLES30.glGetProgramiv(programId, GLES30.GL_LINK_STATUS, linkStatus, 0);
             if (linkStatus[0] == 0) {
@@ -170,6 +175,12 @@ public class ShaderUtils {
                 GLES30.glDeleteProgram(programId);
                 return 0;
             }
+            GLES30.glDetachShader(programId,vertexShaderId);
+            GLES30.glDeleteShader(vertexShaderId);
+
+            GLES30.glDetachShader(programId,fragmentShaderId);
+            GLES30.glDeleteShader(fragmentShaderId);
+
             return programId;
         } else {
             //创建失败
