@@ -4,6 +4,7 @@
 
 #include "DNativeRenderContext.h"
 #include "../render/TriangleRender.h"
+#include "../render/RectangleRender.h"
 
 //？？？ 为何要这样引用
 DNativeRenderContext* DNativeRenderContext::m_pContext = nullptr;
@@ -37,7 +38,11 @@ void DNativeRenderContext::OnDrawFrame()
 }
 
 void DNativeRenderContext::SetParamsInt(int paramType, int value0, int value1) {
-    m_pCurSample = new TriangleRender();
+    if(paramType == SAMPLE_INDEX_TRIANGLE){
+        m_pCurSample = new TriangleRender();
+    }else if(paramType == SAMPLE_INDEX_RECTANGLE){
+        m_pCurSample = new RectangleRender();
+    }
 }
 
 DNativeRenderContext * DNativeRenderContext::GetInstance() {

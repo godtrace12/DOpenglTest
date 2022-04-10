@@ -14,8 +14,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
-
-
+            <Button
+                android:id="@+id/btnNative"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Native 入口(JNI Native绘制)"/>
             <Button
                 android:id="@+id/btnBasic"
                 android:layout_width="match_parent"
@@ -99,11 +102,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="纹理光照"/>
-            <Button
-                android:id="@+id/btnNative"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Native 入口"/>
             <Button
                 android:id="@+id/btnMediaPlayer"
                 android:layout_width="match_parent"

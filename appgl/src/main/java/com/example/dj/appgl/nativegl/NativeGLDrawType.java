@@ -12,7 +12,9 @@ public class NativeGLDrawType {
     public static String NativeGLDraw_Type = "nativeDrawType";
 
     // 基本三角形
-    public static int NativeGLDraw_BasicTriangle = 0;
+    public static int NativeGLDraw_SAMPLE_INDEX_TRIANGLE = 0;
+    // 矩形
+    public static int NativeGLDraw_SAMPLE_INDEX_RECTANGLE =1;
     // transform feedback
-    public static int NativeGLDraw_TransformFeedback =1;
+    public static int NativeGLDraw_TRANSFORM_FEEDBACK =2;
 }

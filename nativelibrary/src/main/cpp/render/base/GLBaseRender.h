@@ -8,6 +8,10 @@
 #include "stdint.h"
 #include <GLES3/gl3.h>
 
+#define SAMPLE_INDEX_TRIANGLE  0
+#define SAMPLE_INDEX_RECTANGLE  1
+#define SAMPLE_INDEX_TRANSFORM_FEEDBACK  2
+
 
 class GLBaseRender {
 

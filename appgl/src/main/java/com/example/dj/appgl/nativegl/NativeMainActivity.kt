@@ -29,9 +29,9 @@ class NativeMainActivity : AppCompatActivity(),View.OnClickListener {
     override fun onClick(v: View?) {
         var vieId = v!!.id
         if (vieId == R.id.btnBasicTriangle){
-            onStart<NativeGLActivity>(Pair<String,Int>(NativeGLDrawType.NativeGLDraw_Type,NativeGLDrawType.NativeGLDraw_BasicTriangle))
+            onStart<NativeGLActivity>(Pair<String,Int>(NativeGLDrawType.NativeGLDraw_Type,NativeGLDrawType.NativeGLDraw_SAMPLE_INDEX_TRIANGLE))
         }else if (vieId == R.id.btnTransformFeedback){
-            onStart<NativeGLActivity>(Pair<String,Int>(NativeGLDrawType.NativeGLDraw_Type,NativeGLDrawType.NativeGLDraw_TransformFeedback))
+            onStart<NativeGLActivity>(Pair<String,Int>(NativeGLDrawType.NativeGLDraw_Type,NativeGLDrawType.NativeGLDraw_SAMPLE_INDEX_RECTANGLE))
         }
     }
 
