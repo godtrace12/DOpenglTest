@@ -30,10 +30,11 @@ import com.example.dj.appgl.model.ModelLoadActivity;
 import com.example.dj.appgl.mrt.MrtRenderActivity;
 import com.example.dj.appgl.nativegl.NativeMainActivity;
 import com.example.dj.appgl.opencv.OpenCVActivity;
-import com.example.dj.appgl.opencv.OpenCvCameraActivity;
+//import com.example.dj.appgl.opencv.OpenCvCameraActivity;
 import com.example.dj.appgl.particles.cubicexplose.CubicExploseParticlesActivity;
 import com.example.dj.appgl.particles.fountain.FountainParticlesActivity;
 import com.example.dj.appgl.particles.transformfeedback.TransformfeedbackActivity;
+import com.example.dj.appgl.pbo.ReadPixelsActivity;
 import com.example.dj.appgl.player.MediaPlayerActivity;
 import com.example.dj.appgl.playercam.MediaPlayerCamActivity;
 import com.example.dj.appgl.skybox.SkyboxActivity;
@@ -76,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnTransformFeedback;
     private Button btnCubicParticles;
     private Button btnFountainParticles;
+    private Button btnReadPixels;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -181,6 +183,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnCubicParticles.setOnClickListener(this);
         btnFountainParticles = findViewById(R.id.btnFountainParticles);
         btnFountainParticles.setOnClickListener(this);
+        btnReadPixels = findViewById(R.id.btnReadPixels);
+        btnReadPixels.setOnClickListener(this);
     }
 
     @Override
@@ -241,8 +245,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Intent  intent = new Intent(MainActivity.this, OpenCVActivity.class);
             startActivity(intent);
         }else if(viewId == R.id.btnOpenCVCamera){
-            Intent  intent = new Intent(MainActivity.this, OpenCvCameraActivity.class);
-            startActivity(intent);
+//            Intent  intent = new Intent(MainActivity.this, OpenCvCameraActivity.class);
+//            startActivity(intent);
         }else if(viewId == R.id.btnWave){
             Intent  intent = new Intent(MainActivity.this, WaveSampleActivity.class);
             startActivity(intent);
@@ -270,6 +274,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivity(intent);
         }else if(viewId == R.id.btnFountainParticles){
             Intent  intent = new Intent(MainActivity.this, FountainParticlesActivity.class);
+            startActivity(intent);
+        }else if (viewId == R.id.btnReadPixels){
+            Intent  intent = new Intent(MainActivity.this, ReadPixelsActivity.class);
             startActivity(intent);
         }
     }

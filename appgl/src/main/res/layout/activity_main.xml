@@ -179,6 +179,12 @@
                 android:layout_height="wrap_content"
                 android:text="喷泉粒子系统"/>
 
+            <Button
+                android:id="@+id/btnReadPixels"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ReadPixels"/>
+
         </LinearLayout>
 
 
