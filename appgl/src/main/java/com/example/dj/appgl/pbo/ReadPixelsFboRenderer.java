@@ -14,12 +14,14 @@ import com.example.dj.appgl.util.TextureUtils;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
+import javax.microedition.khronos.egl.EGL;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 
-/** 等腰直角三角形+纹理贴图
+/** FBO + ReadPixels
  *
  * **/
 public class ReadPixelsFboRenderer implements GLSurfaceView.Renderer{
@@ -60,7 +62,7 @@ public class ReadPixelsFboRenderer implements GLSurfaceView.Renderer{
     protected int[] frameBuffer;
     protected int[] frameTextures;
     // 控制是否使用fbo
-    boolean isUseFbo = false;
+    boolean isUseFbo = true;
     // 使用fbo的前提下，是否绘制到屏幕上
     boolean isDrawToScreen = true;
     //fbo是否已创建
@@ -71,6 +73,10 @@ public class ReadPixelsFboRenderer implements GLSurfaceView.Renderer{
     protected FloatBuffer vertexFilterBuffer;
     protected FloatBuffer textureFilterBuffer;
     private int mProgramFilter; //滤镜program
+
+    // -------------------- readpixels --------------------
+    private IntBuffer pixelsBuffer;
+    private boolean isSavedPixels = false;
 
     public ReadPixelsFboRenderer() {
         // 1---------- 原始纹理相关初始化
@@ -135,10 +141,16 @@ public class ReadPixelsFboRenderer implements GLSurfaceView.Renderer{
         mWidth = width;
         mHeight = height;
         float ratio = (float) width/height;
+        //3-------------------- readpixels 相关初始化
+        pixelsBuffer = ByteBuffer.allocate(width * height * 3)//注意3还是4，rgb rgba
+                .order(ByteOrder.nativeOrder()).asIntBuffer();
+        pixelsBuffer.clear();
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
+        GLES30.glViewport(0, 0, mWidth, mHeight);
+
         if(isUseFbo){
             //创建FBO
             if(!isFboCreated){
@@ -175,6 +187,18 @@ public class ReadPixelsFboRenderer implements GLSurfaceView.Renderer{
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
         // 关闭FBO
         if(isUseFbo){
+            if (!isSavedPixels){
+                isSavedPixels = true;
+                //指定像素数据的格式。接受以下符号值：GL_ALPHA，GL_RGB和GL_RGBA
+//                GLES30.glReadPixels(0, 0, mWidth, mHeight, GLES30.GL_RGB,GLES30.GL_UNSIGNED_BYTE,pixelsBuffer);
+//                Log.e(TAG, "onDrawFrame: capcatiy="+pixelsBuffer.capacity());
+//                StringBuilder str = new StringBuilder();
+//                for(int i = 0; i < pixelsBuffer.capacity(); i++)
+//                {
+//                    str.append(pixelsBuffer.get());
+//                }
+//                Log.e(TAG, "onDrawFrame: pixelData="+pixelsBuffer.toString());
+            }
             //解绑FBO
             GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, 0);
             GLES30.glDeleteFramebuffers(1,frameBuffer,0);
@@ -245,8 +269,8 @@ public class ReadPixelsFboRenderer implements GLSurfaceView.Renderer{
         }
 
         //7. 解绑纹理和FBO
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0);
-        GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, 0);
+//        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0);
+//        GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, 0);
 
     }
 
